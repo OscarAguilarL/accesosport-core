@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: athletix
+  datasource:
+    url: jdbc:postgresql://localhost:5432/carreras_db
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
+#security:
+#  jwt:
+#    secret: 4nh3819hn1v38dj184nd1m49xn19vn492n58bpqwbcs8m2iqwoxm4
+#    expiration: 86400000
+#    refreshExpiration: 604800000
+server:
+  port: 8080
