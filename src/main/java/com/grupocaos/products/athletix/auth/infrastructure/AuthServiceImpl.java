@@ -53,6 +53,7 @@ public class AuthServiceImpl implements AuthService {
             return AuthResponse.builder()
                     .id(user.getId())
                     .email(user.getEmail())
+                    .roles(user.getRoles())
                     .token(jwt)
                     .build();
         } catch (Exception e) {
