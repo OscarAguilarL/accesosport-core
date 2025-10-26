@@ -2,20 +2,14 @@ package com.grupocaos.products.athletix.auth.application.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.Size;
 
-@Data
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-public class LoginRequest {
+public record LoginRequest (
     @NotBlank(message = "Email is required")
     @Email(message = "Email is invalid")
-    private String email;
+    String email,
 
     @NotBlank(message = "Password is required")
-    private String password;
-}
+    @Size(min = 8, message = "Password must be at least 8 characters")
+    String password
+) {}
