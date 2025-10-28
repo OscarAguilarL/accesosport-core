@@ -18,6 +18,10 @@ Event ticketing system for athletic races
 - [Docker](https://docs.docker.com/get-docker/) y [Docker Compose](https://docs.docker.com/compose/install/)
 - [Git](https://git-scm.com/downloads)
 
+
+- [Manual de Arquitectura](docs/manual-arquitectura.md)
+
+
 ## 🔧 Environment Configuration
 
 ### Docker compose and PostgreSQL
