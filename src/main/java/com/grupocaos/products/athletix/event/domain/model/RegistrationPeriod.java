@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 
 public record RegistrationPeriod(LocalDateTime start, LocalDateTime end) {
 
-    public RegistrationPeriod of(LocalDateTime start, LocalDateTime end) {
+    public static RegistrationPeriod of(LocalDateTime start, LocalDateTime end) {
         validate(start, end);
         return new RegistrationPeriod(start, end);
     }
