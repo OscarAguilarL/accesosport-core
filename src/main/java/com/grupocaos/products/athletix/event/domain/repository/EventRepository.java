@@ -58,7 +58,7 @@ public interface EventRepository {
      *
      * @return a list of events that meet the criteria for open registration or an empty list if no events are available
      */
-    List<Event> findEventosAvailableForRegistration();
+    List<Event> findEventsAvailableForRegistration();
 
     /**
      * Persists the given event entity into the data store.

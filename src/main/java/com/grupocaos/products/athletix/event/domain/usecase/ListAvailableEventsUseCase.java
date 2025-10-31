@@ -18,7 +18,7 @@ public class ListAvailableEventsUseCase extends AbstractUseCase<Void, ListAvaila
     @Override
     protected ListAvailableEventsResult doExecute(Void command) {
 
-        List<Event> events = eventRepository.findEventosAvailableForRegistration();
+        List<Event> events = eventRepository.findEventsAvailableForRegistration();
 
         List<Event> availableEvents = events.stream()
                 .filter(Event::canRegister)
