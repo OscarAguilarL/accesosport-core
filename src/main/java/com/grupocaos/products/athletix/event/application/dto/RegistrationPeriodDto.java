@@ -4,8 +4,6 @@ import java.time.LocalDateTime;
 
 public record RegistrationPeriodDto(
         LocalDateTime start,
-        LocalDateTime end,
-        boolean isOpen,
-        boolean alreadyClosed
+        LocalDateTime end
 ) {
 }

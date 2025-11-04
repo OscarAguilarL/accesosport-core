@@ -55,9 +55,7 @@ public class EventResponseMapper {
         var period = event.getRegistrationPeriod();
         return new RegistrationPeriodDto(
                 period.start(),
-                period.end(),
-                period.isOpen(),
-                period.hasAlreadyClosed()
+                period.end()
         );
     }
 

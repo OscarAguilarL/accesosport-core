@@ -1,0 +1,20 @@
+meta {
+  name: Open Registration
+  type: http
+  seq: 7
+}
+
+put {
+  url: http://localhost:8080/api/v1/events/08e4a538-75c3-4c36-8994-e02d3c3ab088/open-registration
+  body: none
+  auth: inherit
+}
+
+headers {
+  Authorization: Bearer eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJtYWlsQG1haWwuY29tIiwicm9sZXMiOiJST0xFX09SR0FOSVpFUiIsInVzZXJJZCI6ImVhMjgxMTZiLTc1ZGYtNDFlYS05MTc2LTNhMmY5ZWIzNjlkZSIsImlhdCI6MTc2MjI3MDU3MCwiZXhwIjoxNzYyMzU2OTcwfQ._uN3FrC9j2w6slm2mT0PU-8pSNmiDlyNtlsb-mRhklEJvdfm5xfBMT23e1_BMusJ
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

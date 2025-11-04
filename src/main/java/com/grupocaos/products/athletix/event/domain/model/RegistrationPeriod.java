@@ -17,9 +17,6 @@ public record RegistrationPeriod(LocalDateTime start, LocalDateTime end) {
         if (end.isBefore(start)) {
             throw new IllegalArgumentException("End must be before start");
         }
-        if (start.isBefore(LocalDateTime.now())) {
-            throw new IllegalArgumentException("Start date cannot be in the past");
-        }
     }
 
     public Boolean isOpen() {
