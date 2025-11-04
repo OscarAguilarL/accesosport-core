@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 /**
  * Represents an embeddable value object for storing location-related data.
  * <p>
@@ -30,8 +32,8 @@ public class LocationEmbeddable {
     String country;
 
     @Column(precision = 10, scale = 7)
-    Double latitude;
+    BigDecimal latitude;
 
     @Column(precision = 10, scale = 7)
-    Double longitude;
+    BigDecimal longitude;
 }

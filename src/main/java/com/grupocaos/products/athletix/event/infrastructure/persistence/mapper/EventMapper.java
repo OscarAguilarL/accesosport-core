@@ -9,6 +9,8 @@ import com.grupocaos.products.athletix.event.infrastructure.persistence.entity.L
 import com.grupocaos.products.athletix.user.domain.model.User;
 import com.grupocaos.products.athletix.user.infrastructure.persistence.mapper.UserMapper;
 
+import java.math.BigDecimal;
+
 public class EventMapper {
 
     public static Event toDomain(EventJpaEntity eventJpaEntity) {
@@ -76,8 +78,8 @@ public class EventMapper {
                 locationEmbeddable.getPlace(),
                 locationEmbeddable.getCity(),
                 locationEmbeddable.getCountry(),
-                locationEmbeddable.getLatitude(),
-                locationEmbeddable.getLongitude()
+                locationEmbeddable.getLatitude().doubleValue(),
+                locationEmbeddable.getLongitude().doubleValue()
         );
     }
 
@@ -88,8 +90,8 @@ public class EventMapper {
                 location.place(),
                 location.city(),
                 location.country(),
-                location.latitude(),
-                location.longitude()
+                location.latitude() != null ? BigDecimal.valueOf(location.latitude()) : null,
+                location.longitude() != null ? BigDecimal.valueOf(location.longitude()) : null
         );
     }
 }
