@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -53,5 +55,17 @@ public class EventController {
         UUID organizerId = userDetails.getUserId();
         EventResponse eventResponse = eventApplicationService.createEvent(request, organizerId);
         return ResponseEntity.status(HttpStatus.CREATED).body(eventResponse);
+    }
+
+    /**
+     * Retrieves the details of an event specified by its unique identifier.
+     *
+     * @param eventId the unique identifier of the event to retrieve
+     * @return a ResponseEntity containing the event details wrapped in an EventResponse object
+     */
+    @GetMapping("/{eventId}")
+    public ResponseEntity<EventResponse> getEvent(@PathVariable UUID eventId) {
+        EventResponse eventResponse = eventApplicationService.getEvent(eventId);
+        return ResponseEntity.ok(eventResponse);
     }
 }
