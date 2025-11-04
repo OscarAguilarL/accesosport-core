@@ -1,4 +1,4 @@
-package com.grupocaos.products.athletix.event.presentation.exception;
+package com.grupocaos.products.athletix.event.presentation.rest;
 
 import com.grupocaos.products.athletix.auth.infrastructure.security.CustomUserDetails;
 import com.grupocaos.products.athletix.event.application.dto.CreateEventRequest;
