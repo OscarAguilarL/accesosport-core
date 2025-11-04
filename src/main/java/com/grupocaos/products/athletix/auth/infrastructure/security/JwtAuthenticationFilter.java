@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -57,18 +58,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private void authenticateUser(String jwt, HttpServletRequest request) {
-        String username = tokenProvider.extractUsername(jwt);
         Claims claims = tokenProvider.extractClaims(jwt);
+        String email = claims.getSubject();
+        String userId = claims.get("userId", String.class);
 
         Collection<? extends GrantedAuthority> authorities = extractAuthorities(claims);
 
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(username, null, authorities);
+        CustomUserDetails userDetails = new CustomUserDetails(
+                UUID.fromString(userId),
+                email,
+                null,
+                authorities
+        );
+
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
 
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        log.debug("Authenticated user: {}", username);
     }
 
     private Collection<? extends GrantedAuthority> extractAuthorities(Claims claims) {

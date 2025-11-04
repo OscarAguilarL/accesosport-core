@@ -86,36 +86,32 @@ public class UserJpaEntity {
 ```
 src/main/java/com/grupocaos/products/athletix/
 │
-├── 📁 [feature]/                    # Por cada feature/módulo
-│   │
-│   ├── 📁 domain/                   # ⭐ CAPA DE DOMINIO
-│   │   ├── 📁 model/                # Entidades puras de negocio
-│   │   ├── 📁 repository/           # Ports (interfaces)
-│   │   ├── 📁 service/              # Ports de servicios
-│   │   ├── 📁 usecase/              # Casos de uso (lógica de negocio)
-│   │   └── 📁 exception/            # Excepciones de dominio
-│   │
-│   ├── 📁 application/              # 🔷 CAPA DE APLICACIÓN
-│   │   ├── 📁 dto/                  # DTOs (Request/Response)
-│   │   └── 📁 service/              # Servicios de aplicación
-│   │
-│   ├── 📁 infrastructure/           # 🔧 CAPA DE INFRAESTRUCTURA
-│   │   ├── 📁 persistence/
-│   │   │   ├── 📁 entity/           # Entidades JPA
-│   │   │   ├── 📁 jpa/              # Spring Data Repositories
-│   │   │   ├── 📁 adapter/          # Adapters de repositorio
-│   │   │   └── 📁 mapper/           # Mappers Domain ↔ JPA
-│   │   ├── 📁 config/               # Configuraciones
-│   │   └── 📁 [other-adapters]/     # Otros adaptadores
-│   │
-│   └── 📁 presentation/             # 🌐 CAPA DE PRESENTACIÓN
-│       └── 📁 rest/                 # Controllers REST
-│           ├── AuthController.java
-│           └── 📁 exception/        # Exception handlers
-│
-└── 📁 app/                          # Configuración global
-    └── 📁 infrastructure/
-        └── 📁 config/
+└── 📁 [feature]/                    # Por cada feature/módulo
+    │
+    ├── 📁 domain/                   # ⭐ CAPA DE DOMINIO
+    │   ├── 📁 model/                # Entidades puras de negocio
+    │   ├── 📁 repository/           # Ports (interfaces)
+    │   ├── 📁 service/              # Ports de servicios
+    │   ├── 📁 usecase/              # Casos de uso (lógica de negocio)
+    │   └── 📁 exception/            # Excepciones de dominio
+    │
+    ├── 📁 application/              # 🔷 CAPA DE APLICACIÓN
+    │   ├── 📁 dto/                  # DTOs (Request/Response)
+    │   └── 📁 service/              # Servicios de aplicación
+    │
+    ├── 📁 infrastructure/           # 🔧 CAPA DE INFRAESTRUCTURA
+    │   ├── 📁 persistence/
+    │   │   ├── 📁 entity/           # Entidades JPA
+    │   │   ├── 📁 jpa/              # Spring Data Repositories
+    │   │   ├── 📁 adapter/          # Adapters de repositorio
+    │   │   └── 📁 mapper/           # Mappers Domain ↔ JPA
+    │   ├── 📁 config/               # Configuraciones
+    │   └── 📁 [other-adapters]/     # Otros adaptadores
+    │
+    └── 📁 presentation/             # 🌐 CAPA DE PRESENTACIÓN
+        └── 📁 rest/                 # Controllers REST
+            ├── AuthController.java
+            └── 📁 exception/        # Exception handlers
 ```
 
 ---
