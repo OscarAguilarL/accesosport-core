@@ -24,6 +24,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Service class for managing events.
+ *
+ * <p>
+ * This service interacts with repositories and use cases to perform operations on events.
+ * </p>
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -32,6 +39,13 @@ public class EventApplicationService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
 
+    /**
+     * Creates a new event based on the provided request and associates it with the specified organizer.
+     *
+     * @param request     the details of the event to be created, such as name, description, date, location, and other attributes
+     * @param organizerId the unique identifier of the organizer creating the event
+     * @return an {@code EventResponse} containing the details of the newly created event
+     */
     @Transactional
     public EventResponse createEvent(CreateEventRequest request, UUID organizerId) {
         CreateEventUseCase.CreateEventCommand command = new CreateEventUseCase.CreateEventCommand(
@@ -59,6 +73,12 @@ public class EventApplicationService {
         return EventResponseMapper.toEventResponse(result.event());
     }
 
+    /**
+     * Publishes an event with the specified event ID, updating its status and making it publicly available.
+     *
+     * @param eventId the unique identifier of the event that needs to be published
+     * @return an {@code EventResponse} containing the details of the published event
+     */
     @Transactional
     public EventResponse publishEvent(UUID eventId) {
         PublishEventUseCase useCase = new PublishEventUseCase(eventRepository);
@@ -67,6 +87,12 @@ public class EventApplicationService {
         return EventResponseMapper.toEventResponse(result.event());
     }
 
+    /**
+     * Opens the registration for an event identified by the given event ID.
+     *
+     * @param eventId the unique identifier of the event for which the registrations will be opened
+     * @return an {@code EventResponse} containing the details of the event with updated registration status
+     */
     @Transactional
     public EventResponse openRegistration(UUID eventId) {
         OpenRegistrationUseCase useCase = new OpenRegistrationUseCase(eventRepository);
@@ -75,6 +101,14 @@ public class EventApplicationService {
         return EventResponseMapper.toEventResponse(result.event());
     }
 
+    /**
+     * Cancels an event identified by the given event ID, providing a reason for the cancellation.
+     * Updates the event status to reflect the cancellation.
+     *
+     * @param eventId the unique identifier of the event to be canceled
+     * @param reason  the reason for canceling the event
+     * @return an {@code EventResponse} containing the details of the canceled event
+     */
     @Transactional
     public EventResponse cancelEvent(UUID eventId, String reason) {
         CancelEventUseCase useCase = new CancelEventUseCase(eventRepository);
@@ -83,6 +117,14 @@ public class EventApplicationService {
         return EventResponseMapper.toEventResponse(result.canceledEvent());
     }
 
+    /**
+     * Retrieves the details of an event identified by the provided event ID.
+     * If the event is not found, an {@code EventNotFoundException} is thrown.
+     *
+     * @param eventId the unique identifier of the event to be retrieved
+     * @return an {@code EventResponse} object containing the details of the requested event
+     * @throws EventNotFoundException if no event is found for the provided event ID
+     */
     @Transactional(readOnly = true)
     public EventResponse getEvent(UUID eventId) {
         Event event = eventRepository.findById(eventId)
@@ -90,6 +132,16 @@ public class EventApplicationService {
         return EventResponseMapper.toEventResponse(event);
     }
 
+    /**
+     * Retrieves a list of available events.
+     * <p>
+     * This method uses the {@code ListAvailableEventsUseCase} to fetch events that are currently available
+     * and maps the results to a list of {@code EventSummaryResponse}.
+     * The data retrieval process is read-only as it does not modify any state.
+     * </p>
+     *
+     * @return a list of {@code EventSummaryResponse} objects representing the available events
+     */
     @Transactional(readOnly = true)
     public List<EventSummaryResponse> listAvailableEvents() {
         ListAvailableEventsUseCase useCase = new ListAvailableEventsUseCase(eventRepository);
@@ -100,6 +152,14 @@ public class EventApplicationService {
                 .toList();
     }
 
+    /**
+     * Retrieves a list of events corresponding to the specified status.
+     * This method queries the repository for events matching the provided status
+     * and maps them to a list of {@code EventSummaryResponse}.
+     *
+     * @param status the status of events to filter, such as PUBLISHED, PENDING, or CANCELED
+     * @return a list of {@code EventSummaryResponse} objects representing the events with the specified status
+     */
     @Transactional(readOnly = true)
     public List<EventSummaryResponse> ListEventsByStatus(EventStatus status) {
         List<Event> events = eventRepository.findByStatus(status);
@@ -109,6 +169,15 @@ public class EventApplicationService {
                 .toList();
     }
 
+    /**
+     * Retrieves a list of events organized by the specified organizer.
+     * This method uses the {@code ListEventsByOrganizerUseCase} to query the database
+     * for events that are associated with the given organizer ID and maps the results
+     * to a list of {@code EventSummaryResponse}.
+     *
+     * @param organizerId the unique identifier of the organizer whose events are to be retrieved
+     * @return a list of {@code EventSummaryResponse} objects representing the events organized by the specific organizer
+     */
     @Transactional(readOnly = true)
     public List<EventSummaryResponse> listEventsByOrganizerId(UUID organizerId) {
         ListEventsByOrganizerUseCase.ListEventsByOrganizerCommand command = new ListEventsByOrganizerUseCase.ListEventsByOrganizerCommand(organizerId);
@@ -121,6 +190,14 @@ public class EventApplicationService {
                 .toList();
     }
 
+    /**
+     * Retrieves a list of upcoming events scheduled within the next three months from the current time.
+     * This method queries the repository for events occurring in this range and maps them to a list of
+     * {@code EventSummaryResponse}.
+     *
+     * @return a list of {@code EventSummaryResponse} objects representing the events scheduled to occur
+     * within the specified upcoming timeframe.
+     */
     @Transactional(readOnly = true)
     public List<EventSummaryResponse> listUpcomingEvents() {
         LocalDateTime now = LocalDateTime.now();
