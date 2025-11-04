@@ -1,0 +1,41 @@
+meta {
+  name: Create Event
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8080/api/v1/events
+  body: json
+  auth: none
+}
+
+headers {
+  Authorization: Bearer eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJtYWlsQG1haWwuY29tIiwicm9sZXMiOiJST0xFX09SR0FOSVpFUiIsInVzZXJJZCI6ImVhMjgxMTZiLTc1ZGYtNDFlYS05MTc2LTNhMmY5ZWIzNjlkZSIsImlhdCI6MTc2MjI3MDU3MCwiZXhwIjoxNzYyMzU2OTcwfQ._uN3FrC9j2w6slm2mT0PU-8pSNmiDlyNtlsb-mRhklEJvdfm5xfBMT23e1_BMusJ
+}
+
+body:json {
+  {
+    "name": "Carrera Coyote",
+    "description": "Evento recreativo de coyotes para promover el deporte en la comunidad de actopan.",
+    "eventDate": "2026-04-20T07:00:00",
+    "place": "Centro de actopan",
+    "city": "Actopan",
+    "country": "México",
+    "latitude": 19.4326,
+    "longitude": -99.1332,
+    "raceType": "FIVE_KM",
+    "distance": 5.00,
+    "distanceUnit": "KM",
+    "price": 250.00,
+    "registrationStartDate": "2026-01-05T00:00:00",
+    "registrationEndDate": "2026-04-10T23:59:59",
+    "maxParticipants": 80
+  }
+  
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
