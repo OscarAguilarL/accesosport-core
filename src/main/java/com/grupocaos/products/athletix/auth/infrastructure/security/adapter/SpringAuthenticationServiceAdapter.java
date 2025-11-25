@@ -21,7 +21,7 @@ public class SpringAuthenticationServiceAdapter implements AuthenticationService
     private final UserRepository userRepository;
 
     @Override
-    public User authenticate(String email, String password) {
+    public User authenticate(String email, String password) throws InvalidCredentialsException {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(email, password)
