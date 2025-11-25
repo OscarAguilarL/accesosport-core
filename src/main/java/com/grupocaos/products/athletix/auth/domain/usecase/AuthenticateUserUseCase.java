@@ -1,5 +1,6 @@
 package com.grupocaos.products.athletix.auth.domain.usecase;
 
+import com.grupocaos.products.athletix.auth.domain.exception.InvalidCredentialsException;
 import com.grupocaos.products.athletix.auth.domain.service.AuthenticationService;
 import com.grupocaos.products.athletix.auth.domain.service.TokenProvider;
 import com.grupocaos.products.athletix.auth.domain.exception.AuthenticationException;
@@ -23,7 +24,7 @@ public class AuthenticateUserUseCase {
 
             String token = tokenProvider.generateToken(user);
             return new AuthenticationResult(user, token);
-        } catch (UserNotFoundException e) {
+        } catch (UserNotFoundException | InvalidCredentialsException e) {
             throw e;
         } catch (Exception e) {
             throw new AuthenticationException("Authentication failed", e);
