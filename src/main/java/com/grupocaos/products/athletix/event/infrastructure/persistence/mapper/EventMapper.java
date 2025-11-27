@@ -26,7 +26,7 @@ public class EventMapper {
         User organizer = UserMapper.toDomain(eventJpaEntity.getCreatedBy());
 
         Event event = Event.create(
-                eventJpaEntity.getDescription(),
+                eventJpaEntity.getName(),
                 eventJpaEntity.getDescription(),
                 eventJpaEntity.getEventDate(),
                 location,
