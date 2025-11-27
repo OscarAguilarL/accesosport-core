@@ -2,7 +2,8 @@ package com.grupocaos.products.athletix.event.domain.usecase;
 
 import com.grupocaos.products.athletix.event.domain.model.Event;
 import com.grupocaos.products.athletix.event.domain.repository.EventRepository;
-import com.grupocaos.products.athletix.shared.domain.usecase.NoInputUseCase;
+import com.grupocaos.products.athletix.shared.use_case.domain.NoInputUseCase;
+
 import lombok.AllArgsConstructor;
 
 import java.util.List;

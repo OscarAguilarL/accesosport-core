@@ -1,4 +1,4 @@
-package com.grupocaos.products.athletix.shared.domain.usecase;
+package com.grupocaos.products.athletix.shared.use_case.domain;
 
 import lombok.extern.slf4j.Slf4j;
 

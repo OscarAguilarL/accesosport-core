@@ -1,4 +1,4 @@
-package com.grupocaos.products.athletix.shared.domain.usecase;
+package com.grupocaos.products.athletix.shared.use_case.domain;
 
 /**
  * NoInputUseCase is an abstract class that represents a use case without any input command.
