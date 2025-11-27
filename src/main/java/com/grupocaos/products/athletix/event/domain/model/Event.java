@@ -1,6 +1,5 @@
 package com.grupocaos.products.athletix.event.domain.model;
 
-import com.grupocaos.products.athletix.event.domain.exception.EventNotPublishableException;
 import com.grupocaos.products.athletix.user.domain.model.User;
 import lombok.Getter;
 import lombok.Setter;
@@ -72,11 +71,11 @@ public class Event {
 
     public void publish() {
         if (!status.canBePublished()) {
-            throw new EventNotPublishableException("Only events in DRAFT status can be published. Current status: " + status);
+            throw new IllegalStateException("Only events in DRAFT status can be published. Current status: " + status);
         }
 
         if (eventDate.isBefore(LocalDateTime.now())) {
-            throw new EventNotPublishableException("Cannot publish an event with a past date");
+            throw new IllegalStateException("Cannot publish an event with a past date");
         }
         this.status = EventStatus.PUBLISHED;
         this.updatedOn = LocalDateTime.now();
