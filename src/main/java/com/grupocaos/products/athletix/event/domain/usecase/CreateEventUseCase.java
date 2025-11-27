@@ -7,7 +7,7 @@ import com.grupocaos.products.athletix.event.domain.model.Location;
 import com.grupocaos.products.athletix.event.domain.model.RaceType;
 import com.grupocaos.products.athletix.event.domain.model.RegistrationPeriod;
 import com.grupocaos.products.athletix.event.domain.repository.EventRepository;
-import com.grupocaos.products.athletix.shared.domain.usecase.AbstractUseCase;
+import com.grupocaos.products.athletix.shared.use_case.domain.AbstractUseCase;
 import com.grupocaos.products.athletix.user.domain.exception.UserNotFoundException;
 import com.grupocaos.products.athletix.user.domain.model.RoleEnumeration;
 import com.grupocaos.products.athletix.user.domain.model.User;
