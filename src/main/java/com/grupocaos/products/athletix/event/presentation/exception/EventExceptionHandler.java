@@ -67,7 +67,7 @@ public class EventExceptionHandler {
     @ExceptionHandler(EventNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ProblemDetail handleEventNotFound(EventNotFoundException ex) {
-        log.error("Evento not found: {}", ex.getMessage());
+        log.error("Event not found: {}", ex.getMessage());
 
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.NOT_FOUND,
@@ -90,7 +90,7 @@ public class EventExceptionHandler {
     @ExceptionHandler(EventNotPublishableException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ProblemDetail handleEventoNoPublishable(EventNotPublishableException ex) {
-        log.error("Evento cannot be published: {}", ex.getMessage());
+        log.error("Event cannot be published: {}", ex.getMessage());
 
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.BAD_REQUEST,
@@ -113,7 +113,7 @@ public class EventExceptionHandler {
     @ExceptionHandler(EventRegistrationFullException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ProblemDetail handleEventRegistrationFull(EventRegistrationFullException ex) {
-        log.error("Evento is full: {}", ex.getMessage());
+        log.error("Event is full: {}", ex.getMessage());
 
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.CONFLICT,
