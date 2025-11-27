@@ -14,7 +14,7 @@ spring:
     show-sql: false
     properties:
       hibernate:
-        format_sql: true
+        format_sql: false
         dialect: org.hibernate.dialect.PostgreSQLDialect
         jdbc:
           batch_size: 20
@@ -38,9 +38,9 @@ app:
 logging:
   level:
     root: INFO
-    com.grupocaos.products.athletix: DEBUG
-    org.springframework.security: DEBUG
-    org.hibernate.SQL: DEBUG
+    com.grupocaos.products.athletix: debug
+    org.springframework.security: off
+    org.hibernate.SQL: off
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
 
