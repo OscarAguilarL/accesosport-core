@@ -10,6 +10,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import com.grupocaos.products.athletix.shared.i18n.domain.MessageKeys;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -38,7 +40,7 @@ public class User {
 
     public void validatePassword(String password) {
         if (password == null || password.length() < 8) {
-            throw new IllegalArgumentException("Password must be at least 8 characters");
+            throw new IllegalArgumentException(MessageKeys.AuthMessages.PASSWORD_LENGTH_ERROR);
         }
     }
 }

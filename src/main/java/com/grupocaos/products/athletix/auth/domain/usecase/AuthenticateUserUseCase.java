@@ -4,7 +4,6 @@ import com.grupocaos.products.athletix.auth.domain.exception.InvalidCredentialsE
 import com.grupocaos.products.athletix.auth.domain.service.AuthenticationService;
 import com.grupocaos.products.athletix.auth.domain.service.TokenProvider;
 import com.grupocaos.products.athletix.shared.i18n.domain.MessageKeys;
-import com.grupocaos.products.athletix.shared.i18n.domain.MessageTranslator;
 import com.grupocaos.products.athletix.auth.domain.exception.AuthenticationException;
 import com.grupocaos.products.athletix.user.domain.exception.UserNotFoundException;
 import com.grupocaos.products.athletix.user.domain.model.User;
@@ -17,7 +16,6 @@ public class AuthenticateUserUseCase {
 	private final UserRepository userRepository;
 	private final AuthenticationService authenticationService;
 	private final TokenProvider tokenProvider;
-	private final MessageTranslator messageTranslator;
 
 	public AuthenticationResult execute(String email, String password) {
 		try {
@@ -30,8 +28,7 @@ public class AuthenticateUserUseCase {
 		} catch (UserNotFoundException | InvalidCredentialsException e) {
 			throw e;
 		} catch (Exception e) {
-			throw new AuthenticationException(
-					messageTranslator.translate(MessageKeys.AuthMessages.AUTHENTICATION_FAILED), e);
+			throw new AuthenticationException(MessageKeys.AuthMessages.AUTHENTICATION_FAILED, e);
 		}
 	}
 
