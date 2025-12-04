@@ -9,7 +9,6 @@ import com.grupocaos.products.athletix.auth.domain.service.PasswordEncoder;
 import com.grupocaos.products.athletix.auth.domain.service.TokenProvider;
 import com.grupocaos.products.athletix.auth.domain.usecase.AuthenticateUserUseCase;
 import com.grupocaos.products.athletix.auth.domain.usecase.RegisterUserUseCase;
-import com.grupocaos.products.athletix.shared.i18n.domain.MessageTranslator;
 import com.grupocaos.products.athletix.user.domain.repository.RoleRepository;
 import com.grupocaos.products.athletix.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,12 +26,11 @@ public class AuthApplicationService {
     private final AuthenticationService authenticationService;
     private final TokenProvider tokenProvider;
     private final PasswordEncoder passwordEncoder;
-    private final MessageTranslator messageTranslator;
 
     @Transactional
     public AuthResponse login(LoginRequest loginRequest) {
         AuthenticateUserUseCase useCase = new AuthenticateUserUseCase(
-                userRepository, authenticationService, tokenProvider, messageTranslator
+                userRepository, authenticationService, tokenProvider
         );
 
         AuthenticateUserUseCase.AuthenticationResult result =
@@ -55,8 +53,7 @@ public class AuthApplicationService {
                 userRepository,
                 roleRepository,
                 passwordEncoder,
-                tokenProvider,
-                messageTranslator
+                tokenProvider
         );
 
         RegisterUserUseCase.RegistrationResult result = useCase.execute(command);
