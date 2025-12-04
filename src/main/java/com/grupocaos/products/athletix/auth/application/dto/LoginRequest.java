@@ -1,14 +1,15 @@
 package com.grupocaos.products.athletix.auth.application.dto;
 
+import com.grupocaos.products.athletix.shared.i18n.domain.MessageKeys;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 
 public record LoginRequest (
-    @NotBlank(message = "Email is required")
-    @Email(message = "Email is invalid")
+    @NotBlank(message = MessageKeys.AuthMessages.EMAIl_REQUIRED)
+    @Email(message = MessageKeys.AuthMessages.INVALID_EMAIL)
     String email,
 
-    @NotBlank(message = "Password is required")
+    @NotBlank(message = MessageKeys.AuthMessages.PASSWORD_REQUIRED)
     String password
 ) {}

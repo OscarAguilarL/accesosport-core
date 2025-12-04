@@ -1,16 +1,20 @@
 package com.grupocaos.products.athletix.auth.infrastructure.security.adapter;
 
-import com.grupocaos.products.athletix.auth.domain.service.AuthenticationService;
-import com.grupocaos.products.athletix.auth.domain.exception.InvalidCredentialsException;
-import com.grupocaos.products.athletix.user.domain.exception.UserNotFoundException;
-import com.grupocaos.products.athletix.user.domain.model.User;
-import com.grupocaos.products.athletix.user.domain.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Component;
+
+import com.grupocaos.products.athletix.auth.domain.exception.InvalidCredentialsException;
+import com.grupocaos.products.athletix.auth.domain.service.AuthenticationService;
+import com.grupocaos.products.athletix.shared.i18n.domain.MessageKeys;
+import com.grupocaos.products.athletix.shared.i18n.domain.MessageTranslator;
+import com.grupocaos.products.athletix.user.domain.exception.UserNotFoundException;
+import com.grupocaos.products.athletix.user.domain.model.User;
+import com.grupocaos.products.athletix.user.domain.repository.UserRepository;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
@@ -19,6 +23,7 @@ public class SpringAuthenticationServiceAdapter implements AuthenticationService
 
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
+    private final MessageTranslator messageTranslator;
 
     @Override
     public User authenticate(String email, String password) throws InvalidCredentialsException {
@@ -28,10 +33,10 @@ public class SpringAuthenticationServiceAdapter implements AuthenticationService
             );
 
             return userRepository.findByEmail(email)
-                    .orElseThrow(() -> new UserNotFoundException("User not found"));
+                    .orElseThrow(() -> new UserNotFoundException(messageTranslator.translate(MessageKeys.AuthMessages.USER_NOT_FOUND)));
         } catch (BadCredentialsException e) {
             log.error("Invalid credentials");
-            throw new InvalidCredentialsException("Invalid email or password");
+            throw new InvalidCredentialsException(messageTranslator.translate(MessageKeys.AuthMessages.INVALID_CREDENTIALS));
         }
     }
 }
