@@ -6,19 +6,21 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.Set;
 
+import com.grupocaos.products.athletix.shared.i18n.domain.MessageKeys;
+
 public record RegisterRequest (
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Email is invalid")
+    @NotBlank(message = MessageKeys.AuthMessages.EMAIl_REQUIRED)
+    @Email(message = MessageKeys.AuthMessages.INVALID_EMAIL)
     String email,
 
-    @NotBlank(message = "Password is required")
+    @NotBlank(message = MessageKeys.AuthMessages.PASSWORD_REQUIRED)
     String password,
 
-    @NotBlank(message = "Password confirmation is required")
+    @NotBlank(message = MessageKeys.AuthMessages.PASSWORD_CONFIRMATION_REQUIRED)
     String passwordConfirmation,
 
-    @NotNull(message = "Role is required")
+    @NotNull(message = MessageKeys.AuthMessages.ROLE_REQUIRED)
     Set<String> role,
 
     // Data for runner
