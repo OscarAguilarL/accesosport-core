@@ -2,9 +2,12 @@ package com.grupocaos.products.athletix.auth.presentation.exception;
 
 import com.grupocaos.products.athletix.auth.domain.exception.AuthenticationException;
 import com.grupocaos.products.athletix.auth.domain.exception.InvalidCredentialsException;
+import com.grupocaos.products.athletix.shared.i18n.domain.MessageTranslator;
 import com.grupocaos.products.athletix.user.domain.exception.RoleNotFoundException;
 import com.grupocaos.products.athletix.user.domain.exception.UserAlreadyExistsException;
 import com.grupocaos.products.athletix.user.domain.exception.UserNotFoundException;
+
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -25,7 +28,10 @@ import java.util.Map;
  */
 @RestControllerAdvice
 @Slf4j
+@RequiredArgsConstructor
 public class GlobalExceptionHandler {
+	
+	private final MessageTranslator messageTranslator;
 
     @ExceptionHandler(UserNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
@@ -130,8 +136,8 @@ public class GlobalExceptionHandler {
 
         ex.getBindingResult().getAllErrors().forEach(error -> {
             String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
+            String translatedMessage = messageTranslator.translate(error.getDefaultMessage());
+            errors.put(fieldName, translatedMessage);
         });
 
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
