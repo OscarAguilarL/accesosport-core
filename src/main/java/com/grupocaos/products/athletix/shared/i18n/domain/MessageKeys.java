@@ -22,5 +22,13 @@ public class MessageKeys {
 		public static final String ROLE_REQUIRED = "auth.errors.role-required";
 		public static final String USER_NOT_FOUND = "auth.errors.user-not-found";
 		public static final String INVALID_CREDENTIALS = "auth.errors.invalid-credentials";
+		
+		public static final String PROBLEM_USER_NOT_FOUND = "auth.problem.user.not-found";
+		public static final String PROBLEM_USER_ALREADY_EXISTS = "auth.problem.user.already-exists";
+		public static final String PROBLEM_INVALID_CREDENTIALS = "auth.problem.auth.invalid-credentials";
+		public static final String PROBLEM_AUTH_ERROR = "auth.problem.auth.error";
+		public static final String PROBLEM_ROLE_NOT_FOUND = "auth.problem.role.not-found";
+		public static final String PROBLEM_VALIDATION_ERROR = "auth.problem.validation.error";
+		public static final String PROBLEM_VALIDATION_FAILED = "auth.problem.validation.failed";
 	}
 }

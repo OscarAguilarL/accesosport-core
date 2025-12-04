@@ -1,9 +1,11 @@
 package com.grupocaos.products.athletix.auth.domain.usecase;
 
+import java.util.Set;
+
 import com.grupocaos.products.athletix.auth.domain.service.PasswordEncoder;
 import com.grupocaos.products.athletix.auth.domain.service.TokenProvider;
 import com.grupocaos.products.athletix.shared.i18n.domain.MessageKeys;
-import com.grupocaos.products.athletix.shared.i18n.domain.MessageTranslator;
+import com.grupocaos.products.athletix.user.domain.exception.InvalidPasswordException;
 import com.grupocaos.products.athletix.user.domain.exception.RoleNotFoundException;
 import com.grupocaos.products.athletix.user.domain.exception.UserAlreadyExistsException;
 import com.grupocaos.products.athletix.user.domain.model.Role;
@@ -11,9 +13,8 @@ import com.grupocaos.products.athletix.user.domain.model.RoleEnumeration;
 import com.grupocaos.products.athletix.user.domain.model.User;
 import com.grupocaos.products.athletix.user.domain.repository.RoleRepository;
 import com.grupocaos.products.athletix.user.domain.repository.UserRepository;
-import lombok.AllArgsConstructor;
 
-import java.util.Set;
+import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public class RegisterUserUseCase {
@@ -22,11 +23,10 @@ public class RegisterUserUseCase {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenProvider tokenProvider;
-    private final MessageTranslator messageTranslator;
 
     public RegistrationResult execute(RegistrationCommand command) {
         if (userRepository.existsByEmail(command.email())) {
-            throw new UserAlreadyExistsException(messageTranslator.translate(MessageKeys.AuthMessages.EMAIL_ALREADY_EXISTS));
+            throw new UserAlreadyExistsException(MessageKeys.AuthMessages.EMAIL_ALREADY_EXISTS);
         }
 
         validatePassword(command.password(), command.passwordConfirmation());
@@ -48,10 +48,10 @@ public class RegisterUserUseCase {
 
     private void validatePassword(String password, String passwordConfirmation) {
         if (password == null || password.length() < 8) {
-            throw new IllegalArgumentException(messageTranslator.translate(MessageKeys.AuthMessages.PASSWORD_LENGTH_ERROR));
+            throw new InvalidPasswordException(MessageKeys.AuthMessages.PASSWORD_LENGTH_ERROR);
         }
         if (!password.equals(passwordConfirmation)) {
-            throw new IllegalArgumentException(messageTranslator.translate(MessageKeys.AuthMessages.PASSWORDS_NOT_MATCH));
+            throw new InvalidPasswordException(MessageKeys.AuthMessages.PASSWORDS_NOT_MATCH);
         }
     }
 
@@ -76,7 +76,7 @@ public class RegisterUserUseCase {
 
     private Role findRole(RoleEnumeration roleEnumeration) {
         return roleRepository.findByRole(roleEnumeration)
-                .orElseThrow(() -> new RoleNotFoundException(messageTranslator.translate(MessageKeys.AuthMessages.ROLE_NOT_FOUND)));
+                .orElseThrow(() -> new RoleNotFoundException(MessageKeys.AuthMessages.ROLE_NOT_FOUND));
     }
 
     public record RegistrationCommand(String email, String password, String passwordConfirmation, Set<String> roles) {
