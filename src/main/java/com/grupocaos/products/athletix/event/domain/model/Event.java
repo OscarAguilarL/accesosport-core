@@ -1,5 +1,7 @@
 package com.grupocaos.products.athletix.event.domain.model;
 
+import com.grupocaos.products.athletix.event.domain.exception.EventInvalidStatusException;
+import com.grupocaos.products.athletix.shared.i18n.domain.MessageKeys;
 import com.grupocaos.products.athletix.user.domain.model.User;
 import lombok.Getter;
 import lombok.Setter;
@@ -71,11 +73,11 @@ public class Event {
 
     public void publish() {
         if (!status.canBePublished()) {
-            throw new IllegalStateException("Only events in DRAFT status can be published. Current status: " + status);
+            throw new IllegalStateException(MessageKeys.Events.EVENT_PUBLISH_ONLY_DRAFT);
         }
 
         if (eventDate.isBefore(LocalDateTime.now())) {
-            throw new IllegalStateException("Cannot publish an event with a past date");
+            throw new IllegalStateException(MessageKeys.Events.EVENT_PUBLISH_PAST_DATE);
         }
         this.status = EventStatus.PUBLISHED;
         this.updatedOn = LocalDateTime.now();
@@ -83,10 +85,10 @@ public class Event {
 
     public void openRegistration() {
         if (!status.canOpenRegistration()) {
-            throw new IllegalStateException("Registration can only be opened in PUBLISHED events. Current status: " + status);
+            throw new IllegalStateException(MessageKeys.Events.EVENT_REGISTRATION_ONLY_PUBLISHED);
         }
         if (!registrationPeriod.isOpen()) {
-            throw new IllegalStateException("Registration period is no longer in effect");
+            throw new IllegalStateException(MessageKeys.Events.EVENT_REGISTRATION_PERIOD_CLOSED);
         }
         this.status = EventStatus.REGISTRATION_OPEN;
         this.updatedOn = LocalDateTime.now();
@@ -94,7 +96,7 @@ public class Event {
 
     public void closeRegistration() {
         if (status != EventStatus.REGISTRATION_OPEN) {
-            throw new IllegalStateException("Registration is not open");
+            throw new IllegalStateException(MessageKeys.Events.EVENT_REGISTRATION_NOT_OPEN);
         }
         this.status = EventStatus.REGISTRATION_CLOSED;
         this.updatedOn = LocalDateTime.now();
@@ -102,7 +104,7 @@ public class Event {
 
     public void begin() {
         if (status != EventStatus.REGISTRATION_CLOSED) {
-            throw new IllegalStateException("The event must have closed registration in order to begin");
+            throw new IllegalStateException(MessageKeys.Events.EVENT_BEGIN_MUST_HAVE_CLOSED_REGISTRATION);
         }
         this.status = EventStatus.IN_PROGRESS;
         this.updatedOn = LocalDateTime.now();
@@ -110,7 +112,7 @@ public class Event {
 
     public void complete() {
         if (status != EventStatus.IN_PROGRESS) {
-            throw new IllegalStateException("Only events IN PROGRESS can be completed");
+            throw new IllegalStateException(MessageKeys.Events.EVENT_COMPLETE_ONLY_IN_PROGRESS);
         }
         this.status = EventStatus.COMPLETED;
         this.updatedOn = LocalDateTime.now();
@@ -118,7 +120,7 @@ public class Event {
 
     public void cancel() {
         if (!status.canBeCancelled()) {
-            throw new IllegalStateException("Cannot cancel an event that is in status " + status);
+            throw new EventInvalidStatusException(MessageKeys.Events.EVENT_CANCEL_INVALID_STATUS, status); // TODO: Cambiar por excepción personalizada para manejar el status + status
         }
         this.status = EventStatus.CANCELLED;
         this.updatedOn = LocalDateTime.now();
@@ -132,7 +134,7 @@ public class Event {
 
     public void incrementRegisteredParticipants() {
         if (!canRegister()) {
-            throw new IllegalStateException("The event is no longer accepting registrations");
+            throw new IllegalStateException(MessageKeys.Events.EVENT_REGISTRATION_NOT_ACCEPTING);
         }
         this.registeredParticipants++;
         this.updatedOn = LocalDateTime.now();
@@ -140,7 +142,7 @@ public class Event {
 
     public void decrementRegisteredParticipants() {
         if (registeredParticipants <= 0) {
-            throw new IllegalStateException("There are no registered participants");
+            throw new IllegalStateException(MessageKeys.Events.EVENT_PARTICIPANTS_NONE);
         }
         this.registeredParticipants--;
         this.updatedOn = LocalDateTime.now();
@@ -159,37 +161,37 @@ public class Event {
 
     private void validate() {
         if (name == null || name.isBlank()) {
-            throw new IllegalArgumentException("The event name is required");
+            throw new IllegalArgumentException(MessageKeys.Events.EVENT_VALIDATION_NAME_REQUIRED);
         }
         if (name.length() < 5 || name.length() > 200) {
-            throw new IllegalArgumentException("The name must be between 5 and 200 characters");
+            throw new IllegalArgumentException(MessageKeys.Events.EVENT_VALIDATION_NAME_LENGTH);
         }
         if (eventDate == null) {
-            throw new IllegalArgumentException("Event date is required");
+            throw new IllegalArgumentException(MessageKeys.Events.EVENT_VALIDATION_DATE_REQUIRED);
         }
         if (eventDate.isBefore(LocalDateTime.now())) {
-            throw new IllegalArgumentException("Event date must be a future date");
+            throw new IllegalArgumentException(MessageKeys.Events.EVENT_VALIDATION_DATE_FUTURE);
         }
         if (location == null) {
-            throw new IllegalArgumentException("Location is required");
+            throw new IllegalArgumentException(MessageKeys.Events.EVENT_VALIDATION_LOCATION_REQUIRED);
         }
         if (distance == null) {
-            throw new IllegalArgumentException("Distance is required");
+            throw new IllegalArgumentException(MessageKeys.Events.EVENT_VALIDATION_DISTANCE_REQUIRED);
         }
         if (price == null || price.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("The registration fee must be greater than zero");
+            throw new IllegalArgumentException(MessageKeys.Events.EVENT_VALIDATION_PRICE_POSITIVE);
         }
         if (registrationPeriod == null) {
-            throw new IllegalArgumentException("Registration period is required");
+            throw new IllegalArgumentException(MessageKeys.Events.EVENT_VALIDATION_REGISTRATION_REQUIRED);
         }
         if (registrationPeriod.end().isAfter(eventDate)) {
-            throw new IllegalArgumentException("Registration period must close before event date");
+            throw new IllegalArgumentException(MessageKeys.Events.EVENT_VALIDATION_REGISTRATION_BEFORE_EVENT);
         }
         if (maxParticipants != null && maxParticipants <= 0) {
-            throw new IllegalArgumentException("The maximum number of participants must be greater than zero");
+            throw new IllegalArgumentException(MessageKeys.Events.EVENT_VALIDATION_MAX_PARTICIPANTS_POSITIVE);
         }
         if (createdBy == null) {
-            throw new IllegalArgumentException("The organizer is required");
+            throw new IllegalArgumentException(MessageKeys.Events.EVENT_VALIDATION_ORGANIZER_REQUIRED);
         }
     }
 }
