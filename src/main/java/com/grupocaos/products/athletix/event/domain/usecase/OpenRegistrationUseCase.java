@@ -20,7 +20,7 @@ public class OpenRegistrationUseCase extends AbstractUseCase<OpenRegistrationUse
     @Override
     protected OpenRegistrationResult doExecute(OpenRegistrationCommand command) {
         Event event = eventRepository.findById(command.eventId())
-                .orElseThrow(() -> new EventNotFoundException("Event not found"));
+                .orElseThrow(() -> new EventNotFoundException(command.eventId()));
 
         event.openRegistration();
 

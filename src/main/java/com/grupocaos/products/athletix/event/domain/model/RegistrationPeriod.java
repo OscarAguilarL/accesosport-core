@@ -3,6 +3,8 @@ package com.grupocaos.products.athletix.event.domain.model;
 
 import java.time.LocalDateTime;
 
+import com.grupocaos.products.athletix.shared.i18n.domain.MessageKeys;
+
 public record RegistrationPeriod(LocalDateTime start, LocalDateTime end) {
 
     public static RegistrationPeriod of(LocalDateTime start, LocalDateTime end) {
@@ -12,10 +14,10 @@ public record RegistrationPeriod(LocalDateTime start, LocalDateTime end) {
 
     private static void validate(LocalDateTime start, LocalDateTime end) {
         if (start == null || end == null) {
-            throw new IllegalArgumentException("Start and end cannot be null");
+            throw new IllegalArgumentException(MessageKeys.Events.EVENT_VALIDATION_REGISTRATION_PERIOD_START_NOT_NULL);
         }
         if (end.isBefore(start)) {
-            throw new IllegalArgumentException("End must be before start");
+            throw new IllegalArgumentException(MessageKeys.Events.EVENT_VALIDATION_REGISTRATION_PERIOD_END_BEFORE_START);
         }
     }
 

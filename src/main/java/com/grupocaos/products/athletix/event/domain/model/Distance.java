@@ -3,6 +3,8 @@ package com.grupocaos.products.athletix.event.domain.model;
 
 import java.math.BigDecimal;
 
+import com.grupocaos.products.athletix.shared.i18n.domain.MessageKeys;
+
 public record Distance(BigDecimal value, DistanceUnit unit) {
 
     public static Distance of(BigDecimal value, DistanceUnit unit) {
@@ -12,10 +14,10 @@ public record Distance(BigDecimal value, DistanceUnit unit) {
 
     private static void validate(BigDecimal value, DistanceUnit unit) {
         if (value == null || value.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Distance value must be greater than zero");
+            throw new IllegalArgumentException(MessageKeys.Events.INVALID_DISTANCE);
         }
         if (unit == null) {
-            throw new IllegalArgumentException("Distance unit must not be null");
+            throw new IllegalArgumentException(MessageKeys.Events.INVALID_DISTANCE_UNIT);
         }
     }
 

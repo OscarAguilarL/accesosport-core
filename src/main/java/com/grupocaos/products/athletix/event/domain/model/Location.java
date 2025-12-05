@@ -1,5 +1,6 @@
 package com.grupocaos.products.athletix.event.domain.model;
 
+import com.grupocaos.products.athletix.shared.i18n.domain.MessageKeys;
 
 public record Location(String place, String city, String country, Double latitude, Double longitude) {
 
@@ -10,13 +11,13 @@ public record Location(String place, String city, String country, Double latitud
 
     private static void validate(String place, String city, String country, Double latitude, Double longitude) {
         if (place == null || place.isBlank()) {
-            throw new IllegalArgumentException("Place is required");
+            throw new IllegalArgumentException(MessageKeys.Events.EVENT_VALIDATION_PLACE_REQUIRED);
         }
         if (latitude != null && (latitude < -90 || latitude > 90)) {
-            throw new IllegalArgumentException("Invalid latitude " + latitude);
+            throw new IllegalArgumentException(MessageKeys.Events.EVENT_VALIDATION_LATITUDE_INVALID);
         }
         if (longitude != null && (longitude < -180 || longitude > 180)) {
-            throw new IllegalArgumentException("Invalid longitude " + longitude);
+            throw new IllegalArgumentException(MessageKeys.Events.EVENT_VALIDATION_LONGITUDE_INVALID);
         }
     }
 
