@@ -20,7 +20,7 @@ public class CancelEventUseCase extends AbstractUseCase<CancelEventUseCase.Cance
     @Override
     protected CancelEventResult doExecute(CancelEventCommand command) {
         Event event = eventRepository.findById(command.eventId())
-                .orElseThrow(() -> new EventNotFoundException("Event not found"));
+                .orElseThrow(() -> new EventNotFoundException(command.eventId()));
 
         event.cancel();
 

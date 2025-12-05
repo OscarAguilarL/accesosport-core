@@ -1,9 +1,14 @@
 package com.grupocaos.products.athletix.event.presentation.exception;
 
+import com.grupocaos.products.athletix.event.domain.exception.EventInvalidStatusException;
 import com.grupocaos.products.athletix.event.domain.exception.EventNotFoundException;
 import com.grupocaos.products.athletix.event.domain.exception.EventNotPublishableException;
 import com.grupocaos.products.athletix.event.domain.exception.EventRegistrationClosedException;
 import com.grupocaos.products.athletix.event.domain.exception.EventRegistrationFullException;
+import com.grupocaos.products.athletix.shared.i18n.domain.MessageKeys;
+import com.grupocaos.products.athletix.shared.i18n.domain.MessageTranslator;
+
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -55,7 +60,10 @@ import java.time.Instant;
 
 @RestControllerAdvice
 @Slf4j
+@RequiredArgsConstructor
 public class EventExceptionHandler {
+	
+	private final MessageTranslator messageTranslator;
 
     /**
      * Handles the {@link EventNotFoundException} when an event is not found in the system.
@@ -68,12 +76,14 @@ public class EventExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ProblemDetail handleEventNotFound(EventNotFoundException ex) {
         log.error("Evento not found: {}", ex.getMessage());
+        
+        String translatedMessage = messageTranslator.translate(ex.getMessage(), ex.getArgs());
 
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.NOT_FOUND,
-                ex.getMessage()
+                translatedMessage
         );
-        problemDetail.setTitle("Event not found");
+        problemDetail.setTitle(messageTranslator.translate(MessageKeys.Events.EVENT_PROBLEM_DETAIL_NOT_FOUND));
         problemDetail.setType(URI.create("https://api.athletix.com/errors/evento-not-found"));
         problemDetail.setProperty("timestamp", Instant.now());
 
@@ -94,13 +104,26 @@ public class EventExceptionHandler {
 
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.BAD_REQUEST,
-                ex.getMessage()
+                messageTranslator.translate(ex.getMessage())
         );
-        problemDetail.setTitle("Evento not publishable");
+        problemDetail.setTitle(messageTranslator.translate(MessageKeys.Events.EVENT_PROBLEM_DETAIL_NOT_PUBLISHABLE));
         problemDetail.setType(URI.create("https://api.athletix.com/errors/evento-not-publishable"));
         problemDetail.setProperty("timestamp", Instant.now());
 
         return problemDetail;
+    }
+    
+    public ProblemDetail handleEventInvalidStatus(EventInvalidStatusException ex) {
+    	log.error("Invalid event status: {}", ex.getArgs());
+    	
+    	ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+    			HttpStatus.BAD_REQUEST,
+    			messageTranslator.translate(ex.getMessage(), ex.getArgs())
+		);
+    	problemDetail.setTitle(MessageKeys.Events.EVENT_PROBLEM_DETAIL_INVALID_STATUS);
+    	problemDetail.setProperty("timestamp", Instant.now());
+    	
+    	return problemDetail;
     }
 
     /**
@@ -117,9 +140,9 @@ public class EventExceptionHandler {
 
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.CONFLICT,
-                ex.getMessage()
+                messageTranslator.translate(ex.getMessage())
         );
-        problemDetail.setTitle("Event full");
+        problemDetail.setTitle(messageTranslator.translate(MessageKeys.Events.EVENT_PROBLEM_DETAIL_REGISTRATION_FULL));
         problemDetail.setType(URI.create("https://api.athletix.com/errors/evento-full"));
         problemDetail.setProperty("timestamp", Instant.now());
 
@@ -140,9 +163,9 @@ public class EventExceptionHandler {
 
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.CONFLICT,
-                ex.getMessage()
+                messageTranslator.translate(ex.getMessage())
         );
-        problemDetail.setTitle("Registration Closed");
+        problemDetail.setTitle(messageTranslator.translate(MessageKeys.Events.EVENT_PROBLEM_DETAIL_REGISTRATION_CLOSED));
         problemDetail.setType(URI.create("https://api.athletix.com/errors/registration-closed"));
         problemDetail.setProperty("timestamp", Instant.now());
 
@@ -166,9 +189,9 @@ public class EventExceptionHandler {
 
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.BAD_REQUEST,
-                ex.getMessage()
+                messageTranslator.translate(ex.getMessage())
         );
-        problemDetail.setTitle("Not allowed operation");
+        problemDetail.setTitle(messageTranslator.translate(MessageKeys.Events.EVENT_PROBLEM_DETAIL_OPERATION_NOT_ALLOWED));
         problemDetail.setType(URI.create("https://api.athletix.com/errors/invalid-operation"));
         problemDetail.setProperty("timestamp", Instant.now());
 
@@ -189,9 +212,9 @@ public class EventExceptionHandler {
 
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.BAD_REQUEST,
-                ex.getMessage()
+                messageTranslator.translate(ex.getMessage())
         );
-        problemDetail.setTitle("Validation error");
+        problemDetail.setTitle(messageTranslator.translate(MessageKeys.Events.EVENT_PROBLEM_DETAIL_VALIDATION_ERROR));
         problemDetail.setType(URI.create("https://api.athletix.com/errors/validation-error"));
         problemDetail.setProperty("timestamp", Instant.now());
 

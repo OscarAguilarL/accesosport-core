@@ -21,7 +21,7 @@ public class PublishEventUseCase extends AbstractUseCase<PublishEventUseCase.Pub
     @Override
     protected PublishEventResult doExecute(PublishEventCommand command) {
         Event event = eventRepository.findById(command.eventId())
-                .orElseThrow(() -> new EventNotFoundException("Event not found"));
+                .orElseThrow(() -> new EventNotFoundException(command.eventId()));
 
         event.publish();
 

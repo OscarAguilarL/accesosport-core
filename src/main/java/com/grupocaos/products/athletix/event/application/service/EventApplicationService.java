@@ -128,7 +128,7 @@ public class EventApplicationService {
     @Transactional(readOnly = true)
     public EventResponse getEvent(UUID eventId) {
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new EventNotFoundException("Event not found"));
+                .orElseThrow(() -> new EventNotFoundException(eventId));
         return EventResponseMapper.toEventResponse(event);
     }
 

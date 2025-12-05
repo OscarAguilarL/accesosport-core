@@ -7,6 +7,7 @@ import com.grupocaos.products.athletix.event.domain.model.Location;
 import com.grupocaos.products.athletix.event.domain.model.RaceType;
 import com.grupocaos.products.athletix.event.domain.model.RegistrationPeriod;
 import com.grupocaos.products.athletix.event.domain.repository.EventRepository;
+import com.grupocaos.products.athletix.shared.i18n.domain.MessageKeys;
 import com.grupocaos.products.athletix.shared.use_case.domain.AbstractUseCase;
 import com.grupocaos.products.athletix.user.domain.exception.UserNotFoundException;
 import com.grupocaos.products.athletix.user.domain.model.RoleEnumeration;
@@ -45,10 +46,10 @@ public class CreateEventUseCase extends AbstractUseCase<CreateEventUseCase.Creat
     @Override
     public CreateEventResult doExecute(CreateEventCommand command) {
         User organizer = userRepository.findById(command.createdByUserId())
-                .orElseThrow(() -> new UserNotFoundException("Organizer not found"));
+                .orElseThrow(() -> new UserNotFoundException(MessageKeys.Events.EVENT_VALIDATION_ORGANIZER_NOT_FOUND));
 
         if (!organizer.hasRole(RoleEnumeration.ROLE_ORGANIZER)) {
-            throw new IllegalArgumentException("Only organizers can create events");
+            throw new IllegalArgumentException(MessageKeys.Events.EVENT_VALIDATION_USER_NOT_ORGANIZER);
         }
 
         Location location = Location.of(
