@@ -1,6 +1,6 @@
 package com.grupocaos.products.athletix.user.domain.usecase;
 
-import com.grupocaos.products.athletix.shared.use_case.domain.NoInputUseCase;
+import com.grupocaos.products.athletix.shared.use_case.domain.UseCase;
 import com.grupocaos.products.athletix.user.domain.model.Role;
 import com.grupocaos.products.athletix.user.domain.model.RoleEnumeration;
 import com.grupocaos.products.athletix.user.domain.repository.RoleRepository;
@@ -16,12 +16,12 @@ import java.util.List;
  */
 @Slf4j
 @RequiredArgsConstructor
-public class InitializeSystemRolesUseCase extends NoInputUseCase<InitializeSystemRolesUseCase.InitializationResult> {
+public class InitializeSystemRolesUseCase extends UseCase<Void, InitializeSystemRolesUseCase.InitializationResult> {
 
 	private final RoleRepository roleRepository;
 
 	@Override
-	protected InitializationResult doExecute(Void command) {
+	protected InitializationResult internalExecute(Void command) {
 
         RoleEnumeration[] rolesToInitialize = RoleEnumeration.values();
         int created = 0;

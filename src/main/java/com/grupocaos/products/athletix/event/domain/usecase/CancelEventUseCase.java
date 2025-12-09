@@ -3,8 +3,8 @@ package com.grupocaos.products.athletix.event.domain.usecase;
 import com.grupocaos.products.athletix.event.domain.exception.EventNotFoundException;
 import com.grupocaos.products.athletix.event.domain.model.Event;
 import com.grupocaos.products.athletix.event.domain.repository.EventRepository;
-import com.grupocaos.products.athletix.shared.use_case.domain.AbstractUseCase;
 
+import com.grupocaos.products.athletix.shared.use_case.domain.UseCase;
 import lombok.AllArgsConstructor;
 
 import java.util.UUID;
@@ -13,12 +13,12 @@ import java.util.UUID;
  * UseCase responsible for cancelling an event.
  */
 @AllArgsConstructor
-public class CancelEventUseCase extends AbstractUseCase<CancelEventUseCase.CancelEventCommand, CancelEventUseCase.CancelEventResult> {
+public class CancelEventUseCase extends UseCase<CancelEventUseCase.CancelEventCommand, CancelEventUseCase.CancelEventResult> {
 
     private final EventRepository eventRepository;
 
     @Override
-    protected CancelEventResult doExecute(CancelEventCommand command) {
+    protected CancelEventResult internalExecute(CancelEventCommand command) {
         Event event = eventRepository.findById(command.eventId())
                 .orElseThrow(() -> new EventNotFoundException(command.eventId()));
 

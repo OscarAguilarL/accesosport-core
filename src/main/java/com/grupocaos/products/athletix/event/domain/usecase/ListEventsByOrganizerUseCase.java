@@ -2,8 +2,8 @@ package com.grupocaos.products.athletix.event.domain.usecase;
 
 import com.grupocaos.products.athletix.event.domain.model.Event;
 import com.grupocaos.products.athletix.event.domain.repository.EventRepository;
-import com.grupocaos.products.athletix.shared.use_case.domain.AbstractUseCase;
 
+import com.grupocaos.products.athletix.shared.use_case.domain.UseCase;
 import lombok.AllArgsConstructor;
 
 import java.util.List;
@@ -13,7 +13,7 @@ import java.util.UUID;
  * UseCase responsible for listing events by organizer.
  */
 @AllArgsConstructor
-public class ListEventsByOrganizerUseCase extends AbstractUseCase<
+public class ListEventsByOrganizerUseCase extends UseCase<
         ListEventsByOrganizerUseCase.ListEventsByOrganizerCommand,
         ListEventsByOrganizerUseCase.ListEventsByOrganizerResult
         > {
@@ -24,7 +24,7 @@ public class ListEventsByOrganizerUseCase extends AbstractUseCase<
     public EventRepository eventRepository;
 
     @Override
-    protected ListEventsByOrganizerResult doExecute(ListEventsByOrganizerCommand command) {
+    protected ListEventsByOrganizerResult internalExecute(ListEventsByOrganizerCommand command) {
         List<Event> eventsByOrganizer = eventRepository.findByOrganizerId(command.organizerId());
 
         return new ListEventsByOrganizerResult(eventsByOrganizer);

@@ -2,8 +2,8 @@ package com.grupocaos.products.athletix.event.domain.usecase;
 
 import com.grupocaos.products.athletix.event.domain.model.Event;
 import com.grupocaos.products.athletix.event.domain.repository.EventRepository;
-import com.grupocaos.products.athletix.shared.use_case.domain.NoInputUseCase;
 
+import com.grupocaos.products.athletix.shared.use_case.domain.UseCase;
 import lombok.AllArgsConstructor;
 
 import java.util.List;
@@ -12,12 +12,12 @@ import java.util.List;
  * UseCase responsible for listing available events for registration.
  */
 @AllArgsConstructor
-public class ListAvailableEventsUseCase extends NoInputUseCase<ListAvailableEventsUseCase.ListAvailableEventsResult> {
+public class ListAvailableEventsUseCase extends UseCase<Void, ListAvailableEventsUseCase.ListAvailableEventsResult> {
 
     private final EventRepository eventRepository;
 
     @Override
-    protected ListAvailableEventsResult doExecute(Void command) {
+    protected ListAvailableEventsResult internalExecute(Void command) {
 
         List<Event> events = eventRepository.findEventsAvailableForRegistration();
 
