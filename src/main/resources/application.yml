@@ -32,6 +32,17 @@ app:
       secret: 4nh3819hn1v38dj184nd1m49xn19vn492n58bpqwbcs8m2iqwoxm4
       expiration: 86400000  # 24 horas en milisegundos
       refreshExpiration: 604800000  # 7 días en milisegundos
+  bootstrap:
+    enabled: true
+    fail-on-error: false
+
+    roles:
+      enabled: true
+
+    default-admin:
+      enabled: true  # Solo en desarrollo
+      email: admin@accesosport.com
+      password: password123
 
 
 # Logging
@@ -40,7 +51,7 @@ logging:
     root: INFO
     com.grupocaos.products.athletix: DEBUG
     org.springframework.security: DEBUG
-    org.hibernate.SQL: DEBUG
+    org.hibernate.SQL: off
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
 
