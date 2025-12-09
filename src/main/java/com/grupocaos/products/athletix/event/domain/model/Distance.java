@@ -3,7 +3,7 @@ package com.grupocaos.products.athletix.event.domain.model;
 
 import java.math.BigDecimal;
 
-import com.grupocaos.products.athletix.shared.i18n.domain.MessageKeys;
+import com.grupocaos.products.athletix.shared.domain.i18n.MessageKeys;
 
 public record Distance(BigDecimal value, DistanceUnit unit) {
 

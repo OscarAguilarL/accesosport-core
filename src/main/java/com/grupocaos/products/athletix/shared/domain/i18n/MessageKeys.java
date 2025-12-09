@@ -1,4 +1,4 @@
-package com.grupocaos.products.athletix.shared.i18n.domain;
+package com.grupocaos.products.athletix.shared.domain.i18n;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

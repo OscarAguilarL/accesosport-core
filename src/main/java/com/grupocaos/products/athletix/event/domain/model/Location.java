@@ -1,6 +1,6 @@
 package com.grupocaos.products.athletix.event.domain.model;
 
-import com.grupocaos.products.athletix.shared.i18n.domain.MessageKeys;
+import com.grupocaos.products.athletix.shared.domain.i18n.MessageKeys;
 
 public record Location(String place, String city, String country, Double latitude, Double longitude) {
 

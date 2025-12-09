@@ -1,4 +1,4 @@
-package com.grupocaos.products.athletix.shared.i18n.infrastructure.config;
+package com.grupocaos.products.athletix.shared.infrastructure.i18n.config;
 
 import java.util.List;
 import java.util.Locale;

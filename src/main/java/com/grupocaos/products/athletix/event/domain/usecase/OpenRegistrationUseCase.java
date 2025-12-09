@@ -4,7 +4,7 @@ import com.grupocaos.products.athletix.event.domain.exception.EventNotFoundExcep
 import com.grupocaos.products.athletix.event.domain.model.Event;
 import com.grupocaos.products.athletix.event.domain.repository.EventRepository;
 
-import com.grupocaos.products.athletix.shared.use_case.domain.UseCase;
+import com.grupocaos.products.athletix.shared.domain.usecase.UseCase;
 import lombok.AllArgsConstructor;
 
 import java.util.UUID;

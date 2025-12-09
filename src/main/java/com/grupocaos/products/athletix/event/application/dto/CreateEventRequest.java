@@ -2,7 +2,7 @@ package com.grupocaos.products.athletix.event.application.dto;
 
 import com.grupocaos.products.athletix.event.domain.model.DistanceUnit;
 import com.grupocaos.products.athletix.event.domain.model.RaceType;
-import com.grupocaos.products.athletix.shared.i18n.domain.MessageKeys;
+import com.grupocaos.products.athletix.shared.domain.i18n.MessageKeys;
 
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;

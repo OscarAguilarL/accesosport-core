@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import com.grupocaos.products.athletix.shared.use_case.domain.UseCase;
+import com.grupocaos.products.athletix.shared.domain.usecase.UseCase;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 

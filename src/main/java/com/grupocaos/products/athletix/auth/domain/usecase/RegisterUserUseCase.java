@@ -4,7 +4,7 @@ import java.util.Set;
 
 import com.grupocaos.products.athletix.auth.domain.service.PasswordEncoder;
 import com.grupocaos.products.athletix.auth.domain.service.TokenProvider;
-import com.grupocaos.products.athletix.shared.i18n.domain.MessageKeys;
+import com.grupocaos.products.athletix.shared.domain.i18n.MessageKeys;
 import com.grupocaos.products.athletix.user.domain.exception.InvalidPasswordException;
 import com.grupocaos.products.athletix.user.domain.exception.RoleNotFoundException;
 import com.grupocaos.products.athletix.user.domain.exception.UserAlreadyExistsException;

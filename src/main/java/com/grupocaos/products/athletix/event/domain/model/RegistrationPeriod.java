@@ -3,7 +3,7 @@ package com.grupocaos.products.athletix.event.domain.model;
 
 import java.time.LocalDateTime;
 
-import com.grupocaos.products.athletix.shared.i18n.domain.MessageKeys;
+import com.grupocaos.products.athletix.shared.domain.i18n.MessageKeys;
 
 public record RegistrationPeriod(LocalDateTime start, LocalDateTime end) {
 
