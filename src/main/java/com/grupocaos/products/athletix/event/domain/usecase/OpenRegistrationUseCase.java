@@ -3,8 +3,8 @@ package com.grupocaos.products.athletix.event.domain.usecase;
 import com.grupocaos.products.athletix.event.domain.exception.EventNotFoundException;
 import com.grupocaos.products.athletix.event.domain.model.Event;
 import com.grupocaos.products.athletix.event.domain.repository.EventRepository;
-import com.grupocaos.products.athletix.shared.use_case.domain.AbstractUseCase;
 
+import com.grupocaos.products.athletix.shared.use_case.domain.UseCase;
 import lombok.AllArgsConstructor;
 
 import java.util.UUID;
@@ -13,12 +13,12 @@ import java.util.UUID;
  * UseCase responsible for opening registration for an event.
  */
 @AllArgsConstructor
-public class OpenRegistrationUseCase extends AbstractUseCase<OpenRegistrationUseCase.OpenRegistrationCommand, OpenRegistrationUseCase.OpenRegistrationResult> {
+public class OpenRegistrationUseCase extends UseCase<OpenRegistrationUseCase.OpenRegistrationCommand, OpenRegistrationUseCase.OpenRegistrationResult> {
 
     private final EventRepository eventRepository;
 
     @Override
-    protected OpenRegistrationResult doExecute(OpenRegistrationCommand command) {
+    protected OpenRegistrationResult internalExecute(OpenRegistrationCommand command) {
         Event event = eventRepository.findById(command.eventId())
                 .orElseThrow(() -> new EventNotFoundException(command.eventId()));
 
