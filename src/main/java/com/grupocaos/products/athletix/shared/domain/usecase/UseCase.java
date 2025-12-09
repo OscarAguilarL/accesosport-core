@@ -1,4 +1,4 @@
-package com.grupocaos.products.athletix.shared.use_case.domain;
+package com.grupocaos.products.athletix.shared.domain.usecase;
 
 /**
  * A generic interface that represents a use case in an application.

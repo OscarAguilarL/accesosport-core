@@ -1,15 +1,12 @@
 package com.grupocaos.products.athletix.user.domain.usecase;
 
-import com.grupocaos.products.athletix.shared.use_case.domain.UseCase;
+import com.grupocaos.products.athletix.shared.domain.usecase.UseCase;
 import com.grupocaos.products.athletix.user.domain.model.Role;
 import com.grupocaos.products.athletix.user.domain.model.RoleEnumeration;
 import com.grupocaos.products.athletix.user.domain.repository.RoleRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Use case to initialize User Roles

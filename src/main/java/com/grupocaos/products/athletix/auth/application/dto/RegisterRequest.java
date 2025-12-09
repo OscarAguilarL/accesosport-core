@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.Set;
 
-import com.grupocaos.products.athletix.shared.i18n.domain.MessageKeys;
+import com.grupocaos.products.athletix.shared.domain.i18n.MessageKeys;
 
 public record RegisterRequest (
 

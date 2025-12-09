@@ -10,7 +10,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import com.grupocaos.products.athletix.shared.i18n.domain.MessageKeys;
+import com.grupocaos.products.athletix.shared.domain.i18n.MessageKeys;
 
 @Data
 @NoArgsConstructor

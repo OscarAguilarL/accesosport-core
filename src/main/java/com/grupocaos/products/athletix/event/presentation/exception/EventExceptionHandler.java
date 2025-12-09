@@ -5,8 +5,8 @@ import com.grupocaos.products.athletix.event.domain.exception.EventNotFoundExcep
 import com.grupocaos.products.athletix.event.domain.exception.EventNotPublishableException;
 import com.grupocaos.products.athletix.event.domain.exception.EventRegistrationClosedException;
 import com.grupocaos.products.athletix.event.domain.exception.EventRegistrationFullException;
-import com.grupocaos.products.athletix.shared.i18n.domain.MessageKeys;
-import com.grupocaos.products.athletix.shared.i18n.domain.MessageTranslator;
+import com.grupocaos.products.athletix.shared.domain.i18n.MessageKeys;
+import com.grupocaos.products.athletix.shared.domain.i18n.MessageTranslator;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

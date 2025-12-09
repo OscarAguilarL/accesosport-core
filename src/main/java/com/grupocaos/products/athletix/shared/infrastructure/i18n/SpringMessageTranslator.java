@@ -1,4 +1,4 @@
-package com.grupocaos.products.athletix.shared.i18n.infrastructure;
+package com.grupocaos.products.athletix.shared.infrastructure.i18n;
 
 import java.util.Locale;
 
@@ -6,7 +6,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
-import com.grupocaos.products.athletix.shared.i18n.domain.MessageTranslator;
+import com.grupocaos.products.athletix.shared.domain.i18n.MessageTranslator;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

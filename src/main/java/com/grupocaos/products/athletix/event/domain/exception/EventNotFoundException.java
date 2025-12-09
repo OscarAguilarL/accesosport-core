@@ -2,7 +2,7 @@ package com.grupocaos.products.athletix.event.domain.exception;
 
 import java.util.UUID;
 
-import com.grupocaos.products.athletix.shared.i18n.domain.MessageKeys;
+import com.grupocaos.products.athletix.shared.domain.i18n.MessageKeys;
 
 import lombok.Getter;
 

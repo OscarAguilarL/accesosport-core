@@ -2,8 +2,8 @@ package com.grupocaos.products.athletix.auth.presentation.exception;
 
 import com.grupocaos.products.athletix.auth.domain.exception.AuthenticationException;
 import com.grupocaos.products.athletix.auth.domain.exception.InvalidCredentialsException;
-import com.grupocaos.products.athletix.shared.i18n.domain.MessageKeys;
-import com.grupocaos.products.athletix.shared.i18n.domain.MessageTranslator;
+import com.grupocaos.products.athletix.shared.domain.i18n.MessageKeys;
+import com.grupocaos.products.athletix.shared.domain.i18n.MessageTranslator;
 import com.grupocaos.products.athletix.user.domain.exception.InvalidPasswordException;
 import com.grupocaos.products.athletix.user.domain.exception.RoleNotFoundException;
 import com.grupocaos.products.athletix.user.domain.exception.UserAlreadyExistsException;

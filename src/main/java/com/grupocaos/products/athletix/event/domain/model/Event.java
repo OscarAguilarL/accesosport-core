@@ -1,7 +1,7 @@
 package com.grupocaos.products.athletix.event.domain.model;
 
 import com.grupocaos.products.athletix.event.domain.exception.EventInvalidStatusException;
-import com.grupocaos.products.athletix.shared.i18n.domain.MessageKeys;
+import com.grupocaos.products.athletix.shared.domain.i18n.MessageKeys;
 import com.grupocaos.products.athletix.user.domain.model.User;
 import lombok.Getter;
 import lombok.Setter;
