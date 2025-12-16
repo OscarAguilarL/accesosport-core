@@ -1,4 +1,4 @@
-# 📘 Manual de Arquitectura Clean - Proyecto Athletix
+# 📘 Manual de Arquitectura Clean - Proyecto AccesoSport
 
 ## Tabla de Contenidos
 1. [Introducción](#introducción)
@@ -194,7 +194,7 @@ public interface EventoRepository {
 ```java
 package com.grupocaos.products.athletix.evento.domain.usecase;
 
-public class PublicarEventoUseCase {
+public class PublicarEventoUseCase extends UseCase<UUID, PublicarEventoUseCase.PublicacionResult> {
     
     private final EventoRepository eventoRepository;
     private final NotificationService notificationService;
@@ -586,20 +586,22 @@ public class EventoController {
 // 1.1 Entidad de Dominio
 package com.grupocaos.products.athletix.inscripcion.domain.model;
 
+import com.grupocaos.products.athletix.shared.domain.usecase.UseCase;
+
 public class Inscripcion {
     private UUID id;
     private Evento evento;
     private Corredor corredor;
     private LocalDateTime fechaInscripcion;
     private EstadoInscripcion estado;
-    
+
     public void confirmar() {
         if (this.estado != EstadoInscripcion.PENDIENTE) {
             throw new IllegalStateException("Solo se pueden confirmar inscripciones pendientes");
         }
         this.estado = EstadoInscripcion.CONFIRMADA;
     }
-    
+
     public void cancelar() {
         if (this.estado == EstadoInscripcion.CANCELADA) {
             throw new IllegalStateException("La inscripción ya está cancelada");
@@ -613,47 +615,58 @@ package com.grupocaos.products.athletix.inscripcion.domain.repository;
 
 public interface InscripcionRepository {
     Optional<Inscripcion> findById(UUID id);
+
     List<Inscripcion> findByCorredorId(UUID corredorId);
+
     List<Inscripcion> findByEventoId(UUID eventoId);
+
     boolean existsByEventoIdAndCorredorId(UUID eventoId, UUID corredorId);
+
     Inscripcion save(Inscripcion inscripcion);
 }
 
 // 1.3 Use Case
 package com.grupocaos.products.athletix.inscripcion.domain.usecase;
 
-public class InscribirCorredorUseCase {
-    
+public class InscribirCorredorUseCase extends UseCase<
+            InscribirCorredorUseCase.InscripcionCommand,
+            InscribirCorredorUseCase.InscripcionResult
+        > {
+
     private final InscripcionRepository inscripcionRepository;
     private final EventoRepository eventoRepository;
     private final CorredorRepository corredorRepository;
-    
-    public InscripcionResult execute(UUID eventoId, UUID corredorId) {
+
+    public InscripcionResult execute() {
         // Validaciones
         Evento evento = eventoRepository.findById(eventoId)
-            .orElseThrow(() -> new EventoNotFoundException(eventoId));
-        
+                .orElseThrow(() -> new EventoNotFoundException(eventoId));
+
         if (!evento.puedeInscribirse()) {
             throw new InscripcionNoPermitidaException("El evento no está disponible para inscripción");
         }
-        
+
         if (inscripcionRepository.existsByEventoIdAndCorredorId(eventoId, corredorId)) {
             throw new InscripcionDuplicadaException("El corredor ya está inscrito en este evento");
         }
-        
+
         Corredor corredor = corredorRepository.findById(corredorId)
-            .orElseThrow(() -> new CorredorNotFoundException(corredorId));
-        
+                .orElseThrow(() -> new CorredorNotFoundException(corredorId));
+
         // Crear inscripción
         Inscripcion inscripcion = Inscripcion.crear(evento, corredor);
-        
+
         // Persistir
         Inscripcion inscripcionGuardada = inscripcionRepository.save(inscripcion);
-        
+
         return new InscripcionResult(inscripcionGuardada);
     }
-    
-    public record InscripcionResult(Inscripcion inscripcion) {}
+
+    public record InscripcionCommand(UUID eventoId, UUID corredorId) {
+    }
+
+    public record InscripcionResult(Inscripcion inscripcion) {
+    }
 }
 ```
 
@@ -1022,45 +1035,15 @@ public class EventoApplicationService {
 ### 💡 1. Usa Builders en Entidades de Dominio
 
 ```java
+import lombok.Builder;
+
+@Builder
 public class Evento {
     private UUID id;
     private String nombre;
     private LocalDateTime fecha;
-    
-    private Evento() {}
-    
-    public static EventoBuilder builder() {
-        return new EventoBuilder();
-    }
-    
-    public static class EventoBuilder {
-        private final Evento evento = new Evento();
-        
-        public EventoBuilder nombre(String nombre) {
-            if (nombre == null || nombre.isBlank()) {
-                throw new IllegalArgumentException("Nombre no puede estar vacío");
-            }
-            evento.nombre = nombre;
-            return this;
-        }
-        
-        public EventoBuilder fecha(LocalDateTime fecha) {
-            if (fecha.isBefore(LocalDateTime.now())) {
-                throw new IllegalArgumentException("Fecha debe ser futura");
-            }
-            evento.fecha = fecha;
-            return this;
-        }
-        
-        public Evento build() {
-            if (evento.nombre == null || evento.fecha == null) {
-                throw new IllegalStateException("Evento incompleto");
-            }
-            if (evento.id == null) {
-                evento.id = UUID.randomUUID();
-            }
-            return evento;
-        }
+
+    private Evento() {
     }
 }
 ```
@@ -1087,30 +1070,12 @@ public record CrearEventoRequest(
 
 ```java
 // Command Object para entrada
-public class InscribirCorredorCommand {
-    private final UUID eventoId;
-    private final UUID corredorId;
-    private final String comentarios;
-    
-    public InscribirCorredorCommand(UUID eventoId, UUID corredorId, String comentarios) {
-        this.eventoId = eventoId;
-        this.corredorId = corredorId;
-        this.comentarios = comentarios;
-    }
-    
-    // Getters
+public record InscribirCorredorCommand(UUID eventoId, UUID corredorId, String comentarios) {
 }
 
 // Result Object para salida
-public class InscripcionResult {
-    private final Inscripcion inscripcion;
-    private final boolean requiereConfirmacion;
-    
-    public InscripcionResult(Inscripcion inscripcion, boolean requiereConfirmacion) {
-        this.inscripcion = inscripcion;
-        this.requiereConfirmacion = requiereConfirmacion;
-    }
-    
+public record InscripcionResult(Inscripcion inscripcion, boolean requiereConfirmacion) {
+
     // Getters
 }
 ```
@@ -1329,98 +1294,6 @@ public class Ubicacion {
     @Override
     public int hashCode() {
         return Objects.hash(latitud, longitud);
-    }
-}
-```
-
-### 💡 8. Domain Events para Efectos Secundarios
-
-```java
-// Domain Event
-public abstract class DomainEvent {
-    private final UUID eventId;
-    private final LocalDateTime occurredOn;
-    
-    protected DomainEvent() {
-        this.eventId = UUID.randomUUID();
-        this.occurredOn = LocalDateTime.now();
-    }
-    
-    public UUID getEventId() { return eventId; }
-    public LocalDateTime getOccurredOn() { return occurredOn; }
-}
-
-public class EventoPublicadoEvent extends DomainEvent {
-    private final UUID eventoId;
-    private final String nombreEvento;
-    
-    public EventoPublicadoEvent(UUID eventoId, String nombreEvento) {
-        super();
-        this.eventoId = eventoId;
-        this.nombreEvento = nombreEvento;
-    }
-    
-    // Getters
-}
-
-// Entidad con eventos
-public class Evento {
-    private final List<DomainEvent> domainEvents = new ArrayList<>();
-    
-    public void publicar() {
-        if (this.estado != EstadoEvento.BORRADOR) {
-            throw new IllegalStateException("...");
-        }
-        this.estado = EstadoEvento.PUBLICADO;
-        
-        // Registrar evento de dominio
-        this.registerEvent(new EventoPublicadoEvent(this.id, this.nombre));
-    }
-    
-    private void registerEvent(DomainEvent event) {
-        this.domainEvents.add(event);
-    }
-    
-    public List<DomainEvent> getDomainEvents() {
-        return List.copyOf(domainEvents);
-    }
-    
-    public void clearDomainEvents() {
-        this.domainEvents.clear();
-    }
-}
-
-// Application Service publica eventos
-@Service
-public class EventoApplicationService {
-    private final ApplicationEventPublisher eventPublisher;
-    
-    @Transactional
-    public EventoResponse publicarEvento(UUID id) {
-        PublicarEventoUseCase useCase = new PublicarEventoUseCase(eventoRepository);
-        PublicacionResult result = useCase.execute(id);
-        
-        // Publicar eventos de dominio
-        result.evento().getDomainEvents().forEach(eventPublisher::publishEvent);
-        result.evento().clearDomainEvents();
-        
-        return EventoResponseMapper.fromDomain(result.evento());
-    }
-}
-
-// Event Listener en Infrastructure
-@Component
-@Slf4j
-public class EventoEventListener {
-    
-    private final EmailService emailService;
-    
-    @EventListener
-    @Async
-    public void handleEventoPublicado(EventoPublicadoEvent event) {
-        log.info("Handling EventoPublicadoEvent: {}", event.getEventoId());
-        // Enviar notificaciones, actualizar estadísticas, etc.
-        emailService.notifySubscribers(event.getEventoId());
     }
 }
 ```
@@ -1660,4 +1533,4 @@ Este manual debe ser tu guía de referencia al desarrollar nuevas features. Recu
 
 **Última actualización**: [Fecha]  
 **Versión**: 1.0  
-**Mantenido por**: Equipo Athletix
+**Mantenido por**: Equipo AccesoSport

@@ -32,6 +32,17 @@ public class MessageKeys {
 		public static final String PROBLEM_VALIDATION_FAILED = "auth.problem.validation.failed";
 	}
 
+	public static class Users {
+		private Users() {
+		}
+
+		public static final String USER_PROFILE_PARTICIPANT_ALREADY_HAS_ROLE = "user.profile.participant.already-has-role";
+		public static final String USER_PROFILE_PARTICIPANT_ALREADY_HAS_PROFILE = "user.profile.participant.already-has-profile";
+		public static final String USER_PROFILE_ORGANIZER_ALREADY_HAS_ROLE = "user.profile.organizer.already-has-role";
+		public static final String USER_PROFILE_ORGANIZER_ALREADY_HAS_PROFILE = "user.profile.organizer.already-has-profile";
+		public static final String USER_PROFILE_ORGANIZER_VERIFICATION_INVALID_STATUS = "user.profile.organizer.verification.invalid-status";
+	}
+
 	public static class Events {
 		private Events() {
 		}
