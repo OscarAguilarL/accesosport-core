@@ -45,8 +45,7 @@ public class AuthApplicationService {
                 new RegisterUserUseCase.RegistrationCommand(
                         registerRequest.email(),
                         registerRequest.password(),
-                        registerRequest.passwordConfirmation(),
-                        registerRequest.role()
+                        registerRequest.passwordConfirmation()
                 );
 
         RegisterUserUseCase useCase = new RegisterUserUseCase(

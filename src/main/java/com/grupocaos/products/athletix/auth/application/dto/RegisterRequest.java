@@ -20,9 +20,6 @@ public record RegisterRequest (
     @NotBlank(message = MessageKeys.AuthMessages.PASSWORD_CONFIRMATION_REQUIRED)
     String passwordConfirmation,
 
-    @NotNull(message = MessageKeys.AuthMessages.ROLE_REQUIRED)
-    Set<String> role,
-
     // Data for runner
     String fullName,
     String address,
