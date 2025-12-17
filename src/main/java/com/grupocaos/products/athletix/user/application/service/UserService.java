@@ -42,9 +42,6 @@ public class UserService {
     public OrganizerProfileResponse createOrganizerProfile(UUID userId, CreateOrganizerProfileRequest request) {
         var command = new CreateOrganizerProfileUseCase.Command(
                 request.organizationName(),
-                request.contactName(),
-                request.phone(),
-                request.address().toDomain(),
                 request.website(),
                 request.facebook(),
                 request.instagram(),
@@ -65,13 +62,6 @@ public class UserService {
      */
     public ParticipantProfileResponse createParticipantProfile(UUID userId, CreateParticipantProfileRequest request) {
         var command = new CreateParticipantProfileUseCase.Command(
-                request.firstName(),
-                request.lastName(),
-                request.secondLastName(),
-                request.birthDate(),
-                request.gender(),
-                request.phoneNumber(),
-                request.address().toDomain(),
                 request.shirtSize(),
                 request.emergencyContactName(),
                 request.emergencyContactPhone(),

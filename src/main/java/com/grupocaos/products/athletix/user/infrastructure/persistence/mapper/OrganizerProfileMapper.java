@@ -25,9 +25,6 @@ public class OrganizerProfileMapper {
         return UserOrganizerProfile.builder()
                 .id(entity.getId())
                 .organizationName(entity.getOrganizationName())
-                .contactName(entity.getContactName())
-                .phone(entity.getPhone())
-                .address(AddressMapper.mapAddressToDomain(entity.getAddress()))
                 .website(entity.getWebsite())
                 .facebook(entity.getFacebook())
                 .instagram(entity.getInstagram())
@@ -52,9 +49,6 @@ public class OrganizerProfileMapper {
         UserOrganizerProfileJpaEntity entity = new UserOrganizerProfileJpaEntity();
         entity.setId(entity.getId());
         entity.setOrganizationName(domain.getOrganizationName());
-        entity.setContactName(domain.getContactName());
-        entity.setPhone(domain.getPhone());
-        entity.setAddress(AddressMapper.mapAddressToEntity(domain.getAddress()));
         entity.setWebsite(domain.getWebsite());
         entity.setFacebook(domain.getFacebook());
         entity.setInstagram(domain.getInstagram());

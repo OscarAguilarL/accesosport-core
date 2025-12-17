@@ -2,9 +2,7 @@ package com.grupocaos.products.athletix.user.domain.usecase;
 
 import com.grupocaos.products.athletix.shared.domain.i18n.MessageKeys;
 import com.grupocaos.products.athletix.shared.domain.usecase.UseCase;
-import com.grupocaos.products.athletix.shared.domain.valueobjects.Address;
 import com.grupocaos.products.athletix.user.domain.exception.UserNotFoundException;
-import com.grupocaos.products.athletix.user.domain.model.Role;
 import com.grupocaos.products.athletix.user.domain.model.RoleEnumeration;
 import com.grupocaos.products.athletix.user.domain.model.User;
 import com.grupocaos.products.athletix.user.domain.model.UserOrganizerProfile;
@@ -42,9 +40,6 @@ public class CreateOrganizerProfileUseCase
 
         UserOrganizerProfile userOrganizerProfile = UserOrganizerProfile.create(
                 command.organizationName(),
-                command.contactName(),
-                command.phone(),
-                command.address(),
                 command.website(),
                 command.facebook(),
                 command.instagram(),
@@ -64,7 +59,6 @@ public class CreateOrganizerProfileUseCase
      * The command input to create the participant profile
      *
      * @param organizationName Organization name of the event organizer
-     * @param contactName      Contact name of the event organizer
      * @param phone            phone number
      * @param address          address of the organizer
      * @param website          website of the organizer (optional)
@@ -75,9 +69,6 @@ public class CreateOrganizerProfileUseCase
      */
     public record Command(
             String organizationName,
-            String contactName,
-            String phone,
-            Address address,
             String website,
             String facebook,
             String instagram,

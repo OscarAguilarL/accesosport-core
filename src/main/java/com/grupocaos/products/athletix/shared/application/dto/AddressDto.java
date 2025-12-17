@@ -2,6 +2,7 @@ package com.grupocaos.products.athletix.shared.application.dto;
 
 import com.grupocaos.products.athletix.shared.domain.valueobjects.Address;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
@@ -25,6 +26,14 @@ public record AddressDto(
         @Size(max = 255, message = "La calle no puede exceder 255 caracteres")
         String street,
 
+        @NotNull
+        String externalNumber,
+
+        String internalNumber,
+
+        @NotNull
+        String neighborhood,
+
         @NotBlank(message = "La ciudad es obligatoria")
         @Size(max = 100, message = "La ciudad no puede exceder 100 caracteres")
         String city,
@@ -32,6 +41,9 @@ public record AddressDto(
         @NotBlank(message = "El estado es obligatorio")
         @Size(min = 2, max = 50, message = "El estado debe tener entre 2 y 50 caracteres")
         String state,
+
+        @NotNull
+        String country,
 
         @NotBlank(message = "El código postal es obligatorio")
         @Pattern(regexp = "^\\d{5}(-\\d{4})?$", message = "El código postal debe tener el formato: 12345 o 12345-6789")
@@ -43,7 +55,7 @@ public record AddressDto(
      * @return a new Address instance with values mapped from this AddressDto.
      */
     public Address toDomain() {
-        return new Address(street, city, state, zipCode);
+        return new Address(street, externalNumber, internalNumber, neighborhood, city, state, country, zipCode);
     }
 
     /**
@@ -55,8 +67,12 @@ public record AddressDto(
     public static AddressDto fromDomain(Address address) {
         return new AddressDto(
                 address.street(),
+                address.externalNumber(),
+                address.internalNumber(),
+                address.neighborhood(),
                 address.city(),
                 address.state(),
+                address.country(),
                 address.zipCode()
         );
     }

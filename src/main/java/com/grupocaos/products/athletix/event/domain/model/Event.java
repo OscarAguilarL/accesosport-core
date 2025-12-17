@@ -120,7 +120,7 @@ public class Event {
 
     public void cancel() {
         if (!status.canBeCancelled()) {
-            throw new EventInvalidStatusException(MessageKeys.Events.EVENT_CANCEL_INVALID_STATUS, status); // TODO: Cambiar por excepción personalizada para manejar el status + status
+            throw new EventInvalidStatusException(MessageKeys.Events.EVENT_CANCEL_INVALID_STATUS, status);
         }
         this.status = EventStatus.CANCELLED;
         this.updatedOn = LocalDateTime.now();

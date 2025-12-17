@@ -2,14 +2,10 @@ package com.grupocaos.products.athletix.user.infrastructure.persistence.entity;
 
 import com.grupocaos.products.athletix.shared.domain.valueobjects.BloodType;
 import com.grupocaos.products.athletix.shared.domain.valueobjects.ShirtSize;
-import com.grupocaos.products.athletix.shared.infrastructure.common.persistence.jpa.AddressEmbeddable;
 import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
@@ -22,7 +18,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -47,27 +42,6 @@ public class UserParticipantProfileJpaEntity {
     @Id
     @Column(name = "id", nullable = false, updatable = false)
     private UUID id;
-
-    @Column(nullable = false, length = 120)
-    private String firstName;
-
-    @Column(nullable = false, length = 120)
-    private String lastName;
-
-    @Column(length = 120)
-    private String secondLastName;
-
-    @Column(nullable = false)
-    private LocalDate birthDate;
-
-    @Column(nullable = false, length = 20)
-    private String gender;
-
-    @Column(nullable = false, length = 20)
-    private String phoneNumber;
-
-    @Embedded
-    private AddressEmbeddable address;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)

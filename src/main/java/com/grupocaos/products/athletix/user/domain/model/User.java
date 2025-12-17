@@ -1,5 +1,6 @@
 package com.grupocaos.products.athletix.user.domain.model;
 
+import com.grupocaos.products.athletix.shared.domain.valueobjects.Address;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,7 +11,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import com.grupocaos.products.athletix.shared.domain.i18n.MessageKeys;
 
 @Data
 @NoArgsConstructor
@@ -20,6 +20,8 @@ public class User {
     private UUID id;
     private String email;
     private String passwordHash;
+    private PersonalData personalData;
+    private Address address;
     private LocalDateTime createdAt;
     private LocalDateTime lastAccess;
     @Builder.Default
@@ -36,11 +38,5 @@ public class User {
     public boolean hasRole(RoleEnumeration roleEnumeration) {
         return roles.stream()
                 .anyMatch(role -> role.getRole().equals(roleEnumeration));
-    }
-
-    public void validatePassword(String password) {
-        if (password == null || password.length() < 8) {
-            throw new IllegalArgumentException(MessageKeys.AuthMessages.PASSWORD_LENGTH_ERROR);
-        }
     }
 }

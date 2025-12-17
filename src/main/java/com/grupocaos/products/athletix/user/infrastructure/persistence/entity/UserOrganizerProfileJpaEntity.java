@@ -1,14 +1,10 @@
 package com.grupocaos.products.athletix.user.infrastructure.persistence.entity;
 
 import com.grupocaos.products.athletix.shared.domain.valueobjects.VerificationStatus;
-import com.grupocaos.products.athletix.shared.infrastructure.common.persistence.jpa.AddressEmbeddable;
 import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
@@ -46,15 +42,6 @@ public class UserOrganizerProfileJpaEntity {
     @Column(nullable = false, length = 120)
     private String organizationName;
 
-    @Column(nullable = false, length = 120)
-    private String contactName;
-
-    @Column(nullable = false, length = 20)
-    private String phone;
-
-    @Embedded
-    private AddressEmbeddable address;
-
     @Column(length = 150)
     private String website;
 
@@ -71,7 +58,7 @@ public class UserOrganizerProfileJpaEntity {
     @Enumerated(EnumType.STRING)
     private VerificationStatus verificationStatus;
 
-    @Column(nullable = true)
+    @Column()
     private LocalDateTime verifiedAt;
 
     @Column(nullable = false)

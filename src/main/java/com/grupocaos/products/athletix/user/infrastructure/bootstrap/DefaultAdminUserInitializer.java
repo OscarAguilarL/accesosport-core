@@ -2,6 +2,7 @@ package com.grupocaos.products.athletix.user.infrastructure.bootstrap;
 
 import com.grupocaos.products.athletix.auth.domain.service.PasswordEncoder;
 import com.grupocaos.products.athletix.bootstrap.domain.SystemInitializer;
+import com.grupocaos.products.athletix.shared.domain.valueobjects.Address;
 import com.grupocaos.products.athletix.user.domain.model.Role;
 import com.grupocaos.products.athletix.user.domain.model.RoleEnumeration;
 import com.grupocaos.products.athletix.user.domain.model.User;
@@ -58,10 +59,22 @@ public class DefaultAdminUserInitializer implements SystemInitializer {
         Role adminRole = roleRepository.findByRole(RoleEnumeration.ROLE_ADMIN)
                 .orElseThrow(() -> new IllegalStateException("ROLE_ADMIN not found"));
 
+        Address address = new Address(
+                "Molino del rey",
+                "100",
+                null,
+                "Aviación",
+                "Actopan",
+                "Hidalgo",
+                "México",
+                "42506"
+        );
+
         User adminUser = User.builder()
                 .email(adminEmail)
                 .passwordHash(passwordEncoder.encode(adminPassword))
                 .roles(Set.of(adminRole))
+                .address(address)
                 .build();
 
         userRepository.save(adminUser);
