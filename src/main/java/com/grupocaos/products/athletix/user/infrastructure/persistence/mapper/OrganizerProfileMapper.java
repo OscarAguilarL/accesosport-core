@@ -47,7 +47,7 @@ public class OrganizerProfileMapper {
         if (domain == null) return null;
 
         UserOrganizerProfileJpaEntity entity = new UserOrganizerProfileJpaEntity();
-        entity.setId(entity.getId());
+        entity.setId(domain.getId());
         entity.setOrganizationName(domain.getOrganizationName());
         entity.setWebsite(domain.getWebsite());
         entity.setFacebook(domain.getFacebook());

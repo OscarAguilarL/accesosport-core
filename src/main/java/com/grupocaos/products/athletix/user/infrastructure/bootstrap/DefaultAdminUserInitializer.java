@@ -59,22 +59,10 @@ public class DefaultAdminUserInitializer implements SystemInitializer {
         Role adminRole = roleRepository.findByRole(RoleEnumeration.ROLE_ADMIN)
                 .orElseThrow(() -> new IllegalStateException("ROLE_ADMIN not found"));
 
-        Address address = new Address(
-                "Molino del rey",
-                "100",
-                null,
-                "Aviación",
-                "Actopan",
-                "Hidalgo",
-                "México",
-                "42506"
-        );
-
         User adminUser = User.builder()
                 .email(adminEmail)
                 .passwordHash(passwordEncoder.encode(adminPassword))
                 .roles(Set.of(adminRole))
-                .address(address)
                 .build();
 
         userRepository.save(adminUser);
