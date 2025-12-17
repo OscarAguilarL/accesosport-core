@@ -1,6 +1,5 @@
 package com.grupocaos.products.athletix.user.domain.model;
 
-import com.grupocaos.products.athletix.shared.domain.valueobjects.Address;
 import com.grupocaos.products.athletix.shared.domain.valueobjects.BloodType;
 import com.grupocaos.products.athletix.shared.domain.valueobjects.ShirtSize;
 import lombok.AllArgsConstructor;
@@ -23,16 +22,6 @@ public class UserParticipantProfile {
 
     private UUID id;
 
-    // Personal data
-    private String firstName;
-    private String lastName;
-    private String secondLastName;
-    private LocalDate birthDate;
-    private String gender;
-    private String phoneNumber;
-
-    private Address address;
-
     // RUNNER SPECIFIC DATA
     private ShirtSize shirtSize;
     private String emergencyContactName;
@@ -47,13 +36,6 @@ public class UserParticipantProfile {
     /**
      * Creates an object of UserParticipantProfile
      *
-     * @param firstName             first name
-     * @param lastName              last name
-     * @param secondLastName        second last name
-     * @param birthDate             date of birth
-     * @param Gender                gender
-     * @param phoneNumber           phone number
-     * @param address               address
      * @param shirtSize             shirt size
      * @param emergencyContactName  emergency contact name
      * @param emergencyContactPhone emergency contact phone
@@ -63,13 +45,6 @@ public class UserParticipantProfile {
      * @return an object of type UserParticipantProfile
      */
     public static UserParticipantProfile create(
-            String firstName,
-            String lastName,
-            String secondLastName,
-            LocalDate birthDate,
-            String Gender,
-            String phoneNumber,
-            Address address,
             ShirtSize shirtSize,
             String emergencyContactName,
             String emergencyContactPhone,
@@ -79,13 +54,6 @@ public class UserParticipantProfile {
     ) {
         return UserParticipantProfile.builder()
                 .id(UUID.randomUUID())
-                .firstName(firstName)
-                .lastName(lastName)
-                .secondLastName(secondLastName)
-                .birthDate(birthDate)
-                .gender(Gender)
-                .phoneNumber(phoneNumber)
-                .address(address)
                 .shirtSize(shirtSize)
                 .emergencyContactName(emergencyContactName)
                 .emergencyContactPhone(emergencyContactPhone)

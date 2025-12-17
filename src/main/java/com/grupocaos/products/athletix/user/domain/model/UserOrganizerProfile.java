@@ -1,7 +1,6 @@
 package com.grupocaos.products.athletix.user.domain.model;
 
 import com.grupocaos.products.athletix.shared.domain.i18n.MessageKeys;
-import com.grupocaos.products.athletix.shared.domain.valueobjects.Address;
 import com.grupocaos.products.athletix.shared.domain.valueobjects.VerificationStatus;
 import com.grupocaos.products.athletix.user.domain.exception.InvalidVerificationStatusTransitionException;
 import lombok.AllArgsConstructor;
@@ -34,10 +33,6 @@ public class UserOrganizerProfile {
     private UUID id;
 
     private String organizationName;
-    private String contactName;
-    private String phone;
-
-    private Address address;
 
     // TODO: datos fiscales
     // TODO: LOGO URL
@@ -62,9 +57,6 @@ public class UserOrganizerProfile {
      * website, Facebook, and Instagram information if provided.
      *
      * @param organizationName The name of the organization associated with the profile.
-     * @param contactName      The primary contact person's name for the organization.
-     * @param phone            The phone number of the organization or primary contact.
-     * @param address          The address of the organization.
      * @param website          The website URL of the organization, if available.
      * @param facebook         The Facebook profile or page URL of the organization, if available.
      * @param instagram        The Instagram profile or page URL of the organization, if available.
@@ -74,9 +66,6 @@ public class UserOrganizerProfile {
      */
     public static UserOrganizerProfile create(
             String organizationName,
-            String contactName,
-            String phone,
-            Address address,
             String website,
             String facebook,
             String instagram,
@@ -86,9 +75,6 @@ public class UserOrganizerProfile {
         UserOrganizerProfileBuilder profileBuilder = UserOrganizerProfile.builder()
                 .id(UUID.randomUUID())
                 .organizationName(organizationName)
-                .contactName(contactName)
-                .phone(phone)
-                .address(address)
                 .description(description)
                 .verificationStatus(VerificationStatus.NOT_SUBMITTED)
                 .createdAt(LocalDateTime.now())

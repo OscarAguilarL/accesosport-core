@@ -19,20 +19,27 @@ import lombok.NoArgsConstructor;
 @Builder
 public class AddressEmbeddable {
 
-    @Column(nullable = false)
+    @Column()
     private String street;
 
-    @Column(nullable = false, length = 100)
+    @Column()
+    private String externalNumber;
+
+    @Column
+    private String internalNumber;
+
+    @Column()
+    private String neighborhood;
+
+    @Column(length = 100)
     private String city;
 
-    @Column(nullable = false, length = 50)
+    @Column(length = 50)
     private String state;
 
-    @Column(nullable = false, length = 10)
-    private String zipCode;
+    @Column(length = 50)
+    private String country;
 
-    // TODO: private String externalNumber;
-    // TODO: private String internalNumber;
-    // TODO: private String neighborhood;
-    // TODO: private String country;
+    @Column(length = 10)
+    private String zipCode;
 }

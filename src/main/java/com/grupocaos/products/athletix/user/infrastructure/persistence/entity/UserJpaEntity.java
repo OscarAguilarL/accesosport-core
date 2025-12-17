@@ -1,7 +1,8 @@
 package com.grupocaos.products.athletix.user.infrastructure.persistence.entity;
 
-import com.grupocaos.products.athletix.user.domain.model.Role;
+import com.grupocaos.products.athletix.shared.infrastructure.common.persistence.jpa.AddressEmbeddable;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -41,6 +42,12 @@ public class UserJpaEntity {
 
     @Column(nullable = false)
     private String passwordHash;
+
+    @Embedded
+    PersonalDataEmbeddable personalData;
+
+    @Embedded
+    AddressEmbeddable address;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;

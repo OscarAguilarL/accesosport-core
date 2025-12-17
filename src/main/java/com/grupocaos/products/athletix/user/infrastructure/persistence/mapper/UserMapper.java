@@ -1,5 +1,6 @@
 package com.grupocaos.products.athletix.user.infrastructure.persistence.mapper;
 
+import com.grupocaos.products.athletix.shared.domain.valueobjects.Address;
 import com.grupocaos.products.athletix.user.domain.model.Role;
 import com.grupocaos.products.athletix.user.domain.model.User;
 import com.grupocaos.products.athletix.user.infrastructure.persistence.entity.RoleJpaEntity;
@@ -19,6 +20,7 @@ public class UserMapper {
                 .passwordHash(entity.getPasswordHash())
                 .createdAt(entity.getCreatedAt())
                 .lastAccess(entity.getLastAccess())
+                .address(AddressMapper.mapAddressToDomain(entity.getAddress()))
                 .roles(mapRolesToDomain(entity.getRoles()))
                 .build();
     }
@@ -31,6 +33,7 @@ public class UserMapper {
         entity.setEmail(domain.getEmail());
         entity.setPasswordHash(domain.getPasswordHash());
         entity.setCreatedAt(domain.getCreatedAt());
+        entity.setAddress(AddressMapper.mapAddressToEntity(domain.getAddress()));
         entity.setLastAccess(domain.getLastAccess());
         entity.setRoles(mapRolesToEntity(domain.getRoles()));
         return entity;

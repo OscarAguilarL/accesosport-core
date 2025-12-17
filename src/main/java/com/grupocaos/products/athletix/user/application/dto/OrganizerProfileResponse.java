@@ -27,9 +27,6 @@ import java.util.UUID;
 public record OrganizerProfileResponse(
         UUID id,
         String organizationName,
-        String contactName,
-        String phone,
-        AddressDto address,
         String website,
         String facebook,
         String instagram,
@@ -50,9 +47,6 @@ public record OrganizerProfileResponse(
         return new OrganizerProfileResponse(
                 domain.getId(),
                 domain.getOrganizationName(),
-                domain.getContactName(),
-                domain.getPhone(),
-                AddressDto.fromDomain(domain.getAddress()),
                 domain.getWebsite(),
                 domain.getFacebook(),
                 domain.getInstagram(),
