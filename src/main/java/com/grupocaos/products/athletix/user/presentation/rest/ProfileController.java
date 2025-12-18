@@ -25,7 +25,7 @@ import java.util.UUID;
  * It provides endpoints for creating and retrieving profiles associated with the authenticated user.
  */
 @RestController
-@RequestMapping("/api/v1/profile")
+@RequestMapping("/api/v1/user/profile")
 @RequiredArgsConstructor
 @Slf4j
 public class ProfileController {

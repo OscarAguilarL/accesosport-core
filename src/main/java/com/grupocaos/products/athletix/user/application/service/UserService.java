@@ -4,6 +4,7 @@ import com.grupocaos.products.athletix.user.application.dto.CreateOrganizerProfi
 import com.grupocaos.products.athletix.user.application.dto.CreateParticipantProfileRequest;
 import com.grupocaos.products.athletix.user.application.dto.OrganizerProfileResponse;
 import com.grupocaos.products.athletix.user.application.dto.ParticipantProfileResponse;
+import com.grupocaos.products.athletix.user.application.dto.SavePersonalDataRequest;
 import com.grupocaos.products.athletix.user.domain.exception.ProfileNotFoundException;
 import com.grupocaos.products.athletix.user.domain.repository.OrganizerProfileRepository;
 import com.grupocaos.products.athletix.user.domain.repository.ParticipantProfileRepository;
@@ -11,6 +12,7 @@ import com.grupocaos.products.athletix.user.domain.repository.RoleRepository;
 import com.grupocaos.products.athletix.user.domain.repository.UserRepository;
 import com.grupocaos.products.athletix.user.domain.usecase.CreateOrganizerProfileUseCase;
 import com.grupocaos.products.athletix.user.domain.usecase.CreateParticipantProfileUseCase;
+import com.grupocaos.products.athletix.user.domain.usecase.SaveUserPersonalInfoUseCase;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -60,6 +62,7 @@ public class UserService {
      * @param request the data transfer object containing the details required to create the participant profile
      * @return a {@code ParticipantProfileResponse} containing the details of the newly created participant profile
      */
+    @Transactional
     public ParticipantProfileResponse createParticipantProfile(UUID userId, CreateParticipantProfileRequest request) {
         var command = new CreateParticipantProfileUseCase.Command(
                 request.shirtSize(),
@@ -98,5 +101,17 @@ public class UserService {
         var profile = participantProfileRepository.findByUserId(userId)
                 .orElseThrow(() -> new ProfileNotFoundException("Participant profile not found"));
         return ParticipantProfileResponse.fromDomain(profile);
+    }
+
+    /**
+     * Saves the personal information of a user.
+     *
+     * @param userId  the unique identifier of the user whose personal information is to be saved
+     * @param request an object containing the user's personal data, which includes first name, last name,
+     *                second last name, birth date, gender, and phone number
+     */
+    public void saveUserPersonalInformation(UUID userId, SavePersonalDataRequest request) {
+        var useCase = new SaveUserPersonalInfoUseCase(userRepository);
+        useCase.execute(request.toCommand(userId));
     }
 }
