@@ -5,6 +5,7 @@ import com.grupocaos.products.athletix.user.application.dto.CreateParticipantPro
 import com.grupocaos.products.athletix.user.application.dto.OrganizerProfileResponse;
 import com.grupocaos.products.athletix.user.application.dto.ParticipantProfileResponse;
 import com.grupocaos.products.athletix.user.application.dto.SavePersonalDataRequest;
+import com.grupocaos.products.athletix.user.application.dto.SaveUserAddressRequest;
 import com.grupocaos.products.athletix.user.domain.exception.ProfileNotFoundException;
 import com.grupocaos.products.athletix.user.domain.repository.OrganizerProfileRepository;
 import com.grupocaos.products.athletix.user.domain.repository.ParticipantProfileRepository;
@@ -12,6 +13,7 @@ import com.grupocaos.products.athletix.user.domain.repository.RoleRepository;
 import com.grupocaos.products.athletix.user.domain.repository.UserRepository;
 import com.grupocaos.products.athletix.user.domain.usecase.CreateOrganizerProfileUseCase;
 import com.grupocaos.products.athletix.user.domain.usecase.CreateParticipantProfileUseCase;
+import com.grupocaos.products.athletix.user.domain.usecase.SaveUserAddressUseCase;
 import com.grupocaos.products.athletix.user.domain.usecase.SaveUserPersonalInfoUseCase;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -112,6 +114,18 @@ public class UserService {
      */
     public void saveUserPersonalInformation(UUID userId, SavePersonalDataRequest request) {
         var useCase = new SaveUserPersonalInfoUseCase(userRepository);
+        useCase.execute(request.toCommand(userId));
+    }
+
+    /**
+     * Saves the address information of a user.
+     *
+     * @param userId  the unique identifier of the user whose address information is to be saved
+     * @param request the data transfer object containing the address details, such as street, city, state,
+     *                postal code, and country
+     */
+    public void saveUserAddress(UUID userId, SaveUserAddressRequest request) {
+        var useCase = new SaveUserAddressUseCase(userRepository);
         useCase.execute(request.toCommand(userId));
     }
 }
