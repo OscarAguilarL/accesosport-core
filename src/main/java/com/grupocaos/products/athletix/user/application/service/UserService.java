@@ -1,12 +1,17 @@
 package com.grupocaos.products.athletix.user.application.service;
 
+import com.grupocaos.products.athletix.shared.application.dto.AddressDto;
+import com.grupocaos.products.athletix.shared.domain.i18n.MessageKeys;
 import com.grupocaos.products.athletix.user.application.dto.CreateOrganizerProfileRequest;
 import com.grupocaos.products.athletix.user.application.dto.CreateParticipantProfileRequest;
 import com.grupocaos.products.athletix.user.application.dto.OrganizerProfileResponse;
 import com.grupocaos.products.athletix.user.application.dto.ParticipantProfileResponse;
 import com.grupocaos.products.athletix.user.application.dto.SavePersonalDataRequest;
 import com.grupocaos.products.athletix.user.application.dto.SaveUserAddressRequest;
+import com.grupocaos.products.athletix.user.application.dto.UserInformationDto;
 import com.grupocaos.products.athletix.user.domain.exception.ProfileNotFoundException;
+import com.grupocaos.products.athletix.user.domain.exception.UserNotFoundException;
+import com.grupocaos.products.athletix.user.domain.model.User;
 import com.grupocaos.products.athletix.user.domain.repository.OrganizerProfileRepository;
 import com.grupocaos.products.athletix.user.domain.repository.ParticipantProfileRepository;
 import com.grupocaos.products.athletix.user.domain.repository.RoleRepository;
@@ -110,7 +115,7 @@ public class UserService {
      *
      * @param userId  the unique identifier of the user whose personal information is to be saved
      * @param request an object containing the user's personal data, which includes first name, last name,
-     *                second last name, birth date, gender, and phone number
+     *                second last name, birthdate, gender, and phone number
      */
     public void saveUserPersonalInformation(UUID userId, SavePersonalDataRequest request) {
         var useCase = new SaveUserPersonalInfoUseCase(userRepository);
@@ -127,5 +132,29 @@ public class UserService {
     public void saveUserAddress(UUID userId, SaveUserAddressRequest request) {
         var useCase = new SaveUserAddressUseCase(userRepository);
         useCase.execute(request.toCommand(userId));
+    }
+
+    /**
+     * Retrieves user information based on the provided user ID.
+     *
+     * @param userId the unique identifier of the user whose information is to be retrieved
+     * @return a UserInformationDto object containing detailed information about the user,
+     * including personal data and address details
+     * @throws UserNotFoundException if no user is found with the given ID
+     */
+    public UserInformationDto getUserInformation(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(MessageKeys.AuthMessages.USER_NOT_FOUND));
+        return new UserInformationDto(
+                user.getId(),
+                user.getEmail(),
+                user.getPersonalData().getFirstName(),
+                user.getPersonalData().getLastName(),
+                user.getPersonalData().getSecondLastName(),
+                user.getPersonalData().getBirthDate(),
+                user.getPersonalData().getGender(),
+                user.getPersonalData().getPhoneNumber(),
+                AddressDto.fromDomain(user.getAddress())
+        );
     }
 }
