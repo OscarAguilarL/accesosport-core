@@ -31,11 +31,15 @@ Este proyecto sigue **Clean Architecture** (Arquitectura Hexagonal), que separa 
 ### 1. Regla de Dependencia
 ```
 Presentation → Application → Domain ← Infrastructure
+                    ↓           ↓            ↓
+                         Shared
 ```
 
 - Las capas externas **SÍ** pueden depender de las internas
 - Las capas internas **NO** pueden depender de las externas
 - El **Domain** es el centro y no conoce a nadie
+- El módulo **Shared** contiene elementos compartidos por todos los módulos
+- Todos los módulos pueden depender de `shared`, pero `shared` no depende de ningún módulo específico
 
 ### 2. Inversión de Dependencias
 
@@ -57,25 +61,83 @@ public class UserRepositoryAdapter implements UserRepository {  }
 public interface UserRepository extends JpaRepository<User, UUID> {  }
 ```
 
-### 3. Separación de Entidades
+### 2.1 Use Cases Abstractos
 
-**Entidades de Dominio** ≠ **Entidades JPA**
+Todos los casos de uso extienden de la clase base `UseCase<Command, Result>` que define el contrato de ejecución:
 
 ```java
-// Domain Entity (sin anotaciones)
-public class User {
-    private UUID id;
-    private String email;
+// Clase base para todos los casos de uso
+public abstract class UseCase<Command, Result> {
+    public Result execute(Command command) {
+        return internalExecute(command);
+    }
+
+    public Result execute() {
+        return internalExecute(null);
+    }
+
+    protected abstract Result internalExecute(Command command);
+}
+
+// Implementación de un caso de uso concreto
+@RequiredArgsConstructor
+public class SaveUserAddressUseCase extends UseCase<
+        SaveUserAddressUseCase.Command,
+        SaveUserAddressUseCase.Result> {
+
+    private final UserRepository userRepository;
+
+    @Override
+    protected Result internalExecute(Command command) {
+        // Lógica del caso de uso
+        User user = userRepository.findById(command.userId())
+            .orElseThrow(() -> new UserNotFoundException(...));
+
+        Address address = new Address(...);
+        user.setAddress(address);
+        userRepository.save(user);
+
+        return new Result(address);
+    }
+
+    public record Command(UUID userId, String street, ...) {}
+    public record Result(Address address) {}
+}
+```
+
+### 3. Separación de Entidades
+
+**Entidades de Dominio** ≠ **Entidades JPA** ≠ **Objetos Embebidos**
+
+```java
+// Domain Model (sin anotaciones, con lógica de negocio)
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class PersonalData {
+    private String firstName;
+    private String lastName;
+    private LocalDate birthDate;
+    private String gender;
     // Lógica de negocio
 }
 
-// Infrastructure JPA Entity (con anotaciones)
-@Entity
-@Table(name = "users")
-public class UserJpaEntity {
-    @Id
-    private UUID id;
-    private String email;
+// Infrastructure Embeddable (con anotaciones JPA)
+@Embeddable
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class PersonalDataEmbeddable {
+    @Column
+    private String firstName;
+    @Column
+    private String lastName;
+    @Column
+    private LocalDate birthDate;
+    @Column
+    private String gender;
 }
 ```
 
@@ -86,32 +148,42 @@ public class UserJpaEntity {
 ```
 src/main/java/com/grupocaos/products/athletix/
 │
-└── 📁 [feature]/                    # Por cada feature/módulo
-    │
-    ├── 📁 domain/                   # ⭐ CAPA DE DOMINIO
-    │   ├── 📁 model/                # Entidades puras de negocio
-    │   ├── 📁 repository/           # Ports (interfaces)
-    │   ├── 📁 service/              # Ports de servicios
-    │   ├── 📁 usecase/              # Casos de uso (lógica de negocio)
-    │   └── 📁 exception/            # Excepciones de dominio
-    │
-    ├── 📁 application/              # 🔷 CAPA DE APLICACIÓN
-    │   ├── 📁 dto/                  # DTOs (Request/Response)
-    │   └── 📁 service/              # Servicios de aplicación
-    │
-    ├── 📁 infrastructure/           # 🔧 CAPA DE INFRAESTRUCTURA
-    │   ├── 📁 persistence/
-    │   │   ├── 📁 entity/           # Entidades JPA
-    │   │   ├── 📁 jpa/              # Spring Data Repositories
-    │   │   ├── 📁 adapter/          # Adapters de repositorio
-    │   │   └── 📁 mapper/           # Mappers Domain ↔ JPA
-    │   ├── 📁 config/               # Configuraciones
-    │   └── 📁 [other-adapters]/     # Otros adaptadores
-    │
-    └── 📁 presentation/             # 🌐 CAPA DE PRESENTACIÓN
-        └── 📁 rest/                 # Controllers REST
-            ├── AuthController.java
-            └── 📁 exception/        # Exception handlers
+├── 📁 [feature]/                    # Por cada feature/módulo (user, event, auth, etc.)
+│   │
+│   ├── 📁 domain/                   # ⭐ CAPA DE DOMINIO
+│   │   ├── 📁 model/                # Entidades y modelos de dominio (sin anotaciones)
+│   │   ├── 📁 repository/           # Ports (interfaces) de repositorios
+│   │   ├── 📁 service/              # Ports de servicios externos
+│   │   ├── 📁 usecase/              # Casos de uso (extienden UseCase<Command,Result>)
+│   │   └── 📁 exception/            # Excepciones de dominio
+│   │
+│   ├── 📁 application/              # 🔷 CAPA DE APLICACIÓN
+│   │   ├── 📁 dto/                  # DTOs (Request/Response) con validaciones
+│   │   └── 📁 service/              # Servicios de aplicación (orquestadores)
+│   │
+│   ├── 📁 infrastructure/           # 🔧 CAPA DE INFRAESTRUCTURA
+│   │   ├── 📁 persistence/
+│   │   │   ├── 📁 entity/           # Entidades JPA y Embeddables
+│   │   │   ├── 📁 jpa/              # Spring Data Repositories
+│   │   │   ├── 📁 adapter/          # Adapters de repositorio
+│   │   │   └── 📁 mapper/           # Mappers Domain ↔ JPA/Embeddable
+│   │   ├── 📁 config/               # Configuraciones técnicas
+│   │   └── 📁 [other-adapters]/     # Otros adaptadores (email, payment, etc.)
+│   │
+│   └── 📁 presentation/             # 🌐 CAPA DE PRESENTACIÓN
+│       └── 📁 rest/                 # Controllers REST
+│           └── 📁 exception/        # Exception handlers
+│
+└── 📁 shared/                       # 💎 CÓDIGO COMPARTIDO
+    ├── 📁 domain/                   # Dominio compartido
+    │   ├── 📁 usecase/              # UseCase<Command,Result> base
+    │   ├── 📁 valueobjects/         # Value Objects (Address, Money, etc.)
+    │   └── 📁 i18n/                 # Interfaces de internacionalización
+    ├── 📁 application/              # DTOs compartidos
+    │   └── 📁 dto/
+    └── 📁 infrastructure/           # Infraestructura compartida
+        ├── 📁 common/               # Utilidades comunes
+        └── 📁 i18n/                 # Implementación de i18n
 ```
 
 ---
@@ -194,35 +266,37 @@ public interface EventoRepository {
 ```java
 package com.grupocaos.products.athletix.evento.domain.usecase;
 
-public class PublicarEventoUseCase extends UseCase<UUID, PublicarEventoUseCase.PublicacionResult> {
-    
+import com.grupocaos.products.athletix.shared.domain.usecase.UseCase;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
+public class PublicarEventoUseCase extends UseCase<
+        PublicarEventoUseCase.Command,
+        PublicarEventoUseCase.Result> {
+
     private final EventoRepository eventoRepository;
     private final NotificationService notificationService;
-    
-    public PublicarEventoUseCase(EventoRepository eventoRepository,
-                                 NotificationService notificationService) {
-        this.eventoRepository = eventoRepository;
-        this.notificationService = notificationService;
-    }
-    
-    public PublicacionResult execute(UUID eventoId) {
+
+    @Override
+    protected Result internalExecute(Command command) {
         // 1. Obtener evento
-        Evento evento = eventoRepository.findById(eventoId)
-            .orElseThrow(() -> new EventoNotFoundException(eventoId));
-        
+        Evento evento = eventoRepository.findById(command.eventoId())
+            .orElseThrow(() -> new EventoNotFoundException(command.eventoId()));
+
         // 2. Aplicar lógica de negocio
         evento.publicar();
-        
+
         // 3. Persistir
         Evento eventoPublicado = eventoRepository.save(evento);
-        
+
         // 4. Notificar (efecto secundario)
         notificationService.notifyEventoPublicado(eventoPublicado);
-        
-        return new PublicacionResult(eventoPublicado);
+
+        return new Result(eventoPublicado);
     }
-    
-    public record PublicacionResult(Evento evento) {}
+
+    public record Command(UUID eventoId) {}
+    public record Result(Evento evento) {}
 }
 ```
 
@@ -298,45 +372,43 @@ public class EventoApplicationService {
     @Transactional
     public EventoResponse crearEvento(CrearEventoRequest request, UUID organizadorId) {
         log.info("Creating event: {} for organizer: {}", request.nombre(), organizadorId);
-        
-        // 1. Validar organizador existe
-        Organizador organizador = organizadorRepository.findById(organizadorId)
-            .orElseThrow(() -> new OrganizadorNotFoundException(organizadorId));
-        
-        // 2. Crear comando para el caso de uso
-        CrearEventoUseCase.CrearEventoCommand command = 
-            new CrearEventoUseCase.CrearEventoCommand(
+
+        // 1. Crear comando para el caso de uso
+        CrearEventoUseCase.Command command =
+            new CrearEventoUseCase.Command(
                 request.nombre(),
                 request.descripcion(),
                 request.fecha(),
-                request.ubicacion().toDomain(),
+                request.ubicacion(),
                 request.distanciaKm(),
-                organizador
+                organizadorId
             );
-        
-        // 3. Ejecutar caso de uso
+
+        // 2. Ejecutar caso de uso
         CrearEventoUseCase useCase = new CrearEventoUseCase(
             eventoRepository,
+            organizadorRepository,
             notificationService
         );
-        
-        CrearEventoUseCase.CreacionResult result = useCase.execute(command);
-        
-        // 4. Mapear a DTO de respuesta
+
+        CrearEventoUseCase.Result result = useCase.execute(command);
+
+        // 3. Mapear a DTO de respuesta
         return EventoResponseMapper.fromDomain(result.evento());
     }
-    
+
     @Transactional
     public EventoResponse publicarEvento(UUID eventoId) {
         log.info("Publishing event: {}", eventoId);
-        
+
         PublicarEventoUseCase useCase = new PublicarEventoUseCase(
             eventoRepository,
             notificationService
         );
-        
-        PublicarEventoUseCase.PublicacionResult result = useCase.execute(eventoId);
-        
+
+        PublicarEventoUseCase.Command command = new PublicarEventoUseCase.Command(eventoId);
+        PublicarEventoUseCase.Result result = useCase.execute(command);
+
         return EventoResponseMapper.fromDomain(result.evento());
     }
 }
@@ -417,43 +489,80 @@ public class EventoJpaEntity {
 }
 ```
 
-**Ejemplo de Mapper:**
+**Ejemplo de Embeddable:**
 ```java
-package com.grupocaos.products.athletix.evento.infrastructure.persistence.mapper;
+package com.grupocaos.products.athletix.user.infrastructure.persistence.entity;
 
-public class EventoMapper {
-    
-    public static Evento toDomain(EventoJpaEntity entity) {
+@Embeddable
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class PersonalDataEmbeddable {
+
+    @Column
+    private String firstName;
+    @Column
+    private String lastName;
+    @Column
+    private String secondLastName;
+    @Column
+    private LocalDate birthDate;
+    @Column
+    private String gender;
+    @Column
+    private String phoneNumber;
+}
+```
+
+**Ejemplo de Mapper Domain ↔ Embeddable:**
+```java
+package com.grupocaos.products.athletix.user.infrastructure.persistence.mapper;
+
+/**
+ * Mapper para convertir entre PersonalData (dominio) y PersonalDataEmbeddable (infraestructura)
+ */
+public class PersonalDataMapper {
+
+    /**
+     * Convierte de entidad embebible a modelo de dominio
+     */
+    public static PersonalData toDomain(PersonalDataEmbeddable entity) {
         if (entity == null) return null;
-        
-        return Evento.builder()
-            .id(entity.getId())
-            .nombre(entity.getNombre())
-            .descripcion(entity.getDescripcion())
-            .fecha(entity.getFecha())
-            .estado(entity.getEstado())
-            .ubicacion(UbicacionMapper.toDomain(entity.getUbicacion()))
-            .distanciaKm(entity.getDistanciaKm())
-            .organizador(OrganizadorMapper.toDomain(entity.getOrganizador()))
+
+        return PersonalData.builder()
+            .firstName(entity.getFirstName())
+            .lastName(entity.getLastName())
+            .secondLastName(entity.getSecondLastName())
+            .birthDate(entity.getBirthDate())
+            .gender(entity.getGender())
+            .phoneNumber(entity.getPhoneNumber())
             .build();
     }
-    
-    public static EventoJpaEntity toEntity(Evento domain) {
+
+    /**
+     * Convierte de modelo de dominio a entidad embebible
+     */
+    public static PersonalDataEmbeddable toEntity(PersonalData domain) {
         if (domain == null) return null;
-        
-        EventoJpaEntity entity = new EventoJpaEntity();
-        entity.setId(domain.getId());
-        entity.setNombre(domain.getNombre());
-        entity.setDescripcion(domain.getDescripcion());
-        entity.setFecha(domain.getFecha());
-        entity.setEstado(domain.getEstado());
-        entity.setUbicacion(UbicacionMapper.toEmbeddable(domain.getUbicacion()));
-        entity.setDistanciaKm(domain.getDistanciaKm());
-        entity.setOrganizador(OrganizadorMapper.toEntity(domain.getOrganizador()));
-        return entity;
+
+        return PersonalDataEmbeddable.builder()
+            .firstName(domain.getFirstName())
+            .lastName(domain.getLastName())
+            .secondLastName(domain.getSecondLastName())
+            .birthDate(domain.getBirthDate())
+            .gender(domain.getGender())
+            .phoneNumber(domain.getPhoneNumber())
+            .build();
     }
 }
 ```
+
+**Ventajas de usar Embeddables:**
+- ✅ Evita crear múltiples tablas para datos cohesivos (nombre, apellidos, etc.)
+- ✅ Mantiene la separación entre dominio e infraestructura
+- ✅ Facilita el mapeo con Builders de Lombok
+- ✅ Reutilizable en diferentes entidades JPA
 
 **Ejemplo de Repository Adapter:**
 ```java
@@ -798,12 +907,17 @@ public class InscripcionController {
 Cuando agregues una nueva feature, sigue este checklist:
 
 ### ✅ Domain Layer
-- [ ] Crear entidad de dominio (sin anotaciones)
-- [ ] Agregar lógica de negocio en la entidad
+- [ ] Crear modelo de dominio (sin anotaciones JPA)
+- [ ] Usar `@Data`, `@Builder`, `@AllArgsConstructor`, `@NoArgsConstructor` de Lombok
+- [ ] Agregar lógica de negocio en la entidad/modelo
 - [ ] Crear excepciones de dominio si es necesario
-- [ ] Definir Repository Port (interfaz)
+- [ ] Usar `MessageKeys` para mensajes de error
+- [ ] Definir Repository Port (interfaz sin extends JpaRepository)
 - [ ] Definir Service Ports si hay dependencias externas
-- [ ] Crear Use Case con la lógica de negocio
+- [ ] Crear Use Case extendiendo `UseCase<Command, Result>`
+- [ ] Usar `@RequiredArgsConstructor` para inyección de dependencias
+- [ ] Definir records `Command` y `Result` dentro del UseCase
+- [ ] Implementar método `internalExecute(Command command)`
 - [ ] Escribir tests unitarios del Use Case (sin Spring)
 
 ### ✅ Application Layer
@@ -815,12 +929,16 @@ Cuando agregues una nueva feature, sigue este checklist:
 - [ ] Agregar `@Transactional` donde corresponda
 
 ### ✅ Infrastructure Layer
-- [ ] Crear JPA Entity (con anotaciones)
-- [ ] Crear Spring Data Repository
-- [ ] Crear Mapper Domain ↔ JPA
-- [ ] Crear Repository Adapter
-- [ ] Implementar Service Adapters si hay
-- [ ] Configurar relaciones JPA correctamente
+- [ ] Crear JPA Entity (con anotaciones `@Entity`, `@Table`)
+- [ ] Crear Embeddables para datos cohesivos (`@Embeddable`)
+- [ ] Usar `@Data`, `@NoArgsConstructor`, `@AllArgsConstructor`, `@Builder` de Lombok
+- [ ] Crear Spring Data Repository (extends `JpaRepository`)
+- [ ] Crear Mapper Domain ↔ JPA/Embeddable (métodos estáticos)
+- [ ] Usar `.builder()` en los mappers para claridad
+- [ ] Crear Repository Adapter implementando el Port del dominio
+- [ ] Implementar Service Adapters si hay (ej: MessageTranslator)
+- [ ] Configurar relaciones JPA correctamente (`@ManyToOne`, `@OneToMany`, etc.)
+- [ ] Usar `@Embedded` para incluir Embeddables en entidades
 
 ### ✅ Presentation Layer
 - [ ] Crear Controller REST
@@ -906,7 +1024,7 @@ public class EventoRepositoryAdapter implements EventoRepository {
 public class EventoApplicationService {
     public void publicarEvento(UUID id) {
         Evento evento = eventoRepository.findById(id).orElseThrow();
-        
+
         // ❌ Lógica de negocio aquí
         if (evento.getEstado() != EstadoEvento.BORRADOR) {
             throw new IllegalStateException("...");
@@ -919,25 +1037,37 @@ public class EventoApplicationService {
 
 ```java
 // ✅ BIEN - Lógica en el Use Case
-// Domain Use Case
-public class PublicarEventoUseCase {
-    public PublicacionResult execute(UUID eventoId) {
-        Evento evento = eventoRepository.findById(eventoId).orElseThrow();
-        
+// Domain Use Case extendiendo UseCase<Command, Result>
+@RequiredArgsConstructor
+public class PublicarEventoUseCase extends UseCase<
+        PublicarEventoUseCase.Command,
+        PublicarEventoUseCase.Result> {
+
+    private final EventoRepository eventoRepository;
+
+    @Override
+    protected Result internalExecute(Command command) {
+        Evento evento = eventoRepository.findById(command.eventoId()).orElseThrow();
+
         // ✅ Lógica de negocio en el dominio
         evento.publicar(); // El método publicar() contiene las validaciones
-        
+
         eventoRepository.save(evento);
-        return new PublicacionResult(evento);
+        return new Result(evento);
     }
+
+    public record Command(UUID eventoId) {}
+    public record Result(Evento evento) {}
 }
 
 // Application Service solo orquesta
 @Service
 public class EventoApplicationService {
+    @Transactional
     public EventoResponse publicarEvento(UUID id) {
         PublicarEventoUseCase useCase = new PublicarEventoUseCase(eventoRepository);
-        PublicacionResult result = useCase.execute(id);
+        PublicarEventoUseCase.Command command = new PublicarEventoUseCase.Command(id);
+        PublicarEventoUseCase.Result result = useCase.execute(command);
         return EventoResponseMapper.fromDomain(result.evento());
     }
 }
@@ -1011,9 +1141,11 @@ public class PublicarEventoUseCase {
 
 ```java
 // ✅ BIEN
-// Domain Use Case sin anotaciones
-public class PublicarEventoUseCase {
-    public PublicacionResult execute(UUID eventoId) {
+// Domain Use Case sin anotaciones (solo @RequiredArgsConstructor de Lombok)
+@RequiredArgsConstructor
+public class PublicarEventoUseCase extends UseCase<Command, Result> {
+    @Override
+    protected Result internalExecute(Command command) {
         // ...
     }
 }
@@ -1028,9 +1160,139 @@ public class EventoApplicationService {
 }
 ```
 
+### ❌ Error 7: No usar Embeddables para datos cohesivos
+
+```java
+// ❌ MAL - Crear tablas separadas para datos cohesivos
+@Entity
+@Table(name = "users")
+public class UserJpaEntity {
+    @Id
+    private UUID id;
+    private String email;
+
+    @OneToOne
+    @JoinColumn(name = "personal_data_id")
+    private PersonalDataEntity personalData; // ❌ Tabla separada innecesaria
+}
+
+@Entity
+@Table(name = "personal_data")
+public class PersonalDataEntity {
+    @Id
+    private UUID id;
+    private String firstName;
+    private String lastName;
+}
+```
+
+```java
+// ✅ BIEN - Usar Embeddable para datos cohesivos
+@Entity
+@Table(name = "users")
+public class UserJpaEntity {
+    @Id
+    private UUID id;
+    private String email;
+
+    @Embedded // ✅ Embebido en la misma tabla
+    private PersonalDataEmbeddable personalData;
+}
+
+@Embeddable
+public class PersonalDataEmbeddable {
+    @Column
+    private String firstName;
+    @Column
+    private String lastName;
+    @Column
+    private LocalDate birthDate;
+}
+```
+
+### ❌ Error 8: No usar el módulo Shared para código reutilizable
+
+```java
+// ❌ MAL - Duplicar Value Objects en cada módulo
+package com.grupocaos.products.athletix.user.domain.model;
+public record Address(...) {} // Duplicado en user
+
+package com.grupocaos.products.athletix.event.domain.model;
+public record Address(...) {} // Duplicado en event
+```
+
+```java
+// ✅ BIEN - Value Object en módulo shared
+package com.grupocaos.products.athletix.shared.domain.valueobjects;
+public record Address(...) {} // ✅ Una sola definición compartida
+
+// Importar en cualquier módulo
+import com.grupocaos.products.athletix.shared.domain.valueobjects.Address;
+```
+
 ---
 
 ## Buenas Prácticas
+
+### 💡 8. Internacionalización (i18n)
+
+El proyecto implementa soporte de internacionalización con una interfaz en el dominio compartido:
+
+```java
+// Interfaz en shared/domain/i18n
+package com.grupocaos.products.athletix.shared.domain.i18n;
+
+public interface MessageTranslator {
+    /**
+     * Traduce un mensaje usando el locale actual del contexto
+     */
+    String translate(String key, Object... args);
+
+    /**
+     * Traduce un mensaje con un locale específico
+     */
+    String translate(String key, String locale, Object... args);
+}
+```
+
+**Uso en excepciones de dominio:**
+```java
+package com.grupocaos.products.athletix.user.domain.exception;
+
+import com.grupocaos.products.athletix.shared.domain.i18n.MessageKeys;
+
+public class UserNotFoundException extends RuntimeException {
+    public UserNotFoundException(String messageKey) {
+        super(messageKey); // Pasa la clave, no el mensaje traducido
+    }
+}
+
+// En el caso de uso
+throw new UserNotFoundException(MessageKeys.AuthMessages.USER_NOT_FOUND);
+```
+
+**Keys centralizadas:**
+```java
+package com.grupocaos.products.athletix.shared.domain.i18n;
+
+public class MessageKeys {
+    public static class AuthMessages {
+        public static final String USER_NOT_FOUND = "auth.user.not.found";
+        public static final String INVALID_CREDENTIALS = "auth.invalid.credentials";
+    }
+}
+```
+
+**Implementación en infraestructura:**
+- La implementación de `MessageTranslator` se coloca en `shared/infrastructure/i18n`
+- Usa Spring's `MessageSource` internamente
+- Los archivos de recursos están en `resources/messages_*.properties`
+
+**Ventajas:**
+- ✅ El dominio no depende de Spring
+- ✅ Mensajes centralizados y consistentes
+- ✅ Fácil soporte multi-idioma
+- ✅ Keys tipadas previenen errores
 
 ### 💡 1. Usa Builders en Entidades de Dominio
 
@@ -1241,62 +1503,55 @@ class PublicarEventoUseCaseTest {
 
 ### 💡 7. Value Objects para Conceptos de Negocio
 
+Los Value Objects se ubican en el módulo `shared` para reutilización. Usa `records` de Java para inmutabilidad:
+
 ```java
-// Value Object para Ubicación
-public class Ubicacion {
-    private final String direccion;
-    private final String ciudad;
-    private final String pais;
-    private final double latitud;
-    private final double longitud;
-    
-    private Ubicacion(String direccion, String ciudad, String pais, 
-                      double latitud, double longitud) {
-        this.direccion = direccion;
-        this.ciudad = ciudad;
-        this.pais = pais;
-        this.latitud = latitud;
-        this.longitud = longitud;
-    }
-    
-    public static Ubicacion of(String direccion, String ciudad, String pais,
-                               double latitud, double longitud) {
-        validarCoordenadas(latitud, longitud);
-        return new Ubicacion(direccion, ciudad, pais, latitud, longitud);
-    }
-    
-    private static void validarCoordenadas(double latitud, double longitud) {
-        if (latitud < -90 || latitud > 90) {
-            throw new IllegalArgumentException("Latitud inválida");
-        }
-        if (longitud < -180 || longitud > 180) {
-            throw new IllegalArgumentException("Longitud inválida");
-        }
-    }
-    
-    public double calcularDistanciaA(Ubicacion otra) {
-        // Lógica de negocio para calcular distancia
-        return calcularHaversine(this.latitud, this.longitud, 
-                                otra.latitud, otra.longitud);
-    }
-    
-    // Getters
-    
+// Value Object compartido usando record
+package com.grupocaos.products.athletix.shared.domain.valueobjects;
+
+import jakarta.annotation.Nonnull;
+
+/**
+ * Representa la dirección de un usuario.
+ * @param street         Nombre de la calle.
+ * @param externalNumber Número externo.
+ * @param internalNumber Número interno (opcional).
+ * @param neighborhood   Colonia o barrio.
+ * @param city           Ciudad.
+ * @param state          Estado o provincia.
+ * @param country        País.
+ * @param zipCode        Código postal.
+ */
+public record Address(
+        String street,
+        String externalNumber,
+        String internalNumber,
+        String neighborhood,
+        String city,
+        String state,
+        String country,
+        String zipCode
+) {
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Ubicacion ubicacion = (Ubicacion) o;
-        return Double.compare(latitud, ubicacion.latitud) == 0 &&
-               Double.compare(longitud, ubicacion.longitud) == 0;
-    }
-    
-    @Override
-    public int hashCode() {
-        return Objects.hash(latitud, longitud);
+    @Nonnull
+    public String toString() {
+        StringBuilder result = new StringBuilder(street);
+        if (city != null && !city.isBlank()) {
+            result.append(", ").append(city);
+        }
+        if (state != null && !state.isBlank()) {
+            result.append(", ").append(state);
+        }
+        return result.toString();
     }
 }
 ```
+
+**Ventajas de usar Value Objects en `shared`:**
+- ✅ Reutilización entre módulos (user, event, payment, etc.)
+- ✅ Conceptos de dominio consistentes en toda la aplicación
+- ✅ Lógica de validación centralizada
+- ✅ Inmutabilidad garantizada con records
 
 ---
 
@@ -1356,47 +1611,59 @@ public class [NombreEntidad] {
 ```java
 package com.grupocaos.products.athletix.[feature].domain.usecase;
 
-public class [Nombre]UseCase {
-    
+import com.grupocaos.products.athletix.shared.domain.usecase.UseCase;
+import lombok.RequiredArgsConstructor;
+
+/**
+ * Use case para [descripción del caso de uso].
+ * [Descripción detallada del propósito y comportamiento]
+ */
+@RequiredArgsConstructor
+public class [Nombre]UseCase extends UseCase<
+        [Nombre]UseCase.Command,
+        [Nombre]UseCase.Result> {
+
     private final [Dependency1]Repository dependency1Repository;
     private final [Dependency2]Service dependency2Service;
-    
-    public [Nombre]UseCase([Dependency1]Repository dependency1Repository,
-                          [Dependency2]Service dependency2Service) {
-        this.dependency1Repository = dependency1Repository;
-        this.dependency2Service = dependency2Service;
-    }
-    
-    public [Result] execute([Command] command) {
+
+    @Override
+    protected Result internalExecute(Command command) {
         // 1. Validaciones
         validar(command);
-        
+
         // 2. Obtener entidades
         [Entidad] entidad = dependency1Repository.findById(command.id())
             .orElseThrow(() -> new [Entidad]NotFoundException(command.id()));
-        
+
         // 3. Aplicar lógica de negocio
         entidad.metodoDeNegocio();
-        
+
         // 4. Persistir cambios
         [Entidad] entidadActualizada = dependency1Repository.save(entidad);
-        
+
         // 5. Efectos secundarios (opcional)
         dependency2Service.doSomething(entidadActualizada);
-        
+
         // 6. Retornar resultado
-        return new [Result](entidadActualizada);
+        return new Result(entidadActualizada);
     }
-    
-    private void validar([Command] command) {
+
+    private void validar(Command command) {
         // Validaciones de negocio
     }
-    
-    // Command object
-    public record [Command]([Parametros]) {}
-    
-    // Result object
-    public record [Result]([Entidad] entidad) {}
+
+    /**
+     * Record que representa el comando de entrada para [Nombre]UseCase.
+     * @param id Identificador [descripción]
+     * @param [otros parametros] [descripción]
+     */
+    public record Command(UUID id, [Parametros]) {}
+
+    /**
+     * Record que representa el resultado de [Nombre]UseCase.
+     * @param entidad [descripción]
+     */
+    public record Result([Entidad] entidad) {}
 }
 ```
 
@@ -1513,15 +1780,52 @@ public class [Feature]Controller {
 
 ---
 
+---
+
+## Módulo Shared: Código Compartido
+
+El módulo `shared` contiene código reutilizable entre todos los módulos de features:
+
+### 📦 shared/domain/
+- **usecase/**: Clase base `UseCase<Command, Result>` para todos los casos de uso
+- **valueobjects/**: Value Objects compartidos (Address, Money, Email, etc.)
+- **i18n/**: Interfaces para internacionalización (`MessageTranslator`, `MessageKeys`)
+
+### 📦 shared/application/
+- **dto/**: DTOs compartidos entre módulos (ej: `PageResponse`, `ErrorResponse`)
+
+### 📦 shared/infrastructure/
+- **common/**: Utilidades comunes (date handlers, string utils, etc.)
+- **i18n/**: Implementación de `MessageTranslator` usando Spring's `MessageSource`
+
+### Cuándo usar Shared:
+✅ **SÍ usar shared para:**
+- Value Objects usados en múltiples módulos
+- Clase base UseCase
+- Interfaces de servicios cross-cutting (i18n, logging)
+- DTOs de respuesta genéricos (pagination, errors)
+- Constantes globales (message keys)
+
+❌ **NO usar shared para:**
+- Lógica específica de un módulo
+- Entidades de dominio de un feature
+- Configuraciones específicas de infraestructura de un módulo
+
+---
+
 ## Conclusión
 
 Este manual debe ser tu guía de referencia al desarrollar nuevas features. Recuerda:
 
 1. **Domain primero**: Empieza siempre por el dominio
-2. **Tests unitarios**: Testea el dominio sin Spring
-3. **Separación clara**: Cada capa tiene su responsabilidad
-4. **Inversión de dependencias**: El dominio define, la infraestructura implementa
-5. **Consistencia**: Sigue los mismos patrones en todo el proyecto
+2. **Use Case base**: Todos los casos de uso extienden `UseCase<Command, Result>`
+3. **Tests unitarios**: Testea el dominio sin Spring
+4. **Separación clara**: Cada capa tiene su responsabilidad
+5. **Inversión de dependencias**: El dominio define, la infraestructura implementa
+6. **Embeddables**: Usa `@Embeddable` para datos cohesivos, no tablas separadas
+7. **Value Objects compartidos**: Ubica en `shared/domain/valueobjects/`
+8. **Internacionalización**: Usa `MessageKeys` y `MessageTranslator`
+9. **Consistencia**: Sigue los mismos patrones en todo el proyecto
 
 ### Recursos Adicionales
 
@@ -1531,6 +1835,90 @@ Este manual debe ser tu guía de referencia al desarrollar nuevas features. Recu
 
 ---
 
-**Última actualización**: [Fecha]  
-**Versión**: 1.0  
-**Mantenido por**: Equipo AccesoSport
+---
+
+## Módulo Bootstrap: Inicialización del Sistema
+
+El módulo `bootstrap` gestiona la inicialización y configuración inicial del sistema:
+
+### Estructura:
+```
+bootstrap/
+├── domain/
+│   ├── SystemInitializer.java           # Interfaz para inicializadores
+│   └── ExecuteSystemInitializersUseCase.java
+├── application/
+│   └── service/
+│       └── BootstrapService.java        # Orquesta la inicialización
+└── infrastructure/
+    └── config/
+        └── SystemInitializationConfig.java
+```
+
+### Uso:
+El sistema de bootstrap permite ejecutar lógica de inicialización al arrancar la aplicación:
+
+```java
+// Implementar SystemInitializer en cada módulo que necesite inicialización
+public interface SystemInitializer {
+    void initialize();
+    int getOrder(); // Para controlar el orden de ejecución
+}
+```
+
+**Casos de uso:**
+- Crear roles y permisos por defecto
+- Inicializar datos maestros
+- Configurar valores iniciales de sistema
+- Ejecutar migraciones de datos
+
+---
+
+**Última actualización**: 2025-12-19
+**Versión**: 2.0
+**Mantenido por**: Equipo AccesoSport / Athletix
+
+---
+
+## Resumen de Cambios Arquitectónicos (v2.0)
+
+### Nuevos Patrones Implementados:
+
+1. **UseCase Base Abstracto**
+   - Todos los casos de uso extienden `UseCase<Command, Result>`
+   - Método `internalExecute(Command)` para implementar lógica
+   - Soporte para ejecución con y sin comando
+
+2. **Embeddables JPA**
+   - Uso de `@Embeddable` para agrupar datos cohesivos
+   - Evita tablas separadas innecesarias
+   - Mappers específicos Domain ↔ Embeddable
+
+3. **Módulo Shared**
+   - `shared/domain/usecase/`: Clase base UseCase
+   - `shared/domain/valueobjects/`: Value Objects compartidos (Address, etc.)
+   - `shared/domain/i18n/`: Interfaces de internacionalización
+   - `shared/infrastructure/`: Implementaciones compartidas
+
+4. **Sistema de Internacionalización**
+   - `MessageTranslator` interface en dominio
+   - `MessageKeys` para claves tipadas
+   - Implementación en infraestructura con Spring MessageSource
+
+5. **Records de Java**
+   - DTOs como records inmutables
+   - Command y Result como records dentro de los UseCases
+   - Value Objects como records
+
+6. **Módulo Bootstrap**
+   - `SystemInitializer` interface para inicialización
+   - `ExecuteSystemInitializersUseCase` para orquestar inicializadores
+   - Útil para datos maestros y configuración inicial
+
+### Convenciones de Código:
+
+- **Lombok**: `@Data`, `@Builder`, `@AllArgsConstructor`, `@NoArgsConstructor` para modelos
+- **Lombok**: `@RequiredArgsConstructor` para casos de uso (inyección de dependencias)
+- **Records**: Para DTOs, Commands, Results y Value Objects
+- **Builders**: Uso preferido en mappers para claridad
+- **Documentación**: JavaDoc completo en clases públicas
