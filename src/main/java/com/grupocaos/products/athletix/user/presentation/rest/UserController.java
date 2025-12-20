@@ -3,12 +3,14 @@ package com.grupocaos.products.athletix.user.presentation.rest;
 import com.grupocaos.products.athletix.auth.infrastructure.security.CustomUserDetails;
 import com.grupocaos.products.athletix.user.application.dto.SavePersonalDataRequest;
 import com.grupocaos.products.athletix.user.application.dto.SaveUserAddressRequest;
+import com.grupocaos.products.athletix.user.application.dto.UserInformationDto;
 import com.grupocaos.products.athletix.user.application.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -70,5 +72,23 @@ public class UserController {
         UUID userId = userDetails.getUserId();
         userService.saveUserAddress(userId, request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    /**
+     * Retrieves the information of the currently authenticated user.
+     * This endpoint returns user-specific details using the unique identifier
+     * extracted from the authentication principal.
+     *
+     * @param userDetails the details of the currently authenticated user, including their unique user ID.
+     *                    Provided by the authentication principal and used to retrieve user-specific data.
+     * @return a {@code ResponseEntity} containing a {@code UserInformationDto} with the user's information
+     * and a status of {@code 200 OK}.
+     */
+    @GetMapping("/me")
+    public ResponseEntity<UserInformationDto> getUserInformation(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        UUID userId = userDetails.getUserId();
+        return ResponseEntity.ok(userService.getUserInformation(userId));
     }
 }
