@@ -41,6 +41,19 @@ public class MessageKeys {
 		public static final String USER_PROFILE_ORGANIZER_ALREADY_HAS_ROLE = "user.profile.organizer.already-has-role";
 		public static final String USER_PROFILE_ORGANIZER_ALREADY_HAS_PROFILE = "user.profile.organizer.already-has-profile";
 		public static final String USER_PROFILE_ORGANIZER_VERIFICATION_INVALID_STATUS = "user.profile.organizer.verification.invalid-status";
+
+		public static final String USER_PROFILE_ORGANIZER_NOT_FOUND = "No pudimos encontrar el perfil de organizador especificado";
+		public static final String USER_PROFILE_PARTICIPANT_NOT_FOUND = "No pudimos encontrar el perfil de participante especificado";
+		public static final String ROLE_NOT_FOUND = "user.role.not-found";
+
+		public static final String USER_ADDRESS_VALIDATION_STREET_REQUIRED = "user.address.validation.street.required";
+		public static final String USER_ADDRESS_VALIDATION_STREET_LENGTH = "user.address.validation.street.length";
+		public static final String USER_ADDRESS_VALIDATION_CITY_REQUIRED = "user.address.validation.city.required";
+		public static final String USER_ADDRESS_VALIDATION_CITY_LENGTH = "user.address.validation.city.length";
+		public static final String USER_ADDRESS_VALIDATION_STATE_REQUIRED = "user.address.validation.state.required";
+		public static final String USER_ADDRESS_VALIDATION_STATE_LENGTH = "user.address.validation.state.length";
+		public static final String USER_ADDRESS_VALIDATION_ZIPCODE_REQUIRED = "user.address.validation.zipcode.required";
+		public static final String USER_ADDRESS_VALIDATION_ZIPCODE_FORMAT = "user.address.validation.zipcode.format";
 	}
 
 	public static class Events {
