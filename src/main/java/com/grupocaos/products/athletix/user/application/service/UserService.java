@@ -93,7 +93,7 @@ public class UserService {
      */
     public OrganizerProfileResponse getOrganizerProfile(UUID userId) {
         var profile = organizerProfileRepository.findByUserId(userId)
-                .orElseThrow(() -> new ProfileNotFoundException("Organizer profile not found"));
+                .orElseThrow(() -> new ProfileNotFoundException(MessageKeys.Users.USER_PROFILE_ORGANIZER_NOT_FOUND));
         return OrganizerProfileResponse.fromDomain(profile);
     }
 
@@ -106,7 +106,7 @@ public class UserService {
      */
     public ParticipantProfileResponse getParticipantProfile(UUID userId) {
         var profile = participantProfileRepository.findByUserId(userId)
-                .orElseThrow(() -> new ProfileNotFoundException("Participant profile not found"));
+                .orElseThrow(() -> new ProfileNotFoundException(MessageKeys.Users.USER_PROFILE_PARTICIPANT_NOT_FOUND));
         return ParticipantProfileResponse.fromDomain(profile);
     }
 

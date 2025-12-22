@@ -48,7 +48,7 @@ public class CreateOrganizerProfileUseCase
         );
 
         var userRole = roleRepository.findByRole(RoleEnumeration.ROLE_ORGANIZER)
-                .orElseThrow(() -> new IllegalStateException("ROLE_ORGANIZER not found"));
+                .orElseThrow(() -> new IllegalStateException(MessageKeys.Users.ROLE_NOT_FOUND));
         user.addRole(userRole);
         userRepository.save(user);
 
@@ -59,8 +59,6 @@ public class CreateOrganizerProfileUseCase
      * The command input to create the participant profile
      *
      * @param organizationName Organization name of the event organizer
-     * @param phone            phone number
-     * @param address          address of the organizer
      * @param website          website of the organizer (optional)
      * @param facebook         Facebook of the organizer (optional)
      * @param instagram        Instagram of the organizer (optional)

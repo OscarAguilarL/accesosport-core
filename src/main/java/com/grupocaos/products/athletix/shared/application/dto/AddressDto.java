@@ -1,5 +1,6 @@
 package com.grupocaos.products.athletix.shared.application.dto;
 
+import com.grupocaos.products.athletix.shared.domain.i18n.MessageKeys;
 import com.grupocaos.products.athletix.shared.domain.valueobjects.Address;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -22,8 +23,8 @@ import jakarta.validation.constraints.Size;
  * @param zipCode Represents the postal code; validated for presence and formatting compliance.
  */
 public record AddressDto(
-        @NotBlank(message = "La calle es obligatoria")
-        @Size(max = 255, message = "La calle no puede exceder 255 caracteres")
+        @NotBlank(message = MessageKeys.Users.USER_ADDRESS_VALIDATION_STREET_REQUIRED)
+        @Size(max = 255, message = MessageKeys.Users.USER_ADDRESS_VALIDATION_STREET_LENGTH)
         String street,
 
         @NotNull
@@ -34,19 +35,19 @@ public record AddressDto(
         @NotNull
         String neighborhood,
 
-        @NotBlank(message = "La ciudad es obligatoria")
-        @Size(max = 100, message = "La ciudad no puede exceder 100 caracteres")
+        @NotBlank(message = MessageKeys.Users.USER_ADDRESS_VALIDATION_CITY_REQUIRED)
+        @Size(max = 100, message = MessageKeys.Users.USER_ADDRESS_VALIDATION_CITY_LENGTH)
         String city,
 
-        @NotBlank(message = "El estado es obligatorio")
-        @Size(min = 2, max = 50, message = "El estado debe tener entre 2 y 50 caracteres")
+        @NotBlank(message = MessageKeys.Users.USER_ADDRESS_VALIDATION_STATE_REQUIRED)
+        @Size(min = 2, max = 50, message = MessageKeys.Users.USER_ADDRESS_VALIDATION_STATE_LENGTH)
         String state,
 
         @NotNull
         String country,
 
-        @NotBlank(message = "El código postal es obligatorio")
-        @Pattern(regexp = "^\\d{5}(-\\d{4})?$", message = "El código postal debe tener el formato: 12345 o 12345-6789")
+        @NotBlank(message = MessageKeys.Users.USER_ADDRESS_VALIDATION_ZIPCODE_REQUIRED)
+        @Pattern(regexp = "^\\d{5}(-\\d{4})?$", message = MessageKeys.Users.USER_ADDRESS_VALIDATION_ZIPCODE_FORMAT)
         String zipCode
 ) {
     /**

@@ -50,7 +50,7 @@ public class CreateParticipantProfileUseCase extends UseCase<CreateParticipantPr
         );
 
         var userRole = roleRepository.findByRole(RoleEnumeration.ROLE_PARTICIPANT)
-                .orElseThrow(() -> new IllegalStateException("ROLE_PARTICIPANT not found"));
+                .orElseThrow(() -> new IllegalStateException(MessageKeys.Users.ROLE_NOT_FOUND));
         user.addRole(userRole);
         user.addRole(Role.of(RoleEnumeration.ROLE_PARTICIPANT));
         userRepository.save(user);
