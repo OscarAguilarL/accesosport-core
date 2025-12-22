@@ -4,14 +4,13 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import com.grupocaos.products.athletix.shared.use_case.domain.NoInputUseCase;
-
+import com.grupocaos.products.athletix.shared.domain.usecase.UseCase;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ExecuteSystemInitializersUseCase
-		extends NoInputUseCase<ExecuteSystemInitializersUseCase.InitializaitonSummary> {
+		extends UseCase<Void, ExecuteSystemInitializersUseCase.InitializaitonSummary> {
 
 	private List<SystemInitializer> initializers = null;
 
@@ -22,7 +21,7 @@ public class ExecuteSystemInitializersUseCase
     }
 
     @Override
-	protected InitializaitonSummary doExecute(Void command) {
+	protected InitializaitonSummary internalExecute(Void command) {
 		log.info("Starting system initialization with {} initializers", initializers.size());
 
 		InitializaitonSummary summary = new InitializaitonSummary();

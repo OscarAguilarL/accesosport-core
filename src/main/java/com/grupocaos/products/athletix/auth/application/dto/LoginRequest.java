@@ -1,6 +1,6 @@
 package com.grupocaos.products.athletix.auth.application.dto;
 
-import com.grupocaos.products.athletix.shared.i18n.domain.MessageKeys;
+import com.grupocaos.products.athletix.shared.domain.i18n.MessageKeys;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

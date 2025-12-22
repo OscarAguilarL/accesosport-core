@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 import com.grupocaos.products.athletix.auth.domain.exception.InvalidCredentialsException;
 import com.grupocaos.products.athletix.auth.domain.service.AuthenticationService;
-import com.grupocaos.products.athletix.shared.i18n.domain.MessageKeys;
+import com.grupocaos.products.athletix.shared.domain.i18n.MessageKeys;
 import com.grupocaos.products.athletix.user.domain.exception.UserNotFoundException;
 import com.grupocaos.products.athletix.user.domain.model.User;
 import com.grupocaos.products.athletix.user.domain.repository.UserRepository;

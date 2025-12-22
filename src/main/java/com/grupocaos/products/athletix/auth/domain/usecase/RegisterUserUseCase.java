@@ -1,14 +1,12 @@
 package com.grupocaos.products.athletix.auth.domain.usecase;
 
-import java.util.Set;
-
 import com.grupocaos.products.athletix.auth.domain.service.PasswordEncoder;
 import com.grupocaos.products.athletix.auth.domain.service.TokenProvider;
-import com.grupocaos.products.athletix.shared.i18n.domain.MessageKeys;
+import com.grupocaos.products.athletix.shared.domain.i18n.MessageKeys;
+import com.grupocaos.products.athletix.shared.domain.usecase.UseCase;
 import com.grupocaos.products.athletix.user.domain.exception.InvalidPasswordException;
 import com.grupocaos.products.athletix.user.domain.exception.RoleNotFoundException;
 import com.grupocaos.products.athletix.user.domain.exception.UserAlreadyExistsException;
-import com.grupocaos.products.athletix.user.domain.model.Role;
 import com.grupocaos.products.athletix.user.domain.model.RoleEnumeration;
 import com.grupocaos.products.athletix.user.domain.model.User;
 import com.grupocaos.products.athletix.user.domain.repository.RoleRepository;
@@ -16,15 +14,22 @@ import com.grupocaos.products.athletix.user.domain.repository.UserRepository;
 
 import lombok.AllArgsConstructor;
 
+/**
+ * Handles the registration of a new user within the system. This use case
+ * encompasses the validation of user input, creation of user entities,
+ * assignment of default roles, encoding of passwords, saving user data to
+ * the repository, and issuing a token for the registered user.
+ */
 @AllArgsConstructor
-public class RegisterUserUseCase {
+public class RegisterUserUseCase extends UseCase<RegisterUserUseCase.RegistrationCommand, RegisterUserUseCase.RegistrationResult> {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenProvider tokenProvider;
 
-    public RegistrationResult execute(RegistrationCommand command) {
+    @Override
+    public RegistrationResult internalExecute(RegistrationCommand command) {
         if (userRepository.existsByEmail(command.email())) {
             throw new UserAlreadyExistsException(MessageKeys.AuthMessages.EMAIL_ALREADY_EXISTS);
         }
@@ -36,8 +41,9 @@ public class RegisterUserUseCase {
                 .passwordHash(passwordEncoder.encode(command.password()))
                 .build();
 
-        Set<Role> roles = resolveRoles(command.roles());
-        roles.forEach(user::addRole);
+        var userRole = roleRepository.findByRole(RoleEnumeration.ROLE_USER)
+                .orElseThrow(() -> new RoleNotFoundException(MessageKeys.AuthMessages.ROLE_NOT_FOUND));
+        user.addRole(userRole);
 
         User savedUser = userRepository.save(user);
 
@@ -55,33 +61,24 @@ public class RegisterUserUseCase {
         }
     }
 
-    private Set<Role> resolveRoles(Set<String> roleStrings) {
-        if (roleStrings == null || roleStrings.isEmpty()) {
-            return Set.of(findRole(RoleEnumeration.ROLE_USER));
-        }
-
-        return roleStrings.stream()
-                .map(this::mapToRoleEnumeration)
-                .map(this::findRole)
-                .collect(java.util.stream.Collectors.toSet());
+    /**
+     * @param email                The email address of the user. Must be unique within the system and follow standard email formatting.
+     * @param password             The password chosen by the user. Must meet security requirements such as minimum length.
+     * @param passwordConfirmation The repeated password for confirmation. Must match the provided password exactly.
+     */
+    public record RegistrationCommand(String email, String password, String passwordConfirmation) {
     }
 
-    private RoleEnumeration mapToRoleEnumeration(String roleStr) {
-        return switch (roleStr.toLowerCase()) {
-            case "admin" -> RoleEnumeration.ROLE_ADMIN;
-            case "organizer" -> RoleEnumeration.ROLE_ORGANIZER;
-            default -> RoleEnumeration.ROLE_USER;
-        };
-    }
-
-    private Role findRole(RoleEnumeration roleEnumeration) {
-        return roleRepository.findByRole(roleEnumeration)
-                .orElseThrow(() -> new RoleNotFoundException(MessageKeys.AuthMessages.ROLE_NOT_FOUND));
-    }
-
-    public record RegistrationCommand(String email, String password, String passwordConfirmation, Set<String> roles) {
-    }
-
+    /**
+     * Represents the outcome of a user registration process.
+     * This record encapsulates information about the newly registered user
+     * and the authentication token generated for them.
+     *
+     * @param user  The {@link User} entity containing details about the registered user,
+     *              including their email, password hash, roles, and timestamps.
+     * @param token A string representing the authentication token issued for the user.
+     *              This token is typically used for later authenticated operations.
+     */
     public record RegistrationResult(User user, String token) {
     }
 }

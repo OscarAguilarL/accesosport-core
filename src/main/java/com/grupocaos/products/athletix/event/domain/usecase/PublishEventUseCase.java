@@ -3,8 +3,8 @@ package com.grupocaos.products.athletix.event.domain.usecase;
 import com.grupocaos.products.athletix.event.domain.exception.EventNotFoundException;
 import com.grupocaos.products.athletix.event.domain.model.Event;
 import com.grupocaos.products.athletix.event.domain.repository.EventRepository;
-import com.grupocaos.products.athletix.shared.use_case.domain.AbstractUseCase;
 
+import com.grupocaos.products.athletix.shared.domain.usecase.UseCase;
 import lombok.AllArgsConstructor;
 
 import java.util.UUID;
@@ -14,12 +14,12 @@ import java.util.UUID;
  * ensuring that necessary business rules and validations are applied during the process.
  */
 @AllArgsConstructor
-public class PublishEventUseCase extends AbstractUseCase<PublishEventUseCase.PublishEventCommand, PublishEventUseCase.PublishEventResult> {
+public class PublishEventUseCase extends UseCase<PublishEventUseCase.PublishEventCommand, PublishEventUseCase.PublishEventResult> {
 
     private final EventRepository eventRepository;
 
     @Override
-    protected PublishEventResult doExecute(PublishEventCommand command) {
+    protected PublishEventResult internalExecute(PublishEventCommand command) {
         Event event = eventRepository.findById(command.eventId())
                 .orElseThrow(() -> new EventNotFoundException(command.eventId()));
 

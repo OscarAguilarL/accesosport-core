@@ -1,7 +1,7 @@
 package com.grupocaos.products.athletix.auth.infrastructure.security;
 
-import com.grupocaos.products.athletix.shared.i18n.domain.MessageKeys;
-import com.grupocaos.products.athletix.shared.i18n.domain.MessageTranslator;
+import com.grupocaos.products.athletix.shared.domain.i18n.MessageKeys;
+import com.grupocaos.products.athletix.shared.domain.i18n.MessageTranslator;
 import com.grupocaos.products.athletix.user.domain.model.User;
 import com.grupocaos.products.athletix.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

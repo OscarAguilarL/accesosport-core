@@ -145,7 +145,7 @@ public class EventApplicationService {
     @Transactional(readOnly = true)
     public List<EventSummaryResponse> listAvailableEvents() {
         ListAvailableEventsUseCase useCase = new ListAvailableEventsUseCase(eventRepository);
-        ListAvailableEventsUseCase.ListAvailableEventsResult result = useCase.execute(null);
+        ListAvailableEventsUseCase.ListAvailableEventsResult result = useCase.execute();
 
         return result.events().stream()
                 .map(EventResponseMapper::toEventSummaryResponse)

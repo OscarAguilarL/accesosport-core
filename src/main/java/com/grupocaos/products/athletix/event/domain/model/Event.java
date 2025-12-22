@@ -1,7 +1,7 @@
 package com.grupocaos.products.athletix.event.domain.model;
 
 import com.grupocaos.products.athletix.event.domain.exception.EventInvalidStatusException;
-import com.grupocaos.products.athletix.shared.i18n.domain.MessageKeys;
+import com.grupocaos.products.athletix.shared.domain.i18n.MessageKeys;
 import com.grupocaos.products.athletix.user.domain.model.User;
 import lombok.Getter;
 import lombok.Setter;
@@ -120,7 +120,7 @@ public class Event {
 
     public void cancel() {
         if (!status.canBeCancelled()) {
-            throw new EventInvalidStatusException(MessageKeys.Events.EVENT_CANCEL_INVALID_STATUS, status); // TODO: Cambiar por excepción personalizada para manejar el status + status
+            throw new EventInvalidStatusException(MessageKeys.Events.EVENT_CANCEL_INVALID_STATUS, status);
         }
         this.status = EventStatus.CANCELLED;
         this.updatedOn = LocalDateTime.now();

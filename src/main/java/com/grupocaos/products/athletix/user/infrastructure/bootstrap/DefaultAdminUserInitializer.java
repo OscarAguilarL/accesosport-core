@@ -2,6 +2,7 @@ package com.grupocaos.products.athletix.user.infrastructure.bootstrap;
 
 import com.grupocaos.products.athletix.auth.domain.service.PasswordEncoder;
 import com.grupocaos.products.athletix.bootstrap.domain.SystemInitializer;
+import com.grupocaos.products.athletix.shared.domain.valueobjects.Address;
 import com.grupocaos.products.athletix.user.domain.model.Role;
 import com.grupocaos.products.athletix.user.domain.model.RoleEnumeration;
 import com.grupocaos.products.athletix.user.domain.model.User;

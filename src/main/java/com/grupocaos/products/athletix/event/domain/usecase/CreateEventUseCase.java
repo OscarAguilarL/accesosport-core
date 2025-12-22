@@ -7,8 +7,8 @@ import com.grupocaos.products.athletix.event.domain.model.Location;
 import com.grupocaos.products.athletix.event.domain.model.RaceType;
 import com.grupocaos.products.athletix.event.domain.model.RegistrationPeriod;
 import com.grupocaos.products.athletix.event.domain.repository.EventRepository;
-import com.grupocaos.products.athletix.shared.i18n.domain.MessageKeys;
-import com.grupocaos.products.athletix.shared.use_case.domain.AbstractUseCase;
+import com.grupocaos.products.athletix.shared.domain.i18n.MessageKeys;
+import com.grupocaos.products.athletix.shared.domain.usecase.UseCase;
 import com.grupocaos.products.athletix.user.domain.exception.UserNotFoundException;
 import com.grupocaos.products.athletix.user.domain.model.RoleEnumeration;
 import com.grupocaos.products.athletix.user.domain.model.User;
@@ -38,13 +38,13 @@ import java.util.UUID;
  * created Event entity.
  */
 @AllArgsConstructor
-public class CreateEventUseCase extends AbstractUseCase<CreateEventUseCase.CreateEventCommand, CreateEventUseCase.CreateEventResult> {
+public class CreateEventUseCase extends UseCase<CreateEventUseCase.CreateEventCommand, CreateEventUseCase.CreateEventResult> {
 
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
 
     @Override
-    public CreateEventResult doExecute(CreateEventCommand command) {
+    public CreateEventResult internalExecute(CreateEventCommand command) {
         User organizer = userRepository.findById(command.createdByUserId())
                 .orElseThrow(() -> new UserNotFoundException(MessageKeys.Events.EVENT_VALIDATION_ORGANIZER_NOT_FOUND));
 
