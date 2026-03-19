@@ -8,10 +8,10 @@
 		<version>3.4.4</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.grupocaos.products</groupId>
-	<artifactId>athletix</artifactId>
+	<groupId>com.accesosport</groupId>
+	<artifactId>accesosport</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>athletix</name>
+	<name>accesosport</name>
 	<description>Event ticketing system for athletic races</description>
 	<url/>
 	<licenses>

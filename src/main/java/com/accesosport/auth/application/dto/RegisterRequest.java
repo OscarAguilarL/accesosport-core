@@ -1,0 +1,20 @@
+package com.accesosport.auth.application.dto;
+
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+
+import com.accesosport.shared.domain.i18n.MessageKeys;
+
+public record RegisterRequest(
+
+        @NotBlank(message = MessageKeys.AuthMessages.EMAIl_REQUIRED)
+        @Email(message = MessageKeys.AuthMessages.INVALID_EMAIL)
+        String email,
+
+        @NotBlank(message = MessageKeys.AuthMessages.PASSWORD_REQUIRED)
+        String password,
+
+        @NotBlank(message = MessageKeys.AuthMessages.PASSWORD_CONFIRMATION_REQUIRED)
+        String passwordConfirmation
+) {
+}

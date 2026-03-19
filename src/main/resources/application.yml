@@ -1,6 +1,6 @@
 spring:
   application:
-    name: athletix-api
+    name: accesosport-api
 
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/carreras_db}
@@ -54,7 +54,7 @@ app:
 logging:
   level:
     root: INFO
-    com.grupocaos.products.athletix: DEBUG
+    com.accesosport: DEBUG
     org.springframework.security: DEBUG
     org.hibernate.SQL: off
   pattern:
