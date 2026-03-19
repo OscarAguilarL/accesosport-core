@@ -113,6 +113,8 @@ public class EventExceptionHandler {
         return problemDetail;
     }
     
+    @ExceptionHandler(EventInvalidStatusException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ProblemDetail handleEventInvalidStatus(EventInvalidStatusException ex) {
     	log.error("Invalid event status: {}", ex.getArgs());
     	

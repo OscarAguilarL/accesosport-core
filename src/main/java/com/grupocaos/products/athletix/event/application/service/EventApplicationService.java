@@ -56,7 +56,7 @@ public class EventApplicationService {
                 request.city(),
                 request.country(),
                 request.latitude(),
-                request.latitude(),
+                request.longitude(),
                 request.raceType(),
                 request.distance(),
                 request.distanceUnit(),
