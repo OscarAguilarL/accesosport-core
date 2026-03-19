@@ -3,9 +3,9 @@ spring:
     name: athletix-api
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/carreras_db
-    username: postgres
-    password: password
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/carreras_db}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
     hikari:
       initialization-fail-timeout: 60000
@@ -32,9 +32,11 @@ spring:
 app:
   security:
     jwt:
-      secret: 4nh3819hn1v38dj184nd1m49xn19vn492n58bpqwbcs8m2iqwoxm4
-      expiration: 86400000  # 24 horas en milisegundos
-      refreshExpiration: 604800000  # 7 días en milisegundos
+      secret: ${APP_JWT_SECRET}          # Sin default — requerido en todos los entornos
+      expiration: ${APP_JWT_EXPIRATION:86400000}
+      refreshExpiration: ${APP_JWT_REFRESH_EXPIRATION:604800000}
+  cors:
+    allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:*}
   bootstrap:
     enabled: true
     fail-on-error: false
@@ -43,9 +45,9 @@ app:
       enabled: true
 
     default-admin:
-      enabled: true  # Solo en desarrollo
-      email: admin@accesosport.com
-      password: password123
+      enabled: ${APP_ADMIN_ENABLED:true}
+      email: ${APP_ADMIN_EMAIL:admin@accesosport.com}
+      password: ${APP_ADMIN_PASSWORD:password123}
 
 
 # Logging
@@ -60,7 +62,7 @@ logging:
 
 # Server
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
   error:
     include-message: always
     include-binding-errors: always
