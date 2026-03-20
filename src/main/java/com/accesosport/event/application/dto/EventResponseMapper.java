@@ -1,10 +1,17 @@
 package com.accesosport.event.application.dto;
 
 import com.accesosport.event.domain.model.Event;
+import com.accesosport.image.application.dto.EventImageResponse;
+
+import java.util.List;
 
 public class EventResponseMapper {
 
     public static EventResponse toEventResponse(Event event) {
+        return toEventResponse(event, List.of());
+    }
+
+    public static EventResponse toEventResponse(Event event, List<EventImageResponse> galleryImages) {
         return new EventResponse(
                 event.getId(),
                 event.getName(),
@@ -21,6 +28,8 @@ public class EventResponseMapper {
                 event.getStatus().name(),
                 event.canRegister(),
                 mapOrganizer(event),
+                event.getCoverImageUrl(),
+                galleryImages,
                 event.getCreatedOn()
         );
     }

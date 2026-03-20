@@ -25,6 +25,8 @@ public class OrganizerProfileMapper {
         return UserOrganizerProfile.builder()
                 .id(entity.getId())
                 .organizationName(entity.getOrganizationName())
+                .logoUrl(entity.getLogoUrl())
+                .logoPublicId(entity.getLogoPublicId())
                 .website(entity.getWebsite())
                 .facebook(entity.getFacebook())
                 .instagram(entity.getInstagram())
@@ -49,6 +51,8 @@ public class OrganizerProfileMapper {
         UserOrganizerProfileJpaEntity entity = new UserOrganizerProfileJpaEntity();
         entity.setId(domain.getId());
         entity.setOrganizationName(domain.getOrganizationName());
+        entity.setLogoUrl(domain.getLogoUrl());
+        entity.setLogoPublicId(domain.getLogoPublicId());
         entity.setWebsite(domain.getWebsite());
         entity.setFacebook(domain.getFacebook());
         entity.setInstagram(domain.getInstagram());

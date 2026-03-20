@@ -35,7 +35,8 @@ public class UserOrganizerProfile {
     private String organizationName;
 
     // TODO: datos fiscales
-    // TODO: LOGO URL
+    private String logoUrl;
+    private String logoPublicId;
 
     // Public information
     private String website;

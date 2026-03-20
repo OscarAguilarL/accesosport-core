@@ -43,6 +43,8 @@ public class EventMapper {
         event.setStatus(eventJpaEntity.getStatus());
         event.setCreatedOn(eventJpaEntity.getCreatedOn());
         event.setUpdatedOn(eventJpaEntity.getUpdatedOn());
+        event.setCoverImageUrl(eventJpaEntity.getCoverImageUrl());
+        event.setCoverImagePublicId(eventJpaEntity.getCoverImagePublicId());
 
         return event;
     }
@@ -67,6 +69,8 @@ public class EventMapper {
         entity.setStatus(domain.getStatus());
         entity.setCreatedOn(domain.getCreatedOn());
         entity.setUpdatedOn(domain.getUpdatedOn());
+        entity.setCoverImageUrl(domain.getCoverImageUrl());
+        entity.setCoverImagePublicId(domain.getCoverImagePublicId());
         entity.setCreatedBy(UserMapper.toEntity(domain.getCreatedBy()));
 
         return entity;

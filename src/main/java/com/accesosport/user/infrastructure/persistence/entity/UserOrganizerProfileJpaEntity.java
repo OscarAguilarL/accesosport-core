@@ -54,6 +54,12 @@ public class UserOrganizerProfileJpaEntity {
     @Column(length = 500)
     private String description;
 
+    @Column(name = "logo_url", length = 500)
+    private String logoUrl;
+
+    @Column(name = "logo_public_id", length = 200)
+    private String logoPublicId;
+
     @Column(nullable = false, length = 30)
     @Enumerated(EnumType.STRING)
     private VerificationStatus verificationStatus;

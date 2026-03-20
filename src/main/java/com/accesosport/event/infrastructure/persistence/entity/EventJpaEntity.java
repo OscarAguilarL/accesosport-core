@@ -90,6 +90,12 @@ public class EventJpaEntity {
     @Column(name = "updated_on", nullable = false)
     private LocalDateTime updatedOn;
 
+    @Column(name = "cover_image_url", length = 500)
+    private String coverImageUrl;
+
+    @Column(name = "cover_image_public_id", length = 200)
+    private String coverImagePublicId;
+
     @PrePersist
     protected void onCreate() {
         if (this.createdOn == null) {

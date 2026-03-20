@@ -114,4 +114,18 @@ public class MessageKeys {
 		public static final String EVENT_VALIDATION_MAX_PARTICIPANTS_MIN = "event.validation.max-participants.min";
 		public static final String EVENT_VALIDATION_REGISTRATION_END_AFTER_START = "event.validation.registration.end-after-start";
 	}
+
+	public static class Images {
+		private Images() {
+		}
+
+		public static final String INVALID_IMAGE_TYPE = "image.errors.invalid-type";
+		public static final String INVALID_IMAGE_SIZE = "image.errors.invalid-size";
+		public static final String UPLOAD_FAILED = "image.errors.upload-failed";
+		public static final String IMAGE_NOT_FOUND = "image.errors.not-found";
+
+		public static final String PROBLEM_INVALID_IMAGE = "image.problem.invalid-image";
+		public static final String PROBLEM_UPLOAD_FAILED = "image.problem.upload-failed";
+		public static final String PROBLEM_NOT_FOUND = "image.problem.not-found";
+	}
 }

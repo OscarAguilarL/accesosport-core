@@ -33,6 +33,10 @@ public class Event {
     private LocalDateTime createdOn;
     @Setter
     private LocalDateTime updatedOn;
+    @Setter
+    private String coverImageUrl;
+    @Setter
+    private String coverImagePublicId;
 
     private Event() {
         this.registeredParticipants = 0;
