@@ -2,6 +2,7 @@ package com.accesosport.user.presentation.exception;
 
 import com.accesosport.shared.domain.i18n.MessageTranslator;
 import com.accesosport.user.domain.exception.InvalidVerificationStatusTransitionException;
+import com.accesosport.user.domain.exception.PersonalDataNotFoundException;
 import com.accesosport.user.domain.exception.ProfileNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -58,6 +59,21 @@ public class UserExceptionHandler {
      * @return a {@link ProblemDetail} object with the error details, including the translated
      * error message and a timestamp indicating when the error occurred
      */
+    @ExceptionHandler(PersonalDataNotFoundException.class)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    public ProblemDetail handlePersonalDataNotFound(PersonalDataNotFoundException ex) {
+        log.error("Personal data not found: {}", ex.getMessage());
+
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.UNPROCESSABLE_ENTITY,
+                messageTranslator.translate(ex.getMessage())
+        );
+
+        problemDetail.setTitle(messageTranslator.translate(ex.getMessage()));
+        problemDetail.setProperty("timestamp", Instant.now());
+        return problemDetail;
+    }
+
     @ExceptionHandler(ProfileNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ProblemDetail handleProfileNotFound(ProfileNotFoundException ex) {

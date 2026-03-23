@@ -11,6 +11,8 @@ import com.accesosport.user.application.dto.SaveUserAddressRequest;
 import com.accesosport.user.application.dto.UserInformationDto;
 import com.accesosport.user.domain.exception.ProfileNotFoundException;
 import com.accesosport.user.domain.exception.UserNotFoundException;
+import com.accesosport.user.domain.exception.PersonalDataNotFoundException;
+import com.accesosport.user.domain.model.PersonalData;
 import com.accesosport.user.domain.model.User;
 import com.accesosport.user.domain.repository.OrganizerProfileRepository;
 import com.accesosport.user.domain.repository.ParticipantProfileRepository;
@@ -145,15 +147,19 @@ public class UserService {
     public UserInformationDto getUserInformation(UUID userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(MessageKeys.AuthMessages.USER_NOT_FOUND));
+        PersonalData personalData = user.getPersonalData();
+        if (personalData == null) {
+            throw new PersonalDataNotFoundException(MessageKeys.Users.PERSONAL_DATA_NOT_FOUND);
+        }
         return new UserInformationDto(
                 user.getId(),
                 user.getEmail(),
-                user.getPersonalData().getFirstName(),
-                user.getPersonalData().getLastName(),
-                user.getPersonalData().getSecondLastName(),
-                user.getPersonalData().getBirthDate(),
-                user.getPersonalData().getGender(),
-                user.getPersonalData().getPhoneNumber(),
+                personalData.getFirstName(),
+                personalData.getLastName(),
+                personalData.getSecondLastName(),
+                personalData.getBirthDate(),
+                personalData.getGender(),
+                personalData.getPhoneNumber(),
                 AddressDto.fromDomain(user.getAddress())
         );
     }

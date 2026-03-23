@@ -2,6 +2,8 @@ package com.accesosport.user.infrastructure.bootstrap;
 
 import com.accesosport.auth.domain.service.PasswordEncoder;
 import com.accesosport.bootstrap.domain.SystemInitializer;
+import com.accesosport.shared.domain.valueobjects.Address;
+import com.accesosport.user.domain.model.PersonalData;
 import com.accesosport.user.domain.model.Role;
 import com.accesosport.user.domain.model.RoleEnumeration;
 import com.accesosport.user.domain.model.User;
@@ -13,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.Set;
 
 /**
@@ -58,10 +61,31 @@ public class DefaultAdminUserInitializer implements SystemInitializer {
         Role adminRole = roleRepository.findByRole(RoleEnumeration.ROLE_ADMIN)
                 .orElseThrow(() -> new IllegalStateException("ROLE_ADMIN not found"));
 
+        PersonalData personalData = PersonalData.builder()
+                .firstName("Admin")
+                .lastName("Accesosport")
+                .birthDate(LocalDate.of(1990, 1, 1))
+                .gender("Other")
+                .phoneNumber("0000000000")
+                .build();
+
+        Address address = new Address(
+                "Calle Principal",
+                "1",
+                null,
+                "Centro",
+                "Ciudad de México",
+                "CDMX",
+                "México",
+                "06000"
+        );
+
         User adminUser = User.builder()
                 .email(adminEmail)
                 .passwordHash(passwordEncoder.encode(adminPassword))
                 .roles(Set.of(adminRole))
+                .personalData(personalData)
+                .address(address)
                 .build();
 
         userRepository.save(adminUser);

@@ -45,6 +45,7 @@ public class MessageKeys {
 		public static final String USER_PROFILE_ORGANIZER_NOT_FOUND = "No pudimos encontrar el perfil de organizador especificado";
 		public static final String USER_PROFILE_PARTICIPANT_NOT_FOUND = "No pudimos encontrar el perfil de participante especificado";
 		public static final String ROLE_NOT_FOUND = "user.role.not-found";
+		public static final String PERSONAL_DATA_NOT_FOUND = "user.personal-data.not-found";
 
 		public static final String USER_ADDRESS_VALIDATION_STREET_REQUIRED = "user.address.validation.street.required";
 		public static final String USER_ADDRESS_VALIDATION_STREET_LENGTH = "user.address.validation.street.length";
