@@ -36,3 +36,4 @@ postgres/
 
 ### Environment ###
 .env
+*-local.yml

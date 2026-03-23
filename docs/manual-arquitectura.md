@@ -263,10 +263,11 @@ public interface EventoRepository {
 ```
 
 **Ejemplo de Use Case:**
+
 ```java
 package com.grupocaos.products.athletix.evento.domain.usecase;
 
-import com.grupocaos.products.athletix.shared.domain.usecase.UseCase;
+import usecase.domain.shared.com.accesosport.UseCase;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -281,7 +282,7 @@ public class PublicarEventoUseCase extends UseCase<
     protected Result internalExecute(Command command) {
         // 1. Obtener evento
         Evento evento = eventoRepository.findById(command.eventoId())
-            .orElseThrow(() -> new EventoNotFoundException(command.eventoId()));
+                .orElseThrow(() -> new EventoNotFoundException(command.eventoId()));
 
         // 2. Aplicar lógica de negocio
         evento.publicar();
@@ -295,8 +296,11 @@ public class PublicarEventoUseCase extends UseCase<
         return new Result(eventoPublicado);
     }
 
-    public record Command(UUID eventoId) {}
-    public record Result(Evento evento) {}
+    public record Command(UUID eventoId) {
+    }
+
+    public record Result(Evento evento) {
+    }
 }
 ```
 
@@ -695,7 +699,7 @@ public class EventoController {
 // 1.1 Entidad de Dominio
 package com.grupocaos.products.athletix.inscripcion.domain.model;
 
-import com.grupocaos.products.athletix.shared.domain.usecase.UseCase;
+import usecase.domain.shared.com.accesosport.UseCase;
 
 public class Inscripcion {
     private UUID id;
@@ -738,8 +742,8 @@ public interface InscripcionRepository {
 package com.grupocaos.products.athletix.inscripcion.domain.usecase;
 
 public class InscribirCorredorUseCase extends UseCase<
-            InscribirCorredorUseCase.InscripcionCommand,
-            InscribirCorredorUseCase.InscripcionResult
+        InscribirCorredorUseCase.InscripcionCommand,
+        InscribirCorredorUseCase.InscripcionResult
         > {
 
     private final InscripcionRepository inscripcionRepository;
@@ -1224,10 +1228,12 @@ public record Address(...) {} // Duplicado en event
 ```java
 // ✅ BIEN - Value Object en módulo shared
 package com.grupocaos.products.athletix.shared.domain.valueobjects;
-public record Address(...) {} // ✅ Una sola definición compartida
+
+public record Address(...) {
+} // ✅ Una sola definición compartida
 
 // Importar en cualquier módulo
-import com.grupocaos.products.athletix.shared.domain.valueobjects.Address;
+import valueobjects.domain.shared.com.accesosport.Address;
 ```
 
 ---
@@ -1256,10 +1262,11 @@ public interface MessageTranslator {
 ```
 
 **Uso en excepciones de dominio:**
+
 ```java
 package com.grupocaos.products.athletix.user.domain.exception;
 
-import com.grupocaos.products.athletix.shared.domain.i18n.MessageKeys;
+import i18n.domain.shared.com.accesosport.MessageKeys;
 
 public class UserNotFoundException extends RuntimeException {
     public UserNotFoundException(String messageKey) {
@@ -1268,7 +1275,9 @@ public class UserNotFoundException extends RuntimeException {
 }
 
 // En el caso de uso
-throw new UserNotFoundException(MessageKeys.AuthMessages.USER_NOT_FOUND);
+throw new
+
+UserNotFoundException(MessageKeys.AuthMessages.USER_NOT_FOUND);
 ```
 
 **Keys centralizadas:**
@@ -1609,9 +1618,11 @@ public class [NombreEntidad] {
 ### Plantilla: Nuevo Use Case
 
 ```java
-package com.grupocaos.products.athletix.[feature].domain.usecase;
+package com.grupocaos.products.athletix.
 
-import com.grupocaos.products.athletix.shared.domain.usecase.UseCase;
+[feature].domain.usecase;
+
+import usecase.domain.shared.com.accesosport.UseCase;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -1621,49 +1632,53 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class [Nombre]UseCase extends UseCase<
         [Nombre]UseCase.Command,
-        [Nombre]UseCase.Result> {
+        [Nombre]UseCase.Result>{
 
-    private final [Dependency1]Repository dependency1Repository;
-    private final [Dependency2]Service dependency2Service;
+        private final [Dependency1]
+        Repository dependency1Repository;
+        private final [Dependency2]
+        Service dependency2Service;
 
-    @Override
-    protected Result internalExecute(Command command) {
-        // 1. Validaciones
-        validar(command);
+        @Override
+        protected Result internalExecute(Command command) {
+            // 1. Validaciones
+            validar(command);
 
-        // 2. Obtener entidades
-        [Entidad] entidad = dependency1Repository.findById(command.id())
-            .orElseThrow(() -> new [Entidad]NotFoundException(command.id()));
+            // 2. Obtener entidades
+        [Entidad]entidad = dependency1Repository.findById(command.id())
+                    .orElseThrow(() -> new[Entidad]NotFoundException(command.id()));
 
-        // 3. Aplicar lógica de negocio
-        entidad.metodoDeNegocio();
+            // 3. Aplicar lógica de negocio
+            entidad.metodoDeNegocio();
 
-        // 4. Persistir cambios
-        [Entidad] entidadActualizada = dependency1Repository.save(entidad);
+            // 4. Persistir cambios
+        [Entidad]entidadActualizada = dependency1Repository.save(entidad);
 
-        // 5. Efectos secundarios (opcional)
-        dependency2Service.doSomething(entidadActualizada);
+            // 5. Efectos secundarios (opcional)
+            dependency2Service.doSomething(entidadActualizada);
 
-        // 6. Retornar resultado
-        return new Result(entidadActualizada);
-    }
+            // 6. Retornar resultado
+            return new Result(entidadActualizada);
+        }
 
-    private void validar(Command command) {
-        // Validaciones de negocio
-    }
+        private void validar(Command command) {
+            // Validaciones de negocio
+        }
 
-    /**
-     * Record que representa el comando de entrada para [Nombre]UseCase.
-     * @param id Identificador [descripción]
-     * @param [otros parametros] [descripción]
-     */
-    public record Command(UUID id, [Parametros]) {}
+        /**
+         * Record que representa el comando de entrada para [Nombre]UseCase.
+         * @param id Identificador [descripción]
+         * @param [otros parametros] [descripción]
+         */
+        public record Command(UUID id, [Parametros]) {
+        }
 
-    /**
-     * Record que representa el resultado de [Nombre]UseCase.
-     * @param entidad [descripción]
-     */
-    public record Result([Entidad] entidad) {}
+        /**
+         * Record que representa el resultado de [Nombre]UseCase.
+         * @param entidad [descripción]
+         */
+        public record Result([Entidad]entidad) {
+        }
 }
 ```
 

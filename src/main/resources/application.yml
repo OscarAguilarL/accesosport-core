@@ -1,6 +1,8 @@
 spring:
   application:
     name: accesosport-api
+  profiles:
+    active: local
 
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/carreras_db}

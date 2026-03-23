@@ -82,8 +82,8 @@ public class EventMapper {
                 locationEmbeddable.getPlace(),
                 locationEmbeddable.getCity(),
                 locationEmbeddable.getCountry(),
-                locationEmbeddable.getLatitude().doubleValue(),
-                locationEmbeddable.getLongitude().doubleValue()
+                locationEmbeddable.getLatitude() != null ? locationEmbeddable.getLatitude().doubleValue() : null,
+                locationEmbeddable.getLongitude() != null ? locationEmbeddable.getLongitude().doubleValue() : null
         );
     }
 
