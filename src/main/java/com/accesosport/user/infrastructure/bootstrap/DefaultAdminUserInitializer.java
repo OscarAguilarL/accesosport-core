@@ -7,6 +7,8 @@ import com.accesosport.user.domain.model.PersonalData;
 import com.accesosport.user.domain.model.Role;
 import com.accesosport.user.domain.model.RoleEnumeration;
 import com.accesosport.user.domain.model.User;
+import com.accesosport.user.domain.model.UserOrganizerProfile;
+import com.accesosport.user.domain.repository.OrganizerProfileRepository;
 import com.accesosport.user.domain.repository.RoleRepository;
 import com.accesosport.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +35,7 @@ public class DefaultAdminUserInitializer implements SystemInitializer {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final OrganizerProfileRepository organizerProfileRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Value("${app.bootstrap.default-admin.email}")
@@ -61,6 +64,9 @@ public class DefaultAdminUserInitializer implements SystemInitializer {
         Role adminRole = roleRepository.findByRole(RoleEnumeration.ROLE_ADMIN)
                 .orElseThrow(() -> new IllegalStateException("ROLE_ADMIN not found"));
 
+        Role organizerRole = roleRepository.findByRole(RoleEnumeration.ROLE_ORGANIZER)
+                .orElseThrow(() -> new IllegalStateException("ROLE_ORGANIZER not found"));
+
         PersonalData personalData = PersonalData.builder()
                 .firstName("Admin")
                 .lastName("Accesosport")
@@ -83,12 +89,23 @@ public class DefaultAdminUserInitializer implements SystemInitializer {
         User adminUser = User.builder()
                 .email(adminEmail)
                 .passwordHash(passwordEncoder.encode(adminPassword))
-                .roles(Set.of(adminRole))
+                .roles(Set.of(adminRole, organizerRole))
                 .personalData(personalData)
                 .address(address)
                 .build();
 
-        userRepository.save(adminUser);
+        User savedUser = userRepository.save(adminUser);
+
+        UserOrganizerProfile organizerProfile = UserOrganizerProfile.create(
+                "Accesosport",
+                null,
+                null,
+                null,
+                "Default organizer profile for admin user",
+                savedUser
+        );
+        organizerProfileRepository.save(organizerProfile);
+
         log.warn("Default admin user created: {} (CHANGE PASSWORD IN PRODUCTION!)", adminEmail);
     }
 
