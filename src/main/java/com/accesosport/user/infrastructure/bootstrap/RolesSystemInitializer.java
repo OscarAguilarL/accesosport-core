@@ -39,6 +39,6 @@ public class RolesSystemInitializer implements SystemInitializer {
 	@Override
 	public void initialize() {
         InitializeSystemRolesUseCase useCase = new InitializeSystemRolesUseCase(roleRepository);
-        InitializeSystemRolesUseCase.InitializationResult result = useCase.execute();
+        useCase.execute();
 	}
 }

@@ -43,6 +43,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         );
     }
 
+    @SuppressWarnings("unused")
     private Collection<? extends GrantedAuthority> mapAuthorities(User user) {
         return user.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority(role.getRole().name()))
