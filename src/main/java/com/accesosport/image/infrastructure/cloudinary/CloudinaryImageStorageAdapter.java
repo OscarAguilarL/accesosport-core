@@ -8,6 +8,7 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -20,11 +21,15 @@ public class CloudinaryImageStorageAdapter implements ImageStoragePort {
 
     private final Cloudinary cloudinary;
 
+    @Value("${app.cloudinary.environment}")
+    private String environment;
+
     @Override
     public UploadResult upload(byte[] bytes, String contentType, String folder, Object publicIdSeed) {
+        String envFolder = environment + "/" + folder;
         try {
             Map<?, ?> result = cloudinary.uploader().upload(bytes, ObjectUtils.asMap(
-                    "folder", folder,
+                    "folder", envFolder,
                     "public_id", publicIdSeed.toString(),
                     "resource_type", "image",
                     "overwrite", true
