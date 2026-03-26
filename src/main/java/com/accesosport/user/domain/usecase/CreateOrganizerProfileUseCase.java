@@ -52,7 +52,7 @@ public class CreateOrganizerProfileUseCase
         user.addRole(userRole);
         userRepository.save(user);
 
-        return new Result(organizerProfileRepository.save(userOrganizerProfile));
+        return new Result(organizerProfileRepository.save(userOrganizerProfile), user);
     }
 
     /**
@@ -79,7 +79,8 @@ public class CreateOrganizerProfileUseCase
      * The result of the use case
      *
      * @param profile the UserOrganizerProfile resultant
+     * @param user    the user with the newly assigned ROLE_ORGANIZER
      */
-    public record Result(UserOrganizerProfile profile) {
+    public record Result(UserOrganizerProfile profile, User user) {
     }
 }

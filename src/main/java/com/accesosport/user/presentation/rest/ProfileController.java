@@ -4,6 +4,7 @@ import com.accesosport.auth.infrastructure.security.CustomUserDetails;
 import com.accesosport.user.application.dto.CreateOrganizerProfileRequest;
 import com.accesosport.user.application.dto.CreateParticipantProfileRequest;
 import com.accesosport.user.application.dto.OrganizerProfileResponse;
+import com.accesosport.user.application.dto.OrganizerProfileWithTokenResponse;
 import com.accesosport.user.application.dto.ParticipantProfileResponse;
 import com.accesosport.user.application.service.UserService;
 import jakarta.validation.Valid;
@@ -43,12 +44,12 @@ public class ProfileController {
      * if the profile is successfully created.
      */
     @PostMapping("/organizer")
-    public ResponseEntity<OrganizerProfileResponse> createOrganizerProfile(
+    public ResponseEntity<OrganizerProfileWithTokenResponse> createOrganizerProfile(
             @Valid @RequestBody CreateOrganizerProfileRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         UUID organizerId = userDetails.getUserId();
-        OrganizerProfileResponse response = userService.createOrganizerProfile(organizerId, request);
+        OrganizerProfileWithTokenResponse response = userService.createOrganizerProfile(organizerId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

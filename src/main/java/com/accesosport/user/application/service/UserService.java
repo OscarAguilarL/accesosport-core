@@ -1,10 +1,12 @@
 package com.accesosport.user.application.service;
 
+import com.accesosport.auth.domain.service.TokenProvider;
 import com.accesosport.shared.application.dto.AddressDto;
 import com.accesosport.shared.domain.i18n.MessageKeys;
 import com.accesosport.user.application.dto.CreateOrganizerProfileRequest;
 import com.accesosport.user.application.dto.CreateParticipantProfileRequest;
 import com.accesosport.user.application.dto.OrganizerProfileResponse;
+import com.accesosport.user.application.dto.OrganizerProfileWithTokenResponse;
 import com.accesosport.user.application.dto.ParticipantProfileResponse;
 import com.accesosport.user.application.dto.SavePersonalDataRequest;
 import com.accesosport.user.application.dto.SaveUserAddressRequest;
@@ -41,6 +43,7 @@ public class UserService {
     private final RoleRepository roleRepository;
     private final OrganizerProfileRepository organizerProfileRepository;
     private final ParticipantProfileRepository participantProfileRepository;
+    private final TokenProvider tokenProvider;
 
     /**
      * Creates an organizer profile associated with the specified user ID.
@@ -50,7 +53,7 @@ public class UserService {
      * @return an {@code OrganizerProfileResponse} containing the details of the newly created organizer profile
      */
     @Transactional
-    public OrganizerProfileResponse createOrganizerProfile(UUID userId, CreateOrganizerProfileRequest request) {
+    public OrganizerProfileWithTokenResponse createOrganizerProfile(UUID userId, CreateOrganizerProfileRequest request) {
         var command = new CreateOrganizerProfileUseCase.Command(
                 request.organizationName(),
                 request.website(),
@@ -61,7 +64,8 @@ public class UserService {
         );
         CreateOrganizerProfileUseCase useCase = new CreateOrganizerProfileUseCase(organizerProfileRepository, userRepository, roleRepository);
         var result = useCase.execute(command);
-        return OrganizerProfileResponse.fromDomain(result.profile());
+        String newToken = tokenProvider.generateToken(result.user());
+        return new OrganizerProfileWithTokenResponse(newToken, OrganizerProfileResponse.fromDomain(result.profile()));
     }
 
     /**
