@@ -1,5 +1,6 @@
 package com.accesosport.event.presentation.exception;
 
+import com.accesosport.event.domain.exception.EventAccessDeniedException;
 import com.accesosport.event.domain.exception.EventInvalidStatusException;
 import com.accesosport.event.domain.exception.EventNotFoundException;
 import com.accesosport.event.domain.exception.EventNotPublishableException;
@@ -97,6 +98,22 @@ public class EventExceptionHandler {
      * @param ex the {@link EventNotPublishableException} containing details about why the event is not publishable
      * @return a {@link ProblemDetail} instance representing the error, including a 400 BAD_REQUEST HTTP status
      */
+    @ExceptionHandler(EventAccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ProblemDetail handleEventAccessDenied(EventAccessDeniedException ex) {
+        log.error("Event access denied: {}", ex.getMessage());
+
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.FORBIDDEN,
+                messageTranslator.translate(ex.getMessage())
+        );
+        problemDetail.setTitle(messageTranslator.translate(MessageKeys.Events.EVENT_PROBLEM_DETAIL_ACCESS_DENIED));
+        problemDetail.setType(URI.create("https://api.athletix.com/errors/event-access-denied"));
+        problemDetail.setProperty("timestamp", Instant.now());
+
+        return problemDetail;
+    }
+
     @ExceptionHandler(EventNotPublishableException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ProblemDetail handleEventoNoPublishable(EventNotPublishableException ex) {

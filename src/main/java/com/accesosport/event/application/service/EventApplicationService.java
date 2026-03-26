@@ -80,9 +80,9 @@ public class EventApplicationService {
      * @return an {@code EventResponse} containing the details of the published event
      */
     @Transactional
-    public EventResponse publishEvent(UUID eventId) {
+    public EventResponse publishEvent(UUID eventId, UUID requesterId) {
         PublishEventUseCase useCase = new PublishEventUseCase(eventRepository);
-        PublishEventUseCase.PublishEventResult result = useCase.execute(new PublishEventUseCase.PublishEventCommand(eventId));
+        PublishEventUseCase.PublishEventResult result = useCase.execute(new PublishEventUseCase.PublishEventCommand(eventId, requesterId));
 
         return EventResponseMapper.toEventResponse(result.event());
     }
@@ -94,9 +94,9 @@ public class EventApplicationService {
      * @return an {@code EventResponse} containing the details of the event with updated registration status
      */
     @Transactional
-    public EventResponse openRegistration(UUID eventId) {
+    public EventResponse openRegistration(UUID eventId, UUID requesterId) {
         OpenRegistrationUseCase useCase = new OpenRegistrationUseCase(eventRepository);
-        OpenRegistrationUseCase.OpenRegistrationResult result = useCase.execute(new OpenRegistrationUseCase.OpenRegistrationCommand(eventId));
+        OpenRegistrationUseCase.OpenRegistrationResult result = useCase.execute(new OpenRegistrationUseCase.OpenRegistrationCommand(eventId, requesterId));
 
         return EventResponseMapper.toEventResponse(result.event());
     }
@@ -110,9 +110,9 @@ public class EventApplicationService {
      * @return an {@code EventResponse} containing the details of the canceled event
      */
     @Transactional
-    public EventResponse cancelEvent(UUID eventId, String reason) {
+    public EventResponse cancelEvent(UUID eventId, String reason, UUID requesterId) {
         CancelEventUseCase useCase = new CancelEventUseCase(eventRepository);
-        CancelEventUseCase.CancelEventResult result = useCase.execute(new CancelEventUseCase.CancelEventCommand(eventId, reason));
+        CancelEventUseCase.CancelEventResult result = useCase.execute(new CancelEventUseCase.CancelEventCommand(eventId, reason, requesterId));
 
         return EventResponseMapper.toEventResponse(result.canceledEvent());
     }

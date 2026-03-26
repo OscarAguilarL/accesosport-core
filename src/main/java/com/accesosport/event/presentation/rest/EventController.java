@@ -129,8 +129,12 @@ public class EventController {
      */
     @PutMapping("/{eventId}/publish")
     @PreAuthorize("hasAnyAuthority('ROLE_ORGANIZER', 'ROLE_ADMIN')")
-    public ResponseEntity<EventResponse> publishEvent(@PathVariable UUID eventId) {
-        EventResponse eventResponse = eventApplicationService.publishEvent(eventId);
+    public ResponseEntity<EventResponse> publishEvent(
+            @PathVariable UUID eventId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        UUID requesterId = isAdmin(userDetails) ? null : userDetails.getUserId();
+        EventResponse eventResponse = eventApplicationService.publishEvent(eventId, requesterId);
         return ResponseEntity.ok(eventResponse);
     }
 
@@ -143,8 +147,12 @@ public class EventController {
      */
     @PutMapping("/{eventId}/open-registration")
     @PreAuthorize("hasAnyAuthority('ROLE_ORGANIZER', 'ROLE_ADMIN')")
-    public ResponseEntity<EventResponse> openRegistration(@PathVariable UUID eventId) {
-        EventResponse eventResponse = eventApplicationService.openRegistration(eventId);
+    public ResponseEntity<EventResponse> openRegistration(
+            @PathVariable UUID eventId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        UUID requesterId = isAdmin(userDetails) ? null : userDetails.getUserId();
+        EventResponse eventResponse = eventApplicationService.openRegistration(eventId, requesterId);
 
         return ResponseEntity.ok(eventResponse);
     }
@@ -161,9 +169,16 @@ public class EventController {
     @PreAuthorize("hasAnyAuthority('ROLE_ORGANIZER', 'ROLE_ADMIN')")
     public ResponseEntity<EventResponse> cancelEvent(
             @PathVariable UUID eventId,
-            @RequestParam(required = false, defaultValue = "Cancelled by organizer") String reason
+            @RequestParam(required = false, defaultValue = "Cancelled by organizer") String reason,
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        EventResponse eventResponse = eventApplicationService.cancelEvent(eventId, reason);
+        UUID requesterId = isAdmin(userDetails) ? null : userDetails.getUserId();
+        EventResponse eventResponse = eventApplicationService.cancelEvent(eventId, reason, requesterId);
         return ResponseEntity.ok(eventResponse);
+    }
+
+    private boolean isAdmin(CustomUserDetails userDetails) {
+        return userDetails.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
     }
 }

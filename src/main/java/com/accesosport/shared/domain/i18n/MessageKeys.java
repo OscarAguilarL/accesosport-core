@@ -62,6 +62,7 @@ public class MessageKeys {
 		}
 
 		public static final String EVENT_NOT_FOUND = "events.errors.event-not-found";
+		public static final String EVENT_ACCESS_DENIED = "event.access.denied";
 		public static final String INVALID_DISTANCE = "events.errors.invalid-distance";
 		public static final String INVALID_DISTANCE_UNIT = "events.errors.invalid-distance-unit";
 
@@ -94,6 +95,7 @@ public class MessageKeys {
 		public static final String EVENT_PROBLEM_DETAIL_REGISTRATION_CLOSED = "event.problem.detail.registration-closed";
 		public static final String EVENT_PROBLEM_DETAIL_OPERATION_NOT_ALLOWED = "event.problem.detail.operation-not-allowed";
 		public static final String EVENT_PROBLEM_DETAIL_VALIDATION_ERROR = "event.problem.detail.validation-error";
+		public static final String EVENT_PROBLEM_DETAIL_ACCESS_DENIED = "event.problem.detail.access-denied";
 		public static final String EVENT_VALIDATION_PLACE_REQUIRED = "event.validation.place.required";
 		public static final String EVENT_VALIDATION_LATITUDE_INVALID = "event.validation.latitude.invalid";
 		public static final String EVENT_VALIDATION_LONGITUDE_INVALID = "event.validation.longitude.invalid";

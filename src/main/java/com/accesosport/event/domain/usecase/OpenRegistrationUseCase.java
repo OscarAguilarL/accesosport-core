@@ -1,5 +1,6 @@
 package com.accesosport.event.domain.usecase;
 
+import com.accesosport.event.domain.exception.EventAccessDeniedException;
 import com.accesosport.event.domain.exception.EventNotFoundException;
 import com.accesosport.event.domain.model.Event;
 import com.accesosport.event.domain.repository.EventRepository;
@@ -22,6 +23,10 @@ public class OpenRegistrationUseCase extends UseCase<OpenRegistrationUseCase.Ope
         Event event = eventRepository.findById(command.eventId())
                 .orElseThrow(() -> new EventNotFoundException(command.eventId()));
 
+        if (command.requesterId() != null && !event.getCreatedBy().getId().equals(command.requesterId())) {
+            throw new EventAccessDeniedException();
+        }
+
         event.openRegistration();
 
         Event savedEvent = eventRepository.save(event);
@@ -32,7 +37,7 @@ public class OpenRegistrationUseCase extends UseCase<OpenRegistrationUseCase.Ope
     /**
      * @param eventId Event identifier to be opened for registration
      */
-    public record OpenRegistrationCommand(UUID eventId) {
+    public record OpenRegistrationCommand(UUID eventId, UUID requesterId) {
     }
 
     /**

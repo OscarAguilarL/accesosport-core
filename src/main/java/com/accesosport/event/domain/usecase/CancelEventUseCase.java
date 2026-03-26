@@ -1,5 +1,6 @@
 package com.accesosport.event.domain.usecase;
 
+import com.accesosport.event.domain.exception.EventAccessDeniedException;
 import com.accesosport.event.domain.exception.EventNotFoundException;
 import com.accesosport.event.domain.model.Event;
 import com.accesosport.event.domain.repository.EventRepository;
@@ -22,6 +23,10 @@ public class CancelEventUseCase extends UseCase<CancelEventUseCase.CancelEventCo
         Event event = eventRepository.findById(command.eventId())
                 .orElseThrow(() -> new EventNotFoundException(command.eventId()));
 
+        if (command.requesterId() != null && !event.getCreatedBy().getId().equals(command.requesterId())) {
+            throw new EventAccessDeniedException();
+        }
+
         event.cancel();
 
         Event savedEvent = eventRepository.save(event);
@@ -35,7 +40,7 @@ public class CancelEventUseCase extends UseCase<CancelEventUseCase.CancelEventCo
      * @param eventId unique identifier of the event to be canceled
      * @param reason  cancellation reason provided by the organizer
      */
-    public record CancelEventCommand(UUID eventId, String reason) {
+    public record CancelEventCommand(UUID eventId, String reason, UUID requesterId) {
     }
 
     /**

@@ -1,5 +1,6 @@
 package com.accesosport.event.domain.usecase;
 
+import com.accesosport.event.domain.exception.EventAccessDeniedException;
 import com.accesosport.event.domain.exception.EventNotFoundException;
 import com.accesosport.event.domain.model.Event;
 import com.accesosport.event.domain.repository.EventRepository;
@@ -23,6 +24,10 @@ public class PublishEventUseCase extends UseCase<PublishEventUseCase.PublishEven
         Event event = eventRepository.findById(command.eventId())
                 .orElseThrow(() -> new EventNotFoundException(command.eventId()));
 
+        if (command.requesterId() != null && !event.getCreatedBy().getId().equals(command.requesterId())) {
+            throw new EventAccessDeniedException();
+        }
+
         event.publish();
 
         Event publishedEvent = eventRepository.save(event);
@@ -35,7 +40,7 @@ public class PublishEventUseCase extends UseCase<PublishEventUseCase.PublishEven
      *
      * @param eventId Event identifier to be published
      */
-    public record PublishEventCommand(UUID eventId) {
+    public record PublishEventCommand(UUID eventId, UUID requesterId) {
     }
 
     /**
