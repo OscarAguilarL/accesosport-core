@@ -39,6 +39,7 @@ public class EventMapper {
         );
 
         event.setId(eventJpaEntity.getId());
+        event.setVersion(eventJpaEntity.getVersion());
         event.setRegisteredParticipants(eventJpaEntity.getRegisteredParticipants());
         event.setStatus(eventJpaEntity.getStatus());
         event.setCreatedOn(eventJpaEntity.getCreatedOn());
@@ -54,6 +55,7 @@ public class EventMapper {
 
         EventJpaEntity entity = new EventJpaEntity();
         entity.setId(domain.getId());
+        entity.setVersion(domain.getVersion());
         entity.setName(domain.getName());
         entity.setDescription(domain.getDescription());
         entity.setEventDate(domain.getEventDate());

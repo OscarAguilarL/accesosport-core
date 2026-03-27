@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -143,6 +144,20 @@ public class EventExceptionHandler {
     	problemDetail.setProperty("timestamp", Instant.now());
     	
     	return problemDetail;
+    }
+
+    @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ProblemDetail handleOptimisticLock(ObjectOptimisticLockingFailureException ex) {
+        log.warn("Optimistic lock conflict on event: {}", ex.getMessage());
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(
+                HttpStatus.CONFLICT,
+                messageTranslator.translate(MessageKeys.Events.EVENT_REGISTRATION_CONFLICT)
+        );
+        pd.setTitle("Registration conflict");
+        pd.setType(URI.create("https://api.athletix.com/errors/registration-conflict"));
+        pd.setProperty("timestamp", Instant.now());
+        return pd;
     }
 
     /**

@@ -4,18 +4,7 @@ import com.accesosport.event.domain.model.DistanceUnit;
 import com.accesosport.event.domain.model.EventStatus;
 import com.accesosport.event.domain.model.RaceType;
 import com.accesosport.user.infrastructure.persistence.entity.UserJpaEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -37,6 +26,10 @@ public class EventJpaEntity {
     @Id
     @Column(name = "id", nullable = false, updatable = false)
     private UUID id;
+
+    @Version
+    @Column(name = "version", nullable = false)
+    private int version;
 
     @Column(nullable = false, length = 200)
     private String name;

@@ -15,6 +15,8 @@ public class Event {
 
     @Setter
     private UUID id;
+    @Setter
+    private int version;
     private String name;
     private String description;
     private LocalDateTime eventDate;
