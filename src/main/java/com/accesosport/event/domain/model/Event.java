@@ -77,6 +77,32 @@ public class Event {
         return event;
     }
 
+    public void update(String name,
+                       String description,
+                       LocalDateTime eventDate,
+                       Location location,
+                       RaceType raceType,
+                       Distance distance,
+                       BigDecimal price,
+                       RegistrationPeriod registrationPeriod,
+                       Integer maxParticipants) {
+        if (status != EventStatus.DRAFT) {
+            throw new EventInvalidStatusException(MessageKeys.Events.EVENT_UPDATE_ONLY_DRAFT, status);
+        }
+        this.name = name;
+        this.description = description;
+        this.eventDate = eventDate;
+        this.location = location;
+        this.raceType = raceType;
+        this.distance = distance;
+        this.price = price;
+        this.registrationPeriod = registrationPeriod;
+        this.maxParticipants = maxParticipants;
+
+        validate();
+        this.updatedOn = LocalDateTime.now();
+    }
+
     public void publish() {
         if (!status.canBePublished()) {
             throw new IllegalStateException(MessageKeys.Events.EVENT_PUBLISH_ONLY_DRAFT);

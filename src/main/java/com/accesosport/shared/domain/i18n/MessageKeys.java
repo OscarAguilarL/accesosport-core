@@ -117,6 +117,7 @@ public class MessageKeys {
 		public static final String EVENT_VALIDATION_MAX_PARTICIPANTS_MIN = "event.validation.max-participants.min";
 		public static final String EVENT_VALIDATION_REGISTRATION_END_AFTER_START = "event.validation.registration.end-after-start";
 		public static final String EVENT_REGISTRATION_CONFLICT = "event.registration.conflict";
+		public static final String EVENT_UPDATE_ONLY_DRAFT = "event.update.only-draft";
 	}
 
 	public static class Images {

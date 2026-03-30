@@ -4,6 +4,7 @@ import com.accesosport.event.application.dto.CreateEventRequest;
 import com.accesosport.event.application.dto.EventResponse;
 import com.accesosport.event.application.dto.EventResponseMapper;
 import com.accesosport.event.application.dto.EventSummaryResponse;
+import com.accesosport.event.application.dto.UpdateEventRequest;
 import com.accesosport.event.domain.exception.EventNotFoundException;
 import com.accesosport.event.domain.model.Event;
 import com.accesosport.event.domain.model.EventStatus;
@@ -14,6 +15,7 @@ import com.accesosport.event.domain.usecase.ListAvailableEventsUseCase;
 import com.accesosport.event.domain.usecase.ListEventsByOrganizerUseCase;
 import com.accesosport.event.domain.usecase.OpenRegistrationUseCase;
 import com.accesosport.event.domain.usecase.PublishEventUseCase;
+import com.accesosport.event.domain.usecase.UpdateEventUseCase;
 import com.accesosport.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -69,6 +71,34 @@ public class EventApplicationService {
 
         CreateEventUseCase useCase = new CreateEventUseCase(eventRepository, userRepository);
         CreateEventUseCase.CreateEventResult result = useCase.execute(command);
+
+        return EventResponseMapper.toEventResponse(result.event());
+    }
+
+    @Transactional
+    public EventResponse updateEvent(UUID eventId, UpdateEventRequest request, UUID requesterId) {
+        UpdateEventUseCase.UpdateEventCommand command = new UpdateEventUseCase.UpdateEventCommand(
+                eventId,
+                requesterId,
+                request.name(),
+                request.description(),
+                request.eventDate(),
+                request.place(),
+                request.city(),
+                request.country(),
+                request.latitude(),
+                request.longitude(),
+                request.raceType(),
+                request.distance(),
+                request.distanceUnit(),
+                request.price(),
+                request.registrationStartDate(),
+                request.registrationEndDate(),
+                request.maxParticipants()
+        );
+
+        UpdateEventUseCase useCase = new UpdateEventUseCase(eventRepository);
+        UpdateEventUseCase.UpdateEventResult result = useCase.execute(command);
 
         return EventResponseMapper.toEventResponse(result.event());
     }

@@ -4,6 +4,7 @@ import com.accesosport.auth.infrastructure.security.CustomUserDetails;
 import com.accesosport.event.application.dto.CreateEventRequest;
 import com.accesosport.event.application.dto.EventResponse;
 import com.accesosport.event.application.dto.EventSummaryResponse;
+import com.accesosport.event.application.dto.UpdateEventRequest;
 import com.accesosport.event.application.service.EventApplicationService;
 import com.accesosport.event.domain.model.EventStatus;
 import jakarta.validation.Valid;
@@ -15,6 +16,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -127,6 +129,18 @@ public class EventController {
      * @param eventId the unique identifier of the event to be published
      * @return a ResponseEntity containing the published event's details wrapped in an EventResponse object
      */
+    @PatchMapping("/{eventId}")
+    @PreAuthorize("hasAnyAuthority('ROLE_ORGANIZER', 'ROLE_ADMIN')")
+    public ResponseEntity<EventResponse> updateEvent(
+            @PathVariable UUID eventId,
+            @Valid @RequestBody UpdateEventRequest request,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        UUID requesterId = isAdmin(userDetails) ? null : userDetails.getUserId();
+        EventResponse eventResponse = eventApplicationService.updateEvent(eventId, request, requesterId);
+        return ResponseEntity.ok(eventResponse);
+    }
+
     @PutMapping("/{eventId}/publish")
     @PreAuthorize("hasAnyAuthority('ROLE_ORGANIZER', 'ROLE_ADMIN')")
     public ResponseEntity<EventResponse> publishEvent(
