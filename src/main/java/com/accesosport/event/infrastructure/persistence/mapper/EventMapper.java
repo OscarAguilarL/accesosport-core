@@ -25,7 +25,9 @@ public class EventMapper {
 
         User organizer = UserMapper.toDomain(eventJpaEntity.getCreatedBy());
 
-        Event event = Event.create(
+        return Event.reconstitute(
+                eventJpaEntity.getId(),
+                eventJpaEntity.getVersion(),
                 eventJpaEntity.getName(),
                 eventJpaEntity.getDescription(),
                 eventJpaEntity.getEventDate(),
@@ -35,19 +37,14 @@ public class EventMapper {
                 eventJpaEntity.getPrice(),
                 registrationPeriod,
                 eventJpaEntity.getMaxParticipants(),
-                organizer
+                eventJpaEntity.getRegisteredParticipants(),
+                eventJpaEntity.getStatus(),
+                organizer,
+                eventJpaEntity.getCreatedOn(),
+                eventJpaEntity.getUpdatedOn(),
+                eventJpaEntity.getCoverImageUrl(),
+                eventJpaEntity.getCoverImagePublicId()
         );
-
-        event.setId(eventJpaEntity.getId());
-        event.setVersion(eventJpaEntity.getVersion());
-        event.setRegisteredParticipants(eventJpaEntity.getRegisteredParticipants());
-        event.setStatus(eventJpaEntity.getStatus());
-        event.setCreatedOn(eventJpaEntity.getCreatedOn());
-        event.setUpdatedOn(eventJpaEntity.getUpdatedOn());
-        event.setCoverImageUrl(eventJpaEntity.getCoverImageUrl());
-        event.setCoverImagePublicId(eventJpaEntity.getCoverImagePublicId());
-
-        return event;
     }
 
     public static EventJpaEntity toEntity(Event domain) {

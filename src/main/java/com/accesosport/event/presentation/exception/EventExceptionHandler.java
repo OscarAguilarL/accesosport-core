@@ -86,7 +86,7 @@ public class EventExceptionHandler {
                 translatedMessage
         );
         problemDetail.setTitle(messageTranslator.translate(MessageKeys.Events.EVENT_PROBLEM_DETAIL_NOT_FOUND));
-        problemDetail.setType(URI.create("https://api.athletix.com/errors/evento-not-found"));
+        problemDetail.setType(URI.create("https://api.accesosport.com/errors/evento-not-found"));
         problemDetail.setProperty("timestamp", Instant.now());
 
         return problemDetail;
@@ -109,7 +109,7 @@ public class EventExceptionHandler {
                 messageTranslator.translate(ex.getMessage())
         );
         problemDetail.setTitle(messageTranslator.translate(MessageKeys.Events.EVENT_PROBLEM_DETAIL_ACCESS_DENIED));
-        problemDetail.setType(URI.create("https://api.athletix.com/errors/event-access-denied"));
+        problemDetail.setType(URI.create("https://api.accesosport.com/errors/event-access-denied"));
         problemDetail.setProperty("timestamp", Instant.now());
 
         return problemDetail;
@@ -125,7 +125,7 @@ public class EventExceptionHandler {
                 messageTranslator.translate(ex.getMessage())
         );
         problemDetail.setTitle(messageTranslator.translate(MessageKeys.Events.EVENT_PROBLEM_DETAIL_NOT_PUBLISHABLE));
-        problemDetail.setType(URI.create("https://api.athletix.com/errors/evento-not-publishable"));
+        problemDetail.setType(URI.create("https://api.accesosport.com/errors/evento-not-publishable"));
         problemDetail.setProperty("timestamp", Instant.now());
 
         return problemDetail;
@@ -155,7 +155,7 @@ public class EventExceptionHandler {
                 messageTranslator.translate(MessageKeys.Events.EVENT_REGISTRATION_CONFLICT)
         );
         pd.setTitle("Registration conflict");
-        pd.setType(URI.create("https://api.athletix.com/errors/registration-conflict"));
+        pd.setType(URI.create("https://api.accesosport.com/errors/registration-conflict"));
         pd.setProperty("timestamp", Instant.now());
         return pd;
     }
@@ -177,7 +177,7 @@ public class EventExceptionHandler {
                 messageTranslator.translate(ex.getMessage())
         );
         problemDetail.setTitle(messageTranslator.translate(MessageKeys.Events.EVENT_PROBLEM_DETAIL_REGISTRATION_FULL));
-        problemDetail.setType(URI.create("https://api.athletix.com/errors/evento-full"));
+        problemDetail.setType(URI.create("https://api.accesosport.com/errors/evento-full"));
         problemDetail.setProperty("timestamp", Instant.now());
 
         return problemDetail;
@@ -200,7 +200,7 @@ public class EventExceptionHandler {
                 messageTranslator.translate(ex.getMessage())
         );
         problemDetail.setTitle(messageTranslator.translate(MessageKeys.Events.EVENT_PROBLEM_DETAIL_REGISTRATION_CLOSED));
-        problemDetail.setType(URI.create("https://api.athletix.com/errors/registration-closed"));
+        problemDetail.setType(URI.create("https://api.accesosport.com/errors/registration-closed"));
         problemDetail.setProperty("timestamp", Instant.now());
 
         return problemDetail;
@@ -226,7 +226,7 @@ public class EventExceptionHandler {
                 messageTranslator.translate(ex.getMessage())
         );
         problemDetail.setTitle(messageTranslator.translate(MessageKeys.Events.EVENT_PROBLEM_DETAIL_OPERATION_NOT_ALLOWED));
-        problemDetail.setType(URI.create("https://api.athletix.com/errors/invalid-operation"));
+        problemDetail.setType(URI.create("https://api.accesosport.com/errors/invalid-operation"));
         problemDetail.setProperty("timestamp", Instant.now());
 
         return problemDetail;
@@ -249,7 +249,7 @@ public class EventExceptionHandler {
                 messageTranslator.translate(ex.getMessage())
         );
         problemDetail.setTitle(messageTranslator.translate(MessageKeys.Events.EVENT_PROBLEM_DETAIL_VALIDATION_ERROR));
-        problemDetail.setType(URI.create("https://api.athletix.com/errors/validation-error"));
+        problemDetail.setType(URI.create("https://api.accesosport.com/errors/validation-error"));
         problemDetail.setProperty("timestamp", Instant.now());
 
         return problemDetail;

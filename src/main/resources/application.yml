@@ -62,6 +62,11 @@ app:
     api-secret: ${CLOUDINARY_API_SECRET}
     environment: ${APP_ENV:local}
 
+  scheduler:
+    event-lifecycle:
+      fixed-delay-ms: ${APP_SCHEDULER_LIFECYCLE_DELAY_MS:60000}
+      complete-after-hours: ${APP_SCHEDULER_COMPLETE_AFTER_HOURS:12}
+
 
 # Logging
 logging:

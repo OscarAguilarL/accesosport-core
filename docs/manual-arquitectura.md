@@ -146,7 +146,7 @@ public class PersonalDataEmbeddable {
 ## Estructura del Proyecto
 
 ```
-src/main/java/com/grupocaos/products/athletix/
+src/main/java/com/accesosport/
 │
 ├── 📁 [feature]/                    # Por cada feature/módulo (user, event, auth, etc.)
 │   │
@@ -207,7 +207,7 @@ src/main/java/com/grupocaos/products/athletix/
 
 **Ejemplo de Entidad:**
 ```java
-package com.grupocaos.products.athletix.evento.domain.model;
+package com.accesosport.evento.domain.model;
 
 // ✅ Sin anotaciones de frameworks
 public class Evento {
@@ -251,7 +251,7 @@ public class Evento {
 
 **Ejemplo de Repository Port:**
 ```java
-package com.grupocaos.products.athletix.evento.domain.repository;
+package com.accesosport.evento.domain.repository;
 
 // ✅ Interfaz pura, sin extends JpaRepository
 public interface EventoRepository {
@@ -265,7 +265,7 @@ public interface EventoRepository {
 **Ejemplo de Use Case:**
 
 ```java
-package com.grupocaos.products.athletix.evento.domain.usecase;
+package com.accesosport.evento.domain.usecase;
 
 import usecase.domain.shared.com.accesosport.UseCase;
 import lombok.RequiredArgsConstructor;
@@ -323,7 +323,7 @@ public class PublicarEventoUseCase extends UseCase<
 
 **Ejemplo de DTO:**
 ```java
-package com.grupocaos.products.athletix.evento.application.dto;
+package com.accesosport.evento.application.dto;
 
 import jakarta.validation.constraints.*;
 
@@ -362,7 +362,7 @@ public record EventoResponse(
 
 **Ejemplo de Application Service:**
 ```java
-package com.grupocaos.products.athletix.evento.application.service;
+package com.accesosport.evento.application.service;
 
 @Service
 @RequiredArgsConstructor
@@ -438,7 +438,7 @@ public class EventoApplicationService {
 
 **Ejemplo de JPA Entity:**
 ```java
-package com.grupocaos.products.athletix.evento.infrastructure.persistence.entity;
+package com.accesosport.evento.infrastructure.persistence.entity;
 
 @Entity
 @Table(name = "eventos")
@@ -495,7 +495,7 @@ public class EventoJpaEntity {
 
 **Ejemplo de Embeddable:**
 ```java
-package com.grupocaos.products.athletix.user.infrastructure.persistence.entity;
+package com.accesosport.user.infrastructure.persistence.entity;
 
 @Embeddable
 @Data
@@ -521,7 +521,7 @@ public class PersonalDataEmbeddable {
 
 **Ejemplo de Mapper Domain ↔ Embeddable:**
 ```java
-package com.grupocaos.products.athletix.user.infrastructure.persistence.mapper;
+package com.accesosport.user.infrastructure.persistence.mapper;
 
 /**
  * Mapper para convertir entre PersonalData (dominio) y PersonalDataEmbeddable (infraestructura)
@@ -570,7 +570,7 @@ public class PersonalDataMapper {
 
 **Ejemplo de Repository Adapter:**
 ```java
-package com.grupocaos.products.athletix.evento.infrastructure.persistence.adapter;
+package com.accesosport.evento.infrastructure.persistence.adapter;
 
 @Repository
 @RequiredArgsConstructor
@@ -624,7 +624,7 @@ public class EventoRepositoryAdapter implements EventoRepository {
 
 **Ejemplo de Controller:**
 ```java
-package com.grupocaos.products.athletix.evento.presentation.rest;
+package com.accesosport.evento.presentation.rest;
 
 @RestController
 @RequestMapping("/api/v1/eventos")
@@ -697,7 +697,7 @@ public class EventoController {
 
 ```java
 // 1.1 Entidad de Dominio
-package com.grupocaos.products.athletix.inscripcion.domain.model;
+package com.accesosport.inscripcion.domain.model;
 
 import usecase.domain.shared.com.accesosport.UseCase;
 
@@ -724,7 +724,7 @@ public class Inscripcion {
 }
 
 // 1.2 Repository Port
-package com.grupocaos.products.athletix.inscripcion.domain.repository;
+package com.accesosport.inscripcion.domain.repository;
 
 public interface InscripcionRepository {
     Optional<Inscripcion> findById(UUID id);
@@ -739,7 +739,7 @@ public interface InscripcionRepository {
 }
 
 // 1.3 Use Case
-package com.grupocaos.products.athletix.inscripcion.domain.usecase;
+package com.accesosport.inscripcion.domain.usecase;
 
 public class InscribirCorredorUseCase extends UseCase<
         InscribirCorredorUseCase.InscripcionCommand,
@@ -787,7 +787,7 @@ public class InscribirCorredorUseCase extends UseCase<
 
 ```java
 // 2.1 DTOs
-package com.grupocaos.products.athletix.inscripcion.application.dto;
+package com.accesosport.inscripcion.application.dto;
 
 public record InscribirseEventoRequest(
     @NotNull UUID eventoId
@@ -803,7 +803,7 @@ public record InscripcionResponse(
 ) {}
 
 // 2.2 Application Service
-package com.grupocaos.products.athletix.inscripcion.application.service;
+package com.accesosport.inscripcion.application.service;
 
 @Service
 @RequiredArgsConstructor
@@ -1218,16 +1218,16 @@ public class PersonalDataEmbeddable {
 
 ```java
 // ❌ MAL - Duplicar Value Objects en cada módulo
-package com.grupocaos.products.athletix.user.domain.model;
+package com.accesosport.user.domain.model;
 public record Address(...) {} // Duplicado en user
 
-package com.grupocaos.products.athletix.event.domain.model;
+package com.accesosport.event.domain.model;
 public record Address(...) {} // Duplicado en event
 ```
 
 ```java
 // ✅ BIEN - Value Object en módulo shared
-package com.grupocaos.products.athletix.shared.domain.valueobjects;
+package com.accesosport.shared.domain.valueobjects;
 
 public record Address(...) {
 } // ✅ Una sola definición compartida
@@ -1246,7 +1246,7 @@ El proyecto implementa soporte de internacionalización con una interfaz en el d
 
 ```java
 // Interfaz en shared/domain/i18n
-package com.grupocaos.products.athletix.shared.domain.i18n;
+package com.accesosport.shared.domain.i18n;
 
 public interface MessageTranslator {
     /**
@@ -1264,7 +1264,7 @@ public interface MessageTranslator {
 **Uso en excepciones de dominio:**
 
 ```java
-package com.grupocaos.products.athletix.user.domain.exception;
+package com.accesosport.user.domain.exception;
 
 import i18n.domain.shared.com.accesosport.MessageKeys;
 
@@ -1282,7 +1282,7 @@ UserNotFoundException(MessageKeys.AuthMessages.USER_NOT_FOUND);
 
 **Keys centralizadas:**
 ```java
-package com.grupocaos.products.athletix.shared.domain.i18n;
+package com.accesosport.shared.domain.i18n;
 
 public class MessageKeys {
     public static class AuthMessages {
@@ -1516,7 +1516,7 @@ Los Value Objects se ubican en el módulo `shared` para reutilización. Usa `rec
 
 ```java
 // Value Object compartido usando record
-package com.grupocaos.products.athletix.shared.domain.valueobjects;
+package com.accesosport.shared.domain.valueobjects;
 
 import jakarta.annotation.Nonnull;
 
@@ -1569,7 +1569,7 @@ public record Address(
 ### Plantilla: Nueva Entidad de Dominio
 
 ```java
-package com.grupocaos.products.athletix.[feature].domain.model;
+package com.accesosport.[feature].domain.model;
 
 import java.util.UUID;
 
@@ -1618,7 +1618,7 @@ public class [NombreEntidad] {
 ### Plantilla: Nuevo Use Case
 
 ```java
-package com.grupocaos.products.athletix.
+package com.accesosport.
 
 [feature].domain.usecase;
 
@@ -1685,7 +1685,7 @@ public class [Nombre]UseCase extends UseCase<
 ### Plantilla: Nuevo Application Service
 
 ```java
-package com.grupocaos.products.athletix.[feature].application.service;
+package com.accesosport.[feature].application.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -1729,7 +1729,7 @@ public class [Feature]ApplicationService {
 ### Plantilla: Nuevo Controller
 
 ```java
-package com.grupocaos.products.athletix.[feature].presentation.rest;
+package com.accesosport.[feature].presentation.rest;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
@@ -1891,7 +1891,7 @@ public interface SystemInitializer {
 
 **Última actualización**: 2025-12-19
 **Versión**: 2.0
-**Mantenido por**: Equipo AccesoSport / Athletix
+**Mantenido por**: Equipo AccesoSport
 
 ---
 

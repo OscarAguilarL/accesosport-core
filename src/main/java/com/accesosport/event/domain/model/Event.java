@@ -44,6 +44,48 @@ public class Event {
         this.registeredParticipants = 0;
     }
 
+    public static Event reconstitute(
+            UUID id,
+            int version,
+            String name,
+            String description,
+            LocalDateTime eventDate,
+            Location location,
+            RaceType raceType,
+            Distance distance,
+            BigDecimal price,
+            RegistrationPeriod registrationPeriod,
+            Integer maxParticipants,
+            Integer registeredParticipants,
+            EventStatus status,
+            User createdBy,
+            LocalDateTime createdOn,
+            LocalDateTime updatedOn,
+            String coverImageUrl,
+            String coverImagePublicId
+    ) {
+        Event event = new Event();
+        event.id = id;
+        event.version = version;
+        event.name = name;
+        event.description = description;
+        event.eventDate = eventDate;
+        event.location = location;
+        event.raceType = raceType;
+        event.distance = distance;
+        event.price = price;
+        event.registrationPeriod = registrationPeriod;
+        event.maxParticipants = maxParticipants;
+        event.registeredParticipants = registeredParticipants;
+        event.status = status;
+        event.createdBy = createdBy;
+        event.createdOn = createdOn;
+        event.updatedOn = updatedOn;
+        event.coverImageUrl = coverImageUrl;
+        event.coverImagePublicId = coverImagePublicId;
+        return event;
+    }
+
     public static Event create(
             String name,
             String description,

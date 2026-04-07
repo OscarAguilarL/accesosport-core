@@ -10,6 +10,7 @@ import com.accesosport.event.domain.model.Event;
 import com.accesosport.event.domain.model.EventStatus;
 import com.accesosport.event.domain.repository.EventRepository;
 import com.accesosport.event.domain.usecase.CancelEventUseCase;
+import com.accesosport.event.domain.usecase.CompleteEventUseCase;
 import com.accesosport.event.domain.usecase.CreateEventUseCase;
 import com.accesosport.event.domain.usecase.ListAvailableEventsUseCase;
 import com.accesosport.event.domain.usecase.ListEventsByOrganizerUseCase;
@@ -145,6 +146,14 @@ public class EventApplicationService {
         CancelEventUseCase.CancelEventResult result = useCase.execute(new CancelEventUseCase.CancelEventCommand(eventId, reason, requesterId));
 
         return EventResponseMapper.toEventResponse(result.canceledEvent());
+    }
+
+    @Transactional
+    public EventResponse completeEvent(UUID eventId, UUID requesterId) {
+        CompleteEventUseCase useCase = new CompleteEventUseCase(eventRepository);
+        CompleteEventUseCase.CompleteEventResult result = useCase.execute(new CompleteEventUseCase.CompleteEventCommand(eventId, requesterId));
+
+        return EventResponseMapper.toEventResponse(result.event());
     }
 
     /**

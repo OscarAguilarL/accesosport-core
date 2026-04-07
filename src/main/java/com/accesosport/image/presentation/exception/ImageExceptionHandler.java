@@ -33,7 +33,7 @@ public class ImageExceptionHandler {
                 messageTranslator.translate(ex.getMessage())
         );
         problemDetail.setTitle(messageTranslator.translate(MessageKeys.Images.PROBLEM_INVALID_IMAGE));
-        problemDetail.setType(URI.create("https://api.athletix.com/errors/invalid-image"));
+        problemDetail.setType(URI.create("https://api.accesosport.com/errors/invalid-image"));
         problemDetail.setProperty("timestamp", Instant.now());
 
         return problemDetail;
@@ -49,7 +49,7 @@ public class ImageExceptionHandler {
                 messageTranslator.translate(ex.getMessage())
         );
         problemDetail.setTitle(messageTranslator.translate(MessageKeys.Images.PROBLEM_UPLOAD_FAILED));
-        problemDetail.setType(URI.create("https://api.athletix.com/errors/image-upload-failed"));
+        problemDetail.setType(URI.create("https://api.accesosport.com/errors/image-upload-failed"));
         problemDetail.setProperty("timestamp", Instant.now());
 
         return problemDetail;
@@ -65,7 +65,7 @@ public class ImageExceptionHandler {
                 messageTranslator.translate(ex.getMessage())
         );
         problemDetail.setTitle(messageTranslator.translate(MessageKeys.Images.PROBLEM_NOT_FOUND));
-        problemDetail.setType(URI.create("https://api.athletix.com/errors/image-not-found"));
+        problemDetail.setType(URI.create("https://api.accesosport.com/errors/image-not-found"));
         problemDetail.setProperty("timestamp", Instant.now());
 
         return problemDetail;

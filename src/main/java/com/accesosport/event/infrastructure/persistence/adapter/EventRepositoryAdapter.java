@@ -90,4 +90,28 @@ public class EventRepositoryAdapter implements EventRepository {
     public long countByStatus(EventStatus status) {
         return jpaRepository.countByStatus(status);
     }
+
+    @Override
+    public List<Event> findEventsReadyToOpenRegistration(LocalDateTime now) {
+        return jpaRepository.findEventsReadyToOpenRegistration(now).stream()
+                .map(EventMapper::toDomain).toList();
+    }
+
+    @Override
+    public List<Event> findEventsReadyToCloseRegistration(LocalDateTime now) {
+        return jpaRepository.findEventsReadyToCloseRegistration(now).stream()
+                .map(EventMapper::toDomain).toList();
+    }
+
+    @Override
+    public List<Event> findEventsReadyToBegin(LocalDateTime now) {
+        return jpaRepository.findEventsReadyToBegin(now).stream()
+                .map(EventMapper::toDomain).toList();
+    }
+
+    @Override
+    public List<Event> findEventsReadyToComplete(LocalDateTime threshold) {
+        return jpaRepository.findEventsReadyToComplete(threshold).stream()
+                .map(EventMapper::toDomain).toList();
+    }
 }

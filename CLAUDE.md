@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Athletix.mx is a backend REST API for an athletic race event ticketing system built with Java 21 and Spring Boot 3.4.4. It manages race event registration, user profiles, and event workflows for both organizers and participants.
+AccesoSport is a backend REST API for an athletic race event ticketing system built with Java 21 and Spring Boot 3.4.4. It manages race event registration, user profiles, and event workflows for both organizers and participants.
 
 ## Commands
 
@@ -22,7 +22,7 @@ docker compose up -d
 ./mvnw test
 
 # Run a single test class
-./mvnw test -Dtest=AthletixApplicationTests
+./mvnw test -Dtest=AccesosportApplicationTests
 
 # Skip tests during build
 ./mvnw clean install -DskipTests
@@ -80,3 +80,11 @@ All user-facing messages are externalized to `src/main/resources/i18n/messages_e
 PostgreSQL 15.3 via Docker. `spring.jpa.hibernate.ddl-auto=update` — schema is auto-updated on startup. No migration tool (Flyway/Liquibase) is in use.
 
 API versioning prefix: `/api/v1/`
+
+## Decisiones de negocio pendientes (NO implementar sin confirmar)
+
+- ¿Solo organizadores VERIFIED pueden publicar eventos? — Sin definir
+- ¿Los eventos gratuitos (precio = 0) omiten el flujo de pagos? — Sin definir
+- ¿Qué pasa con inscripciones al cancelar un evento? — Sin definir
+- Pasarela de pagos: Stripe vs Conekta — Sin definir
+- Proveedor de email: Resend vs SendGrid — Sin definir

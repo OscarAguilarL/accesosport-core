@@ -179,6 +179,17 @@ public class EventController {
      * @param reason  the reason for canceling the event; if not provided, defaults to "Cancelled by organizer"
      * @return a ResponseEntity containing the details of the canceled event wrapped in an EventResponse object
      */
+    @PutMapping("/{eventId}/complete")
+    @PreAuthorize("hasAnyAuthority('ROLE_ORGANIZER', 'ROLE_ADMIN')")
+    public ResponseEntity<EventResponse> completeEvent(
+            @PathVariable UUID eventId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        UUID requesterId = isAdmin(userDetails) ? null : userDetails.getUserId();
+        EventResponse eventResponse = eventApplicationService.completeEvent(eventId, requesterId);
+        return ResponseEntity.ok(eventResponse);
+    }
+
     @DeleteMapping("/{eventId}/cancel")
     @PreAuthorize("hasAnyAuthority('ROLE_ORGANIZER', 'ROLE_ADMIN')")
     public ResponseEntity<EventResponse> cancelEvent(

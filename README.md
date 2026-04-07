@@ -1,4 +1,4 @@
-# athletix.mx
+# AccesoSport
 
 Event ticketing system for athletic races
 

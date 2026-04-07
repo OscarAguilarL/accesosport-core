@@ -92,4 +92,12 @@ public interface EventRepository {
      * @return the number of events matching the given status
      */
     long countByStatus(EventStatus status);
+
+    List<Event> findEventsReadyToOpenRegistration(LocalDateTime now);
+
+    List<Event> findEventsReadyToCloseRegistration(LocalDateTime now);
+
+    List<Event> findEventsReadyToBegin(LocalDateTime now);
+
+    List<Event> findEventsReadyToComplete(LocalDateTime threshold);
 }

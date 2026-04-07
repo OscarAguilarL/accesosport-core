@@ -71,4 +71,16 @@ public interface EventJpaRepository extends JpaRepository<EventJpaEntity, UUID> 
      * @return the number of events matching the specified status
      */
     long countByStatus(EventStatus status);
+
+    @Query("SELECT e FROM EventJpaEntity e WHERE e.status = 'PUBLISHED' AND e.registrationStart <= :now")
+    List<EventJpaEntity> findEventsReadyToOpenRegistration(@Param("now") LocalDateTime now);
+
+    @Query("SELECT e FROM EventJpaEntity e WHERE e.status = 'REGISTRATION_OPEN' AND e.registrationEnd <= :now")
+    List<EventJpaEntity> findEventsReadyToCloseRegistration(@Param("now") LocalDateTime now);
+
+    @Query("SELECT e FROM EventJpaEntity e WHERE e.status = 'REGISTRATION_CLOSED' AND e.eventDate <= :now")
+    List<EventJpaEntity> findEventsReadyToBegin(@Param("now") LocalDateTime now);
+
+    @Query("SELECT e FROM EventJpaEntity e WHERE e.status = 'IN_PROGRESS' AND e.eventDate <= :threshold")
+    List<EventJpaEntity> findEventsReadyToComplete(@Param("threshold") LocalDateTime threshold);
 }
