@@ -5,12 +5,16 @@ import com.accesosport.event.domain.exception.EventNotFoundException;
 import com.accesosport.event.domain.model.Distance;
 import com.accesosport.event.domain.model.DistanceUnit;
 import com.accesosport.event.domain.model.Event;
+import com.accesosport.event.domain.model.EventCapacity;
 import com.accesosport.event.domain.model.Location;
 import com.accesosport.event.domain.model.RaceType;
 import com.accesosport.event.domain.model.RegistrationPeriod;
+import com.accesosport.event.domain.repository.EventCapacityRepository;
 import com.accesosport.event.domain.repository.EventRepository;
 import com.accesosport.shared.domain.usecase.UseCase;
 import lombok.AllArgsConstructor;
+
+import java.util.Objects;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -20,6 +24,7 @@ import java.util.UUID;
 public class UpdateEventUseCase extends UseCase<UpdateEventUseCase.UpdateEventCommand, UpdateEventUseCase.UpdateEventResult> {
 
     private final EventRepository eventRepository;
+    private final EventCapacityRepository eventCapacityRepository;
 
     @Override
     protected UpdateEventResult internalExecute(UpdateEventCommand command) {
@@ -31,13 +36,16 @@ public class UpdateEventUseCase extends UseCase<UpdateEventUseCase.UpdateEventCo
             throw new EventAccessDeniedException();
         }
 
+        EventCapacity capacity = eventCapacityRepository.findByEventId(command.eventId())
+                .orElseThrow(() -> new EventNotFoundException(command.eventId()));
+
         // Merge scalars
         String mergedName             = command.name()            != null ? command.name()            : event.getName();
         String mergedDescription      = command.description()     != null ? command.description()     : event.getDescription();
         LocalDateTime mergedEventDate = command.eventDate()       != null ? command.eventDate()       : event.getEventDate();
         RaceType mergedRaceType       = command.raceType()        != null ? command.raceType()        : event.getRaceType();
         BigDecimal mergedPrice        = command.price()           != null ? command.price()           : event.getPrice();
-        Integer mergedMaxParticipants = command.maxParticipants() != null ? command.maxParticipants() : event.getMaxParticipants();
+        Integer mergedMaxParticipants = command.maxParticipants() != null ? command.maxParticipants() : capacity.getMaxCapacity();
 
         // Merge Location
         Location currentLoc     = event.getLocation();
@@ -68,11 +76,16 @@ public class UpdateEventUseCase extends UseCase<UpdateEventUseCase.UpdateEventCo
                 mergedRaceType,
                 mergedDistance,
                 mergedPrice,
-                mergedPeriod,
-                mergedMaxParticipants
+                mergedPeriod
         );
 
         Event savedEvent = eventRepository.save(event);
+
+        if (!Objects.equals(capacity.getMaxCapacity(), mergedMaxParticipants)) {
+            capacity.updateMaxCapacity(mergedMaxParticipants);
+            eventCapacityRepository.save(capacity);
+        }
+
         return new UpdateEventResult(savedEvent);
     }
 

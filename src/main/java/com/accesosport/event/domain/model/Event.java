@@ -25,9 +25,6 @@ public class Event {
     private Distance distance;
     private BigDecimal price;
     private RegistrationPeriod registrationPeriod;
-    private Integer maxParticipants;
-    @Setter
-    private Integer registeredParticipants;
     @Setter
     private EventStatus status;
     private User createdBy;
@@ -41,7 +38,6 @@ public class Event {
     private String coverImagePublicId;
 
     private Event() {
-        this.registeredParticipants = 0;
     }
 
     public static Event reconstitute(
@@ -55,8 +51,6 @@ public class Event {
             Distance distance,
             BigDecimal price,
             RegistrationPeriod registrationPeriod,
-            Integer maxParticipants,
-            Integer registeredParticipants,
             EventStatus status,
             User createdBy,
             LocalDateTime createdOn,
@@ -75,8 +69,6 @@ public class Event {
         event.distance = distance;
         event.price = price;
         event.registrationPeriod = registrationPeriod;
-        event.maxParticipants = maxParticipants;
-        event.registeredParticipants = registeredParticipants;
         event.status = status;
         event.createdBy = createdBy;
         event.createdOn = createdOn;
@@ -95,7 +87,6 @@ public class Event {
             Distance distance,
             BigDecimal price,
             RegistrationPeriod registrationPeriod,
-            Integer maxParticipants,
             User createdBy
     ) {
         Event event = new Event();
@@ -108,7 +99,6 @@ public class Event {
         event.distance = distance;
         event.price = price;
         event.registrationPeriod = registrationPeriod;
-        event.maxParticipants = maxParticipants;
         event.status = EventStatus.DRAFT;
         event.createdBy = createdBy;
         event.createdOn = LocalDateTime.now();
@@ -126,8 +116,7 @@ public class Event {
                        RaceType raceType,
                        Distance distance,
                        BigDecimal price,
-                       RegistrationPeriod registrationPeriod,
-                       Integer maxParticipants) {
+                       RegistrationPeriod registrationPeriod) {
         if (status != EventStatus.DRAFT) {
             throw new EventInvalidStatusException(MessageKeys.Events.EVENT_UPDATE_ONLY_DRAFT, status);
         }
@@ -139,7 +128,6 @@ public class Event {
         this.distance = distance;
         this.price = price;
         this.registrationPeriod = registrationPeriod;
-        this.maxParticipants = maxParticipants;
 
         validate();
         this.updatedOn = LocalDateTime.now();
@@ -200,39 +188,6 @@ public class Event {
         this.updatedOn = LocalDateTime.now();
     }
 
-    public boolean canRegister() {
-        return status.acceptsRegistrations()
-                && registrationPeriod.isOpen()
-                && (maxParticipants == null || registeredParticipants < maxParticipants);
-    }
-
-    public void incrementRegisteredParticipants() {
-        if (!canRegister()) {
-            throw new IllegalStateException(MessageKeys.Events.EVENT_REGISTRATION_NOT_ACCEPTING);
-        }
-        this.registeredParticipants++;
-        this.updatedOn = LocalDateTime.now();
-    }
-
-    public void decrementRegisteredParticipants() {
-        if (registeredParticipants <= 0) {
-            throw new IllegalStateException(MessageKeys.Events.EVENT_PARTICIPANTS_NONE);
-        }
-        this.registeredParticipants--;
-        this.updatedOn = LocalDateTime.now();
-    }
-
-    public boolean isFull() {
-        return maxParticipants != null && registeredParticipants >= maxParticipants;
-    }
-
-    public int getAvailableParticipants() {
-        if (maxParticipants == null) {
-            return Integer.MAX_VALUE;
-        }
-        return Math.max(0, maxParticipants - registeredParticipants);
-    }
-
     private void validate() {
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException(MessageKeys.Events.EVENT_VALIDATION_NAME_REQUIRED);
@@ -260,9 +215,6 @@ public class Event {
         }
         if (registrationPeriod.end().isAfter(eventDate)) {
             throw new IllegalArgumentException(MessageKeys.Events.EVENT_VALIDATION_REGISTRATION_BEFORE_EVENT);
-        }
-        if (maxParticipants != null && maxParticipants <= 0) {
-            throw new IllegalArgumentException(MessageKeys.Events.EVENT_VALIDATION_MAX_PARTICIPANTS_POSITIVE);
         }
         if (createdBy == null) {
             throw new IllegalArgumentException(MessageKeys.Events.EVENT_VALIDATION_ORGANIZER_REQUIRED);

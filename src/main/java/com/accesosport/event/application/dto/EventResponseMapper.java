@@ -1,17 +1,22 @@
 package com.accesosport.event.application.dto;
 
 import com.accesosport.event.domain.model.Event;
+import com.accesosport.event.domain.model.EventCapacity;
 import com.accesosport.image.application.dto.EventImageResponse;
 
 import java.util.List;
 
 public class EventResponseMapper {
 
-    public static EventResponse toEventResponse(Event event) {
-        return toEventResponse(event, List.of());
+    public static EventResponse toEventResponse(Event event, EventCapacity capacity) {
+        return toEventResponse(event, capacity, List.of());
     }
 
-    public static EventResponse toEventResponse(Event event, List<EventImageResponse> galleryImages) {
+    public static EventResponse toEventResponse(Event event, EventCapacity capacity, List<EventImageResponse> galleryImages) {
+        boolean canRegister = event.getStatus().acceptsRegistrations()
+                && event.getRegistrationPeriod().isOpen()
+                && capacity.hasAvailability();
+
         return new EventResponse(
                 event.getId(),
                 event.getName(),
@@ -22,11 +27,11 @@ public class EventResponseMapper {
                 event.getDistance().toString(),
                 event.getPrice(),
                 mapRegistrationPeriod(event),
-                event.getMaxParticipants(),
-                event.getRegisteredParticipants(),
-                event.getAvailableParticipants(),
+                capacity.getMaxCapacity(),
+                capacity.getReserved(),
+                capacity.getAvailable(),
                 event.getStatus().name(),
-                event.canRegister(),
+                canRegister,
                 mapOrganizer(event),
                 event.getCoverImageUrl(),
                 galleryImages,
@@ -34,7 +39,11 @@ public class EventResponseMapper {
         );
     }
 
-    public static EventSummaryResponse toEventSummaryResponse(Event event) {
+    public static EventSummaryResponse toEventSummaryResponse(Event event, EventCapacity capacity) {
+        boolean canRegister = event.getStatus().acceptsRegistrations()
+                && event.getRegistrationPeriod().isOpen()
+                && capacity.hasAvailability();
+
         return new EventSummaryResponse(
                 event.getId(),
                 event.getName(),
@@ -42,9 +51,9 @@ public class EventResponseMapper {
                 event.getLocation().getFullAddress(),
                 event.getDistance().toString(),
                 event.getPrice(),
-                event.getAvailableParticipants(),
+                capacity.getAvailable(),
                 event.getStatus().name(),
-                event.canRegister()
+                canRegister
         );
     }
 

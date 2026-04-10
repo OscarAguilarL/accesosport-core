@@ -20,12 +20,7 @@ public class ListAvailableEventsUseCase extends UseCase<Void, ListAvailableEvent
     protected ListAvailableEventsResult internalExecute(Void command) {
 
         List<Event> events = eventRepository.findEventsAvailableForRegistration();
-
-        List<Event> availableEvents = events.stream()
-                .filter(Event::canRegister)
-                .toList();
-
-        return new ListAvailableEventsResult(availableEvents);
+        return new ListAvailableEventsResult(events);
     }
 
     /**

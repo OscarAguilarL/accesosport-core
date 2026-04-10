@@ -36,8 +36,6 @@ public class EventMapper {
                 distance,
                 eventJpaEntity.getPrice(),
                 registrationPeriod,
-                eventJpaEntity.getMaxParticipants(),
-                eventJpaEntity.getRegisteredParticipants(),
                 eventJpaEntity.getStatus(),
                 organizer,
                 eventJpaEntity.getCreatedOn(),
@@ -63,8 +61,6 @@ public class EventMapper {
         entity.setPrice(domain.getPrice());
         entity.setRegistrationStart(domain.getRegistrationPeriod().start());
         entity.setRegistrationEnd(domain.getRegistrationPeriod().end());
-        entity.setMaxParticipants(domain.getMaxParticipants());
-        entity.setRegisteredParticipants(domain.getRegisteredParticipants());
         entity.setStatus(domain.getStatus());
         entity.setCreatedOn(domain.getCreatedOn());
         entity.setUpdatedOn(domain.getUpdatedOn());

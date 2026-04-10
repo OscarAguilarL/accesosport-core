@@ -3,9 +3,11 @@ package com.accesosport.event.domain.usecase;
 import com.accesosport.event.domain.model.Distance;
 import com.accesosport.event.domain.model.DistanceUnit;
 import com.accesosport.event.domain.model.Event;
+import com.accesosport.event.domain.model.EventCapacity;
 import com.accesosport.event.domain.model.Location;
 import com.accesosport.event.domain.model.RaceType;
 import com.accesosport.event.domain.model.RegistrationPeriod;
+import com.accesosport.event.domain.repository.EventCapacityRepository;
 import com.accesosport.event.domain.repository.EventRepository;
 import com.accesosport.shared.domain.i18n.MessageKeys;
 import com.accesosport.shared.domain.usecase.UseCase;
@@ -42,6 +44,7 @@ public class CreateEventUseCase extends UseCase<CreateEventUseCase.CreateEventCo
 
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
+    private final EventCapacityRepository eventCapacityRepository;
 
     @Override
     public CreateEventResult internalExecute(CreateEventCommand command) {
@@ -76,11 +79,13 @@ public class CreateEventUseCase extends UseCase<CreateEventUseCase.CreateEventCo
                 distance,
                 command.price(),
                 registrationPeriod,
-                command.maxParticipants(),
                 organizer
         );
 
         Event savedEvent = eventRepository.save(event);
+
+        EventCapacity capacity = EventCapacity.create(savedEvent.getId(), command.maxParticipants());
+        eventCapacityRepository.save(capacity);
 
         return new CreateEventResult(savedEvent);
     }

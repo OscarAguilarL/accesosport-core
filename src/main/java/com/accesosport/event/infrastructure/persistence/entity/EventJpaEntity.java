@@ -63,12 +63,6 @@ public class EventJpaEntity {
     @Column(name = "registration_end", nullable = false)
     private LocalDateTime registrationEnd;
 
-    @Column(name = "max_participants")
-    private Integer maxParticipants;
-
-    @Column(name = "registered_participants", nullable = false)
-    private Integer registeredParticipants;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 30)
     private EventStatus status;
@@ -97,10 +91,6 @@ public class EventJpaEntity {
 
         if (this.updatedOn == null) {
             this.updatedOn = LocalDateTime.now();
-        }
-
-        if (this.registeredParticipants == null) {
-            registeredParticipants = 0;
         }
     }
 

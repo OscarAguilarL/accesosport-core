@@ -59,7 +59,11 @@ public interface EventJpaRepository extends JpaRepository<EventJpaEntity, UUID> 
             SELECT e FROM EventJpaEntity e
             WHERE e.status = 'REGISTRATION_OPEN'
             AND e.eventDate > CURRENT_TIMESTAMP
-            AND (e.maxParticipants IS NULL OR e.registeredParticipants < e.maxParticipants)
+            AND EXISTS (
+                SELECT 1 FROM EventCapacityJpaEntity c
+                WHERE c.eventId = e.id
+                  AND (c.maxCapacity IS NULL OR c.reserved < c.maxCapacity)
+            )
             ORDER BY e.eventDate
             """)
     List<EventJpaEntity> findEventsAvailableForRegistration();
