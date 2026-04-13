@@ -137,7 +137,8 @@ public class EventApplicationService {
     public EventResponse getEvent(UUID eventId) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EventNotFoundException(eventId));
-        EventCapacity capacity = eventCapacityRepository.findByEventId(eventId).orElseThrow();
+        EventCapacity capacity = eventCapacityRepository.findByEventId(eventId)
+                .orElseGet(() -> EventCapacity.create(eventId, null));
         return EventResponseMapper.toEventResponse(event, capacity);
     }
 
@@ -180,7 +181,8 @@ public class EventApplicationService {
                 .collect(Collectors.toMap(EventCapacity::getEventId, c -> c));
 
         return events.stream()
-                .map(e -> EventResponseMapper.toEventSummaryResponse(e, capacities.get(e.getId())))
+                .map(e -> EventResponseMapper.toEventSummaryResponse(e,
+                        capacities.getOrDefault(e.getId(), EventCapacity.create(e.getId(), null))))
                 .toList();
     }
 }
