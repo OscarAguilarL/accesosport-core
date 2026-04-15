@@ -130,6 +130,8 @@ public class MessageKeys {
 		public static final String REGISTRATION_NOT_OPEN = "registration.errors.registration-not-open";
 		public static final String NO_CAPACITY = "registration.errors.no-capacity";
 		public static final String REGISTRATION_ACCESS_DENIED = "registration.errors.registration-access-denied";
+
+		public static final String PROBLEM_NO_CAPACITY = "registration.problem.no-capacity";
 	}
 
 	public static class Images {

@@ -72,14 +72,14 @@ public class RegistrationExceptionHandler {
 
     @ExceptionHandler(NoCapacityException.class)
     public ResponseEntity<ProblemDetail> handleNoCapacity(NoCapacityException ex) {
-        log.error("No capacity for event: {}", ex.getMessage());
+        log.error("No capacity for registration: {}", ex.getMessage());
 
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.UNPROCESSABLE_ENTITY,
-                messageTranslator.translate(MessageKeys.Registrations.NO_CAPACITY)
+                messageTranslator.translate(ex.getMessage(), ex.getArgs())
         );
-        problemDetail.setTitle(messageTranslator.translate(MessageKeys.Registrations.NO_CAPACITY));
-        problemDetail.setType(URI.create("https://api.accesosport.com/errors/no-capacity"));
+        problemDetail.setTitle(messageTranslator.translate(MessageKeys.Registrations.PROBLEM_NO_CAPACITY));
+        problemDetail.setType(URI.create("https://api.accesosport.com/errors/registration-no-capacity"));
         problemDetail.setProperty("timestamp", Instant.now());
 
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(problemDetail);
