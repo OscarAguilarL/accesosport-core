@@ -33,7 +33,7 @@ public class RegistrationExceptionHandler {
                 HttpStatus.CONFLICT,
                 messageTranslator.translate(ex.getMessage(), ex.getArgs())
         );
-        problemDetail.setTitle(messageTranslator.translate(MessageKeys.Registrations.DUPLICATE_REGISTRATION));
+        problemDetail.setTitle(messageTranslator.translate(MessageKeys.Registrations.PROBLEM_DUPLICATE_REGISTRATION));
         problemDetail.setType(URI.create("https://api.accesosport.com/errors/duplicate-registration"));
         problemDetail.setProperty("timestamp", Instant.now());
 
@@ -48,7 +48,7 @@ public class RegistrationExceptionHandler {
                 HttpStatus.NOT_FOUND,
                 messageTranslator.translate(ex.getMessage(), ex.getArgs())
         );
-        problemDetail.setTitle(messageTranslator.translate(MessageKeys.Registrations.REGISTRATION_NOT_FOUND));
+        problemDetail.setTitle(messageTranslator.translate(MessageKeys.Registrations.PROBLEM_REGISTRATION_NOT_FOUND));
         problemDetail.setType(URI.create("https://api.accesosport.com/errors/registration-not-found"));
         problemDetail.setProperty("timestamp", Instant.now());
 
@@ -63,7 +63,7 @@ public class RegistrationExceptionHandler {
                 HttpStatus.UNPROCESSABLE_ENTITY,
                 messageTranslator.translate(ex.getMessage(), ex.getArgs())
         );
-        problemDetail.setTitle(messageTranslator.translate(MessageKeys.Registrations.REGISTRATION_NOT_OPEN));
+        problemDetail.setTitle(messageTranslator.translate(MessageKeys.Registrations.PROBLEM_REGISTRATION_NOT_OPEN));
         problemDetail.setType(URI.create("https://api.accesosport.com/errors/registration-not-open"));
         problemDetail.setProperty("timestamp", Instant.now());
 
@@ -93,7 +93,7 @@ public class RegistrationExceptionHandler {
                 HttpStatus.FORBIDDEN,
                 messageTranslator.translate(ex.getMessage(), ex.getArgs())
         );
-        problemDetail.setTitle(messageTranslator.translate(MessageKeys.Registrations.REGISTRATION_ACCESS_DENIED));
+        problemDetail.setTitle(messageTranslator.translate(MessageKeys.Registrations.PROBLEM_REGISTRATION_ACCESS_DENIED));
         problemDetail.setType(URI.create("https://api.accesosport.com/errors/registration-access-denied"));
         problemDetail.setProperty("timestamp", Instant.now());
 
