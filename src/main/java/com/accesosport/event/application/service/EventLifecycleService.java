@@ -1,7 +1,9 @@
 package com.accesosport.event.application.service;
 
+import com.accesosport.event.domain.events.RegistrationClosedEvent;
 import com.accesosport.event.domain.model.Event;
 import com.accesosport.event.domain.repository.EventRepository;
+import com.accesosport.shared.domain.events.DomainEventPublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,6 +19,7 @@ import java.util.List;
 public class EventLifecycleService {
 
     private final EventRepository eventRepository;
+    private final DomainEventPublisher domainEventPublisher;
 
     @Value("${app.scheduler.event-lifecycle.complete-after-hours:12}")
     private int completeAfterHours;
@@ -42,6 +45,8 @@ public class EventLifecycleService {
             try {
                 event.closeRegistration();
                 eventRepository.save(event);
+                domainEventPublisher.publish(new RegistrationClosedEvent(event.getId()));
+                log.info("[Scheduler] Published RegistrationClosedEvent for event {}", event.getId());
                 log.info("[Scheduler] Closed registration for event {}", event.getId());
             } catch (Exception e) {
                 log.error("[Scheduler] Failed to close registration for event {}: {}", event.getId(), e.getMessage());
