@@ -1,6 +1,7 @@
 package com.accesosport.event.infrastructure.scheduler;
 
 import com.accesosport.event.application.service.EventLifecycleService;
+import com.accesosport.registration.application.service.RegistrationCleanupService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Component;
 public class EventLifecycleScheduler {
 
     private final EventLifecycleService lifecycleService;
+    private final RegistrationCleanupService registrationCleanupService;
 
     @Scheduled(fixedDelayString = "${app.scheduler.event-lifecycle.fixed-delay-ms:60000}")
     public void runEventLifecycleTransitions() {
@@ -20,5 +22,6 @@ public class EventLifecycleScheduler {
         lifecycleService.autoCloseRegistrations();
         lifecycleService.autoBeginEvents();
         lifecycleService.autoCompleteEvents();
+        registrationCleanupService.cleanupExpiredPendingPayments();
     }
 }
