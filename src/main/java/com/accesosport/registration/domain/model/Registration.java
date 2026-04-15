@@ -1,7 +1,6 @@
 package com.accesosport.registration.domain.model;
 
 import lombok.Getter;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -15,7 +14,6 @@ public class Registration {
     private RegistrationStatus status;
     private String ticketCode;
     private Integer bibNumber;
-    @Setter
     private PaymentMethod paymentMethod;
     private boolean kitPickedUp;
     private LocalDateTime kitPickedUpAt;
@@ -70,11 +68,24 @@ public class Registration {
     }
 
     public void cancel() {
+        if (this.status == RegistrationStatus.CANCELLED) {
+            throw new IllegalStateException("Registration is already cancelled");
+        }
         this.status = RegistrationStatus.CANCELLED;
         this.cancelledAt = LocalDateTime.now();
     }
 
+    public void assignPaymentMethod(PaymentMethod method) {
+        if (method == null) {
+            throw new IllegalArgumentException("Payment method cannot be null");
+        }
+        this.paymentMethod = method;
+    }
+
     public void assignBibNumber(int number) {
+        if (number <= 0) {
+            throw new IllegalArgumentException("Bib number must be positive");
+        }
         if (this.bibNumber != null) {
             throw new IllegalStateException("Bib number already assigned");
         }
