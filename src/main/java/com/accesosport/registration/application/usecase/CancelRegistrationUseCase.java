@@ -1,6 +1,6 @@
 package com.accesosport.registration.application.usecase;
 
-import com.accesosport.event.infrastructure.persistence.jpa.EventCapacityJpaRepository;
+import com.accesosport.event.domain.repository.EventCapacityRepository;
 import com.accesosport.registration.application.dto.CancelRegistrationCommand;
 import com.accesosport.registration.application.dto.RegistrationResponse;
 import com.accesosport.registration.domain.events.RegistrationCancelledEvent;
@@ -16,7 +16,7 @@ import lombok.AllArgsConstructor;
 public class CancelRegistrationUseCase extends UseCase<CancelRegistrationCommand, RegistrationResponse> {
 
     private final RegistrationRepository registrationRepository;
-    private final EventCapacityJpaRepository eventCapacityJpaRepository;
+    private final EventCapacityRepository eventCapacityRepository;
     private final DomainEventPublisher domainEventPublisher;
 
     @Override
@@ -33,7 +33,7 @@ public class CancelRegistrationUseCase extends UseCase<CancelRegistrationCommand
         registrationRepository.save(registration);
 
         // Liberar cupo
-        eventCapacityJpaRepository.release(registration.getEventId());
+        eventCapacityRepository.release(registration.getEventId());
 
         domainEventPublisher.publish(new RegistrationCancelledEvent(
                 registration.getId(),

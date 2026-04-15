@@ -3,7 +3,7 @@ package com.accesosport.registration.application.usecase;
 import com.accesosport.event.domain.model.Event;
 import com.accesosport.event.domain.model.EventStatus;
 import com.accesosport.event.domain.repository.EventRepository;
-import com.accesosport.event.infrastructure.persistence.jpa.EventCapacityJpaRepository;
+import com.accesosport.event.domain.repository.EventCapacityRepository;
 import com.accesosport.registration.application.dto.RegisterParticipantCommand;
 import com.accesosport.registration.application.dto.RegistrationResponse;
 import com.accesosport.registration.domain.events.RegistrationConfirmedEvent;
@@ -24,7 +24,7 @@ public class RegisterParticipantUseCase extends UseCase<RegisterParticipantComma
 
     private final RegistrationRepository registrationRepository;
     private final EventRepository eventRepository;
-    private final EventCapacityJpaRepository eventCapacityJpaRepository;
+    private final EventCapacityRepository eventCapacityRepository;
     private final DomainEventPublisher domainEventPublisher;
 
     @Override
@@ -34,20 +34,18 @@ public class RegisterParticipantUseCase extends UseCase<RegisterParticipantComma
             throw new DuplicateRegistrationException(command.eventId(), command.participantId());
         }
 
-        // 2. Reservar cupo atómicamente
-        int reserved = eventCapacityJpaRepository.reserveIfAvailable(command.eventId());
+        // 2. Fetch event once — used both for status check and price check
+        Event event = eventRepository.findById(command.eventId())
+                .orElseThrow(() -> new RegistrationNotOpenException(command.eventId()));
+
+        // 3. Reservar cupo atómicamente
+        int reserved = eventCapacityRepository.reserveIfAvailable(command.eventId());
         if (reserved == 0) {
-            Event event = eventRepository.findById(command.eventId())
-                    .orElseThrow(() -> new IllegalStateException("Event not found: " + command.eventId()));
             if (event.getStatus() != EventStatus.REGISTRATION_OPEN) {
                 throw new RegistrationNotOpenException(command.eventId());
             }
             throw new NoCapacityException(command.eventId());
         }
-
-        // 3. Obtener el evento para determinar precio
-        Event event = eventRepository.findById(command.eventId())
-                .orElseThrow(() -> new IllegalStateException("Event not found after capacity reservation: " + command.eventId()));
 
         Registration registration;
 

@@ -1,15 +1,15 @@
 package com.accesosport.registration.application.usecase;
 
+import com.accesosport.registration.application.dto.GetEventRegistrationsCommand;
 import com.accesosport.registration.application.dto.ParticipantInEventResponse;
 import com.accesosport.registration.domain.repository.RegistrationRepository;
 import com.accesosport.shared.domain.usecase.UseCase;
 import lombok.AllArgsConstructor;
 
 import java.util.List;
-import java.util.UUID;
 
 @AllArgsConstructor
-public class GetEventRegistrationsUseCase extends UseCase<GetEventRegistrationsUseCase.GetEventRegistrationsCommand, List<ParticipantInEventResponse>> {
+public class GetEventRegistrationsUseCase extends UseCase<GetEventRegistrationsCommand, List<ParticipantInEventResponse>> {
 
     private final RegistrationRepository registrationRepository;
 
@@ -27,6 +27,4 @@ public class GetEventRegistrationsUseCase extends UseCase<GetEventRegistrationsU
                 ))
                 .toList();
     }
-
-    public record GetEventRegistrationsCommand(UUID eventId) {}
 }
