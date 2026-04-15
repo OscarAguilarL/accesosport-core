@@ -11,6 +11,7 @@ import com.accesosport.registration.domain.repository.RegistrationRepository;
 import com.accesosport.shared.domain.events.DomainEventPublisher;
 import com.accesosport.shared.domain.usecase.UseCase;
 import lombok.AllArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 
 @AllArgsConstructor
 public class CancelRegistrationUseCase extends UseCase<CancelRegistrationCommand, RegistrationResponse> {
@@ -20,6 +21,7 @@ public class CancelRegistrationUseCase extends UseCase<CancelRegistrationCommand
     private final DomainEventPublisher domainEventPublisher;
 
     @Override
+    @Transactional
     protected RegistrationResponse internalExecute(CancelRegistrationCommand command) {
         Registration registration = registrationRepository.findById(command.registrationId())
                 .orElseThrow(() -> new RegistrationNotFoundException(command.registrationId()));
