@@ -16,14 +16,14 @@ public class RegistrationConfirmedEvent extends DomainEvent {
     private final UUID eventId;
     private final UUID participantId;
     private final String ticketCode;
-    private final int bibNumber;
+    private final Integer bibNumber;
 
     public RegistrationConfirmedEvent(
             UUID registrationId,
             UUID eventId,
             UUID participantId,
             String ticketCode,
-            int bibNumber
+            Integer bibNumber
     ) {
         super("registration.confirmed");
         this.registrationId = registrationId;
@@ -49,7 +49,7 @@ public class RegistrationConfirmedEvent extends DomainEvent {
         return ticketCode;
     }
 
-    public int getBibNumber() {
+    public Integer getBibNumber() {
         return bibNumber;
     }
 }
