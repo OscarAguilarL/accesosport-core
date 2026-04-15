@@ -11,6 +11,8 @@ import com.accesosport.registration.infrastructure.persistence.entity.Registrati
  */
 public class RegistrationMapper {
 
+    private RegistrationMapper() {}
+
     public static Registration toDomain(RegistrationJpaEntity entity) {
         if (entity == null) return null;
 
