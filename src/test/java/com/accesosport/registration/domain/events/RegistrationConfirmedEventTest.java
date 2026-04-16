@@ -11,7 +11,7 @@ class RegistrationConfirmedEventTest {
     @Test
     void eventType_is_registration_confirmed() {
         RegistrationConfirmedEvent event = new RegistrationConfirmedEvent(
-                UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), "TKT-001", 42);
+                UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), "TKT-001", null);
 
         assertThat(event.getEventType()).isEqualTo("registration.confirmed");
     }
@@ -22,7 +22,7 @@ class RegistrationConfirmedEventTest {
         UUID eventId = UUID.randomUUID();
         UUID participantId = UUID.randomUUID();
         String ticketCode = "TKT-2026-0001";
-        int bibNumber = 99;
+        Integer bibNumber = null; // bibNumber is null at registration time; assigned later
 
         RegistrationConfirmedEvent event = new RegistrationConfirmedEvent(
                 registrationId, eventId, participantId, ticketCode, bibNumber);
@@ -31,6 +31,6 @@ class RegistrationConfirmedEventTest {
         assertThat(event.getEventId()).isEqualTo(eventId);
         assertThat(event.getParticipantId()).isEqualTo(participantId);
         assertThat(event.getTicketCode()).isEqualTo(ticketCode);
-        assertThat(event.getBibNumber()).isEqualTo(bibNumber);
+        assertThat(event.getBibNumber()).isNull();
     }
 }
