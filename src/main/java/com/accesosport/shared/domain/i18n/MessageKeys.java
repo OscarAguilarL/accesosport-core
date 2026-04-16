@@ -120,6 +120,24 @@ public class MessageKeys {
 		public static final String EVENT_UPDATE_ONLY_DRAFT = "event.update.only-draft";
 	}
 
+	public static class Registrations {
+		private Registrations() {
+		}
+
+		public static final String DUPLICATE_REGISTRATION = "registration.errors.duplicate-registration";
+		public static final String REGISTRATION_NOT_FOUND = "registration.errors.registration-not-found";
+		public static final String REGISTRATION_NOT_FOUND_BY_TICKET = "registration.errors.registration-not-found-by-ticket";
+		public static final String REGISTRATION_NOT_OPEN = "registration.errors.registration-not-open";
+		public static final String NO_CAPACITY = "registration.errors.no-capacity";
+		public static final String REGISTRATION_ACCESS_DENIED = "registration.errors.registration-access-denied";
+
+		public static final String PROBLEM_DUPLICATE_REGISTRATION = "registration.problem.duplicate-registration";
+		public static final String PROBLEM_REGISTRATION_NOT_FOUND = "registration.problem.registration-not-found";
+		public static final String PROBLEM_REGISTRATION_NOT_OPEN = "registration.problem.registration-not-open";
+		public static final String PROBLEM_NO_CAPACITY = "registration.problem.no-capacity";
+		public static final String PROBLEM_REGISTRATION_ACCESS_DENIED = "registration.problem.registration-access-denied";
+	}
+
 	public static class Images {
 		private Images() {
 		}

@@ -36,6 +36,16 @@ public class EventCapacityRepositoryAdapter implements EventCapacityRepository {
                 .toList();
     }
 
+    @Override
+    public int reserveIfAvailable(UUID eventId) {
+        return jpaRepository.reserveIfAvailable(eventId);
+    }
+
+    @Override
+    public void release(UUID eventId) {
+        jpaRepository.release(eventId);
+    }
+
     private EventCapacity toDomain(EventCapacityJpaEntity entity) {
         return EventCapacity.reconstitute(entity.getEventId(), entity.getReserved(), entity.getMaxCapacity());
     }

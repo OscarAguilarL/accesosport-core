@@ -93,7 +93,8 @@ public class EventApplicationService {
         UpdateEventUseCase useCase = new UpdateEventUseCase(eventRepository, eventCapacityRepository);
         UpdateEventUseCase.UpdateEventResult result = useCase.execute(command);
 
-        EventCapacity capacity = eventCapacityRepository.findByEventId(eventId).orElseThrow();
+        EventCapacity capacity = eventCapacityRepository.findByEventId(eventId)
+                .orElseGet(() -> EventCapacity.create(eventId, null));
         return EventResponseMapper.toEventResponse(result.event(), capacity);
     }
 
@@ -102,7 +103,8 @@ public class EventApplicationService {
         PublishEventUseCase useCase = new PublishEventUseCase(eventRepository);
         PublishEventUseCase.PublishEventResult result = useCase.execute(new PublishEventUseCase.PublishEventCommand(eventId, requesterId));
 
-        EventCapacity capacity = eventCapacityRepository.findByEventId(eventId).orElseThrow();
+        EventCapacity capacity = eventCapacityRepository.findByEventId(eventId)
+                .orElseGet(() -> EventCapacity.create(eventId, null));
         return EventResponseMapper.toEventResponse(result.event(), capacity);
     }
 
@@ -111,7 +113,8 @@ public class EventApplicationService {
         OpenRegistrationUseCase useCase = new OpenRegistrationUseCase(eventRepository);
         OpenRegistrationUseCase.OpenRegistrationResult result = useCase.execute(new OpenRegistrationUseCase.OpenRegistrationCommand(eventId, requesterId));
 
-        EventCapacity capacity = eventCapacityRepository.findByEventId(eventId).orElseThrow();
+        EventCapacity capacity = eventCapacityRepository.findByEventId(eventId)
+                .orElseGet(() -> EventCapacity.create(eventId, null));
         return EventResponseMapper.toEventResponse(result.event(), capacity);
     }
 
@@ -120,7 +123,8 @@ public class EventApplicationService {
         CancelEventUseCase useCase = new CancelEventUseCase(eventRepository);
         CancelEventUseCase.CancelEventResult result = useCase.execute(new CancelEventUseCase.CancelEventCommand(eventId, reason, requesterId));
 
-        EventCapacity capacity = eventCapacityRepository.findByEventId(eventId).orElseThrow();
+        EventCapacity capacity = eventCapacityRepository.findByEventId(eventId)
+                .orElseGet(() -> EventCapacity.create(eventId, null));
         return EventResponseMapper.toEventResponse(result.canceledEvent(), capacity);
     }
 
@@ -129,7 +133,8 @@ public class EventApplicationService {
         CompleteEventUseCase useCase = new CompleteEventUseCase(eventRepository);
         CompleteEventUseCase.CompleteEventResult result = useCase.execute(new CompleteEventUseCase.CompleteEventCommand(eventId, requesterId));
 
-        EventCapacity capacity = eventCapacityRepository.findByEventId(eventId).orElseThrow();
+        EventCapacity capacity = eventCapacityRepository.findByEventId(eventId)
+                .orElseGet(() -> EventCapacity.create(eventId, null));
         return EventResponseMapper.toEventResponse(result.event(), capacity);
     }
 
