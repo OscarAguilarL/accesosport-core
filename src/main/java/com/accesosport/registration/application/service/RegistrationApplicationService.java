@@ -16,6 +16,7 @@ import com.accesosport.registration.domain.exception.RegistrationNotFoundExcepti
 import com.accesosport.registration.domain.model.Registration;
 import com.accesosport.registration.domain.repository.RegistrationRepository;
 import com.accesosport.shared.domain.events.DomainEventPublisher;
+import com.accesosport.user.domain.repository.ParticipantProfileRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -33,6 +34,7 @@ public class RegistrationApplicationService {
     private final EventRepository eventRepository;
     private final EventCapacityRepository eventCapacityRepository;
     private final DomainEventPublisher domainEventPublisher;
+    private final ParticipantProfileRepository participantProfileRepository;
 
     @Transactional
     public RegistrationResponse registerParticipant(UUID eventId, UUID participantId) {
@@ -52,7 +54,7 @@ public class RegistrationApplicationService {
 
     @Transactional(readOnly = true)
     public List<ParticipantInEventResponse> getEventRegistrations(UUID eventId) {
-        GetEventRegistrationsUseCase useCase = new GetEventRegistrationsUseCase(registrationRepository);
+        GetEventRegistrationsUseCase useCase = new GetEventRegistrationsUseCase(registrationRepository, participantProfileRepository);
         return useCase.execute(new GetEventRegistrationsCommand(eventId));
     }
 

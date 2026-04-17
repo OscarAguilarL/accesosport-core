@@ -6,6 +6,13 @@ import java.util.UUID;
 public record ParticipantInEventResponse(
         UUID registrationId,
         UUID participantId,
+        String fullName,
+        String email,
+        String shirtSize,
+        String bloodType,
+        String medicalConditions,
+        String emergencyContactName,
+        String emergencyContactPhone,
         String status,
         String ticketCode,
         Integer bibNumber,
