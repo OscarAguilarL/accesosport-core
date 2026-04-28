@@ -83,6 +83,9 @@ public class EventJpaEntity {
     @Column(name = "cover_image_public_id", length = 200)
     private String coverImagePublicId;
 
+    @Column(name = "reminder_sent_at")
+    private LocalDateTime reminderSentAt;
+
     @PrePersist
     protected void onCreate() {
         if (this.createdOn == null) {

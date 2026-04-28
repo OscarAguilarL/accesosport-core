@@ -3,6 +3,7 @@ package com.accesosport.event.domain.events;
 import com.accesosport.event.domain.model.Event;
 import com.accesosport.shared.domain.events.DomainEvent;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -10,6 +11,7 @@ public class EventCancelledEvent extends DomainEvent {
 
     private final UUID eventId;
     private final String eventName;
+    private final LocalDateTime eventDate;
     private final String cancellationReason;
     private final List<UUID> affectedRegistrationIds;
 
@@ -17,6 +19,7 @@ public class EventCancelledEvent extends DomainEvent {
         super("event.cancelled");
         this.eventId = event.getId();
         this.eventName = event.getName();
+        this.eventDate = event.getEventDate();
         this.cancellationReason = cancellationReason;
         this.affectedRegistrationIds = List.copyOf(affectedRegistrationIds);
     }
@@ -27,6 +30,10 @@ public class EventCancelledEvent extends DomainEvent {
 
     public String getEventName() {
         return eventName;
+    }
+
+    public LocalDateTime getEventDate() {
+        return eventDate;
     }
 
     public String getCancellationReason() {

@@ -8,6 +8,7 @@ import com.accesosport.event.infrastructure.persistence.jpa.EventJpaRepository;
 import com.accesosport.event.infrastructure.persistence.mapper.EventMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,6 +30,7 @@ public class EventRepositoryAdapter implements EventRepository {
     private final EventJpaRepository jpaRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<Event> findById(UUID eventId) {
         return jpaRepository.findById(eventId)
                 .map(EventMapper::toDomain);
@@ -112,6 +114,12 @@ public class EventRepositoryAdapter implements EventRepository {
     @Override
     public List<Event> findEventsReadyToComplete(LocalDateTime threshold) {
         return jpaRepository.findEventsReadyToComplete(threshold).stream()
+                .map(EventMapper::toDomain).toList();
+    }
+
+    @Override
+    public List<Event> findEventsNeedingReminder(LocalDateTime from, LocalDateTime to) {
+        return jpaRepository.findEventsNeedingReminder(from, to).stream()
                 .map(EventMapper::toDomain).toList();
     }
 }

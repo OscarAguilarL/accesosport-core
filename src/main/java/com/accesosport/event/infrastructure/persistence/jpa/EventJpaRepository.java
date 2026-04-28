@@ -87,4 +87,13 @@ public interface EventJpaRepository extends JpaRepository<EventJpaEntity, UUID> 
 
     @Query("SELECT e FROM EventJpaEntity e WHERE e.status = 'IN_PROGRESS' AND e.eventDate <= :threshold")
     List<EventJpaEntity> findEventsReadyToComplete(@Param("threshold") LocalDateTime threshold);
+
+    @Query("""
+            SELECT e FROM EventJpaEntity e
+            WHERE e.eventDate BETWEEN :from AND :to
+              AND e.reminderSentAt IS NULL
+              AND e.status IN ('REGISTRATION_CLOSED', 'IN_PROGRESS')
+            """)
+    List<EventJpaEntity> findEventsNeedingReminder(@Param("from") LocalDateTime from,
+                                                   @Param("to") LocalDateTime to);
 }

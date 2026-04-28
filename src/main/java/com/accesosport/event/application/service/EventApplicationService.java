@@ -12,6 +12,8 @@ import com.accesosport.event.domain.model.EventStatus;
 import com.accesosport.event.domain.repository.EventCapacityRepository;
 import com.accesosport.event.domain.repository.EventRepository;
 import com.accesosport.event.domain.usecase.CancelEventUseCase;
+import com.accesosport.registration.domain.repository.RegistrationRepository;
+import com.accesosport.shared.domain.events.DomainEventPublisher;
 import com.accesosport.event.domain.usecase.CompleteEventUseCase;
 import com.accesosport.event.domain.usecase.CreateEventUseCase;
 import com.accesosport.event.domain.usecase.ListAvailableEventsUseCase;
@@ -39,6 +41,8 @@ public class EventApplicationService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final EventCapacityRepository eventCapacityRepository;
+    private final RegistrationRepository registrationRepository;
+    private final DomainEventPublisher domainEventPublisher;
 
     @Transactional
     public EventResponse createEvent(CreateEventRequest request, UUID organizerId) {
@@ -120,7 +124,7 @@ public class EventApplicationService {
 
     @Transactional
     public EventResponse cancelEvent(UUID eventId, String reason, UUID requesterId) {
-        CancelEventUseCase useCase = new CancelEventUseCase(eventRepository);
+        CancelEventUseCase useCase = new CancelEventUseCase(eventRepository, registrationRepository, domainEventPublisher);
         CancelEventUseCase.CancelEventResult result = useCase.execute(new CancelEventUseCase.CancelEventCommand(eventId, reason, requesterId));
 
         EventCapacity capacity = eventCapacityRepository.findByEventId(eventId)

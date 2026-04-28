@@ -100,4 +100,6 @@ public interface EventRepository {
     List<Event> findEventsReadyToBegin(LocalDateTime now);
 
     List<Event> findEventsReadyToComplete(LocalDateTime threshold);
+
+    List<Event> findEventsNeedingReminder(LocalDateTime from, LocalDateTime to);
 }

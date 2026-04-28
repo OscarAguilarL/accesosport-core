@@ -1,22 +1,24 @@
 package com.accesosport.event.domain.usecase;
 
+import com.accesosport.event.domain.events.EventCancelledEvent;
 import com.accesosport.event.domain.exception.EventAccessDeniedException;
 import com.accesosport.event.domain.exception.EventNotFoundException;
 import com.accesosport.event.domain.model.Event;
 import com.accesosport.event.domain.repository.EventRepository;
-
+import com.accesosport.registration.domain.repository.RegistrationRepository;
+import com.accesosport.shared.domain.events.DomainEventPublisher;
 import com.accesosport.shared.domain.usecase.UseCase;
 import lombok.AllArgsConstructor;
 
+import java.util.List;
 import java.util.UUID;
 
-/**
- * UseCase responsible for cancelling an event.
- */
 @AllArgsConstructor
 public class CancelEventUseCase extends UseCase<CancelEventUseCase.CancelEventCommand, CancelEventUseCase.CancelEventResult> {
 
     private final EventRepository eventRepository;
+    private final RegistrationRepository registrationRepository;
+    private final DomainEventPublisher domainEventPublisher;
 
     @Override
     protected CancelEventResult internalExecute(CancelEventCommand command) {
@@ -27,27 +29,25 @@ public class CancelEventUseCase extends UseCase<CancelEventUseCase.CancelEventCo
             throw new EventAccessDeniedException();
         }
 
+        List<UUID> affectedIds = registrationRepository.findConfirmedByEventId(command.eventId())
+                .stream()
+                .map(r -> r.getId())
+                .toList();
+
         event.cancel();
 
         Event savedEvent = eventRepository.save(event);
 
+        domainEventPublisher.publish(
+                new EventCancelledEvent(savedEvent, command.reason(), affectedIds)
+        );
+
         return new CancelEventResult(savedEvent);
     }
 
-    /**
-     * Represents a command to cancel an event, encapsulating the event identifier and cancellation reason.
-     *
-     * @param eventId unique identifier of the event to be canceled
-     * @param reason  cancellation reason provided by the organizer
-     */
     public record CancelEventCommand(UUID eventId, String reason, UUID requesterId) {
     }
 
-    /**
-     * Represents the result of cancelling an event.
-     *
-     * @param canceledEvent Event entity that has been canceled.
-     */
     public record CancelEventResult(Event canceledEvent) {
     }
 }

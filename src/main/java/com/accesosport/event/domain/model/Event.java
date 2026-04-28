@@ -36,6 +36,8 @@ public class Event {
     private String coverImageUrl;
     @Setter
     private String coverImagePublicId;
+    @Setter
+    private LocalDateTime reminderSentAt;
 
     private Event() {
     }
@@ -56,7 +58,8 @@ public class Event {
             LocalDateTime createdOn,
             LocalDateTime updatedOn,
             String coverImageUrl,
-            String coverImagePublicId
+            String coverImagePublicId,
+            LocalDateTime reminderSentAt
     ) {
         Event event = new Event();
         event.id = id;
@@ -75,6 +78,7 @@ public class Event {
         event.updatedOn = updatedOn;
         event.coverImageUrl = coverImageUrl;
         event.coverImagePublicId = coverImagePublicId;
+        event.reminderSentAt = reminderSentAt;
         return event;
     }
 

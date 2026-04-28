@@ -66,6 +66,12 @@ app:
     event-lifecycle:
       fixed-delay-ms: ${APP_SCHEDULER_LIFECYCLE_DELAY_MS:60000}
       complete-after-hours: ${APP_SCHEDULER_COMPLETE_AFTER_HOURS:12}
+    reminder:
+      fixed-delay-ms: ${APP_SCHEDULER_REMINDER_DELAY_MS:3600000}
+
+resend:
+  api-key: ${RESEND_API_KEY}
+  from-email: ${RESEND_FROM_EMAIL:noreply@accesosport.com}
 
 
 # Logging
