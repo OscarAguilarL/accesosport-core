@@ -6,8 +6,10 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record RegistrationResponse(
-        UUID registrationId,
+        UUID id,
         UUID eventId,
+        String eventName,
+        LocalDateTime eventDate,
         String status,
         String ticketCode,
         Integer bibNumber,
@@ -18,6 +20,22 @@ public record RegistrationResponse(
         return new RegistrationResponse(
                 r.getId(),
                 r.getEventId(),
+                null,
+                null,
+                r.getStatus().name(),
+                r.getTicketCode(),
+                r.getBibNumber(),
+                r.isKitPickedUp(),
+                r.getRegisteredAt()
+        );
+    }
+
+    public static RegistrationResponse from(Registration r, String eventName, LocalDateTime eventDate) {
+        return new RegistrationResponse(
+                r.getId(),
+                r.getEventId(),
+                eventName,
+                eventDate,
                 r.getStatus().name(),
                 r.getTicketCode(),
                 r.getBibNumber(),

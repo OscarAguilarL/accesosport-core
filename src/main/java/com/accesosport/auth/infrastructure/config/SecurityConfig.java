@@ -48,6 +48,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/auth/**", "/api/v1/public/**", "/v3/api-docs").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/events/available", "/api/v1/events/{eventId}", "/api/v1/events/{eventId}/images").permitAll()
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())

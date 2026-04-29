@@ -60,7 +60,7 @@ public class RegistrationApplicationService {
 
     @Transactional(readOnly = true)
     public List<RegistrationResponse> getMyRegistrations(UUID participantId) {
-        GetMyRegistrationsUseCase useCase = new GetMyRegistrationsUseCase(registrationRepository);
+        GetMyRegistrationsUseCase useCase = new GetMyRegistrationsUseCase(registrationRepository, eventRepository);
         return useCase.execute(new GetMyRegistrationsCommand(participantId));
     }
 
