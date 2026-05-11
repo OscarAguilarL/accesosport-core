@@ -55,10 +55,32 @@ Each module is structured as:
 
 - **auth** — JWT-based authentication, Spring Security config, login/signup
 - **user** — User profiles, roles, permissions, addresses
-- **event** — Event lifecycle (DRAFT → PUBLISHED → REGISTRATION_OPEN → IN_PROGRESS → COMPLETED/CANCELLED)
-- **image** — Image storage
+- **event** — Event lifecycle (DRAFT → PUBLISHED → REGISTRATION_OPEN → REGISTRATION_CLOSED → IN_PROGRESS → COMPLETED/CANCELLED)
+- **registration** — Participant enrollment, ticket codes, bib number assignment, kit pickup tracking
+- **image** — Image storage (Cloudinary via URL, multipart upload)
 - **bootstrap** — Initializes default roles and admin user on startup
 - **shared** — Base `UseCase<Command, Result>` class, common value objects (Address, Distance, Location), i18n config
+
+### Módulo registration
+
+El módulo de inscripciones es independiente del módulo de eventos: depende de `EventRepository` y `EventCapacityRepository` (puertos definidos en el módulo event), pero el módulo event no depende del módulo registration. Esto evita dependencias circulares.
+
+**Entidad de dominio clave:** `Registration` — campos: `id`, `eventId`, `participantId`, `status` (`PENDING_PAYMENT | CONFIRMED | CANCELLED`), `ticketCode` (ej. `ACSP-4X7K`), `bibNumber` (asignado posteriormente), `paymentMethod`, `kitPickedUp`, `kitPickedUpAt`, `registeredAt`, `cancelledAt`.
+
+La entidad solo expone comportamiento mediante métodos (`cancel()`, `assignBibNumber(int)`, `markKitPickedUp()`); los setters están prohibidos para preservar invariantes de dominio.
+
+**Servicio de aplicación:** `RegistrationApplicationService` — orquesta todos los casos de uso del módulo. Los casos de uso se instancian directamente en el servicio (no son beans de Spring): esto es una decisión deliberada para mantener los use cases como clases POJO puras sin dependencia del framework.
+
+### Scheduler
+
+`EventLifecycleScheduler` ejecuta dos tareas periódicas:
+
+| Tarea | Frecuencia | Configurable con |
+|---|---|---|
+| Transiciones de ciclo de vida del evento | cada 60 s (default) | `app.scheduler.event-lifecycle.fixed-delay-ms` |
+| Envío de recordatorios por email | cada 60 min (default) | `app.scheduler.reminder.fixed-delay-ms` |
+
+Las transiciones automáticas son: `autoOpenRegistrations`, `autoCloseRegistrations`, `autoBeginEvents`, `autoCompleteEvents`, y `cleanupExpiredPendingPayments`. Esto significa que **los eventos transicionan de estado sin intervención manual** una vez que el organizador los publica y configura fechas.
 
 ### Use Cases
 
