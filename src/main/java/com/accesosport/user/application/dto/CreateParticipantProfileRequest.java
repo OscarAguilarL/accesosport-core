@@ -1,6 +1,7 @@
 package com.accesosport.user.application.dto;
 
 import com.accesosport.shared.domain.valueobjects.BloodType;
+import com.accesosport.shared.domain.valueobjects.Gender;
 import com.accesosport.shared.domain.valueobjects.ShirtSize;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -30,6 +31,12 @@ public record CreateParticipantProfileRequest(
         String medicalConditions,
 
         @NotNull
-        BloodType bloodType
+        BloodType bloodType,
+
+        @NotBlank
+        String phone,
+
+        @NotNull
+        Gender gender
 ) {
 }

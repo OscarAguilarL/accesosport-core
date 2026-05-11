@@ -26,6 +26,8 @@ public class ParticipantProfileMapper {
                 .emergencyContactPhone(entity.getEmergencyContactPhone())
                 .medicalConditions(entity.getMedicalConditions())
                 .bloodType(entity.getBloodType())
+                .phone(entity.getPhone())
+                .gender(entity.getGender())
                 .user(UserMapper.toDomain(entity.getUser()))
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
@@ -48,6 +50,8 @@ public class ParticipantProfileMapper {
         entity.setEmergencyContactPhone(domain.getEmergencyContactPhone());
         entity.setMedicalConditions(domain.getMedicalConditions());
         entity.setBloodType(domain.getBloodType());
+        entity.setPhone(domain.getPhone());
+        entity.setGender(domain.getGender());
         entity.setUser(UserMapper.toEntity(domain.getUser()));
         entity.setCreatedAt(domain.getCreatedAt());
         entity.setUpdatedAt(domain.getUpdatedAt());

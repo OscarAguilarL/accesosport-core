@@ -1,6 +1,7 @@
 package com.accesosport.user.application.dto;
 
 import com.accesosport.shared.domain.valueobjects.BloodType;
+import com.accesosport.shared.domain.valueobjects.Gender;
 import com.accesosport.shared.domain.valueobjects.ShirtSize;
 import com.accesosport.user.domain.model.UserParticipantProfile;
 
@@ -27,6 +28,8 @@ public record ParticipantProfileResponse(
         String emergencyContactPhone,
         String medicalConditions,
         BloodType bloodType,
+        String phone,
+        Gender gender,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
@@ -45,6 +48,8 @@ public record ParticipantProfileResponse(
                 participantProfile.getEmergencyContactPhone(),
                 participantProfile.getMedicalConditions(),
                 participantProfile.getBloodType(),
+                participantProfile.getPhone(),
+                participantProfile.getGender(),
                 participantProfile.getCreatedAt(),
                 participantProfile.getUpdatedAt()
         );

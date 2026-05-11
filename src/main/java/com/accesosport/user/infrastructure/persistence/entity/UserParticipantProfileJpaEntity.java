@@ -1,6 +1,7 @@
 package com.accesosport.user.infrastructure.persistence.entity;
 
 import com.accesosport.shared.domain.valueobjects.BloodType;
+import com.accesosport.shared.domain.valueobjects.Gender;
 import com.accesosport.shared.domain.valueobjects.ShirtSize;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -59,6 +60,13 @@ public class UserParticipantProfileJpaEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
     private BloodType bloodType;
+
+    @Column(length = 20)
+    private String phone;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private Gender gender;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;

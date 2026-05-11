@@ -3,6 +3,7 @@ package com.accesosport.user.domain.usecase;
 import com.accesosport.shared.domain.i18n.MessageKeys;
 import com.accesosport.shared.domain.usecase.UseCase;
 import com.accesosport.shared.domain.valueobjects.BloodType;
+import com.accesosport.shared.domain.valueobjects.Gender;
 import com.accesosport.shared.domain.valueobjects.ShirtSize;
 import com.accesosport.user.domain.exception.UserNotFoundException;
 import com.accesosport.user.domain.model.Role;
@@ -46,6 +47,8 @@ public class CreateParticipantProfileUseCase extends UseCase<CreateParticipantPr
                 command.emergencyContactPhone(),
                 command.medicalConditions(),
                 command.bloodType(),
+                command.phone(),
+                command.gender(),
                 user
         );
 
@@ -74,6 +77,8 @@ public class CreateParticipantProfileUseCase extends UseCase<CreateParticipantPr
             String emergencyContactPhone,
             String medicalConditions,
             BloodType bloodType,
+            String phone,
+            Gender gender,
             UUID userId
     ) {
     }

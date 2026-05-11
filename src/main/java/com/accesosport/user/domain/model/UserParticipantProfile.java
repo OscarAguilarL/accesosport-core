@@ -1,6 +1,7 @@
 package com.accesosport.user.domain.model;
 
 import com.accesosport.shared.domain.valueobjects.BloodType;
+import com.accesosport.shared.domain.valueobjects.Gender;
 import com.accesosport.shared.domain.valueobjects.ShirtSize;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,6 +28,8 @@ public class UserParticipantProfile {
     private String emergencyContactPhone;
     private String medicalConditions;
     private BloodType bloodType;
+    private String phone;
+    private Gender gender;
 
     private User user;
     private LocalDateTime createdAt;
@@ -49,6 +52,8 @@ public class UserParticipantProfile {
             String emergencyContactPhone,
             String medicalConditions,
             BloodType bloodType,
+            String phone,
+            Gender gender,
             User user
     ) {
         return UserParticipantProfile.builder()
@@ -58,6 +63,8 @@ public class UserParticipantProfile {
                 .emergencyContactPhone(emergencyContactPhone)
                 .medicalConditions(medicalConditions)
                 .bloodType(bloodType)
+                .phone(phone)
+                .gender(gender)
                 .user(user)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())

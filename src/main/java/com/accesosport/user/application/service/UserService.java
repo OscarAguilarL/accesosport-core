@@ -22,6 +22,7 @@ import com.accesosport.user.domain.repository.RoleRepository;
 import com.accesosport.user.domain.repository.UserRepository;
 import com.accesosport.user.domain.usecase.CreateOrganizerProfileUseCase;
 import com.accesosport.user.domain.usecase.CreateParticipantProfileUseCase;
+import com.accesosport.user.domain.usecase.UpdateParticipantProfileUseCase;
 import com.accesosport.user.domain.usecase.SaveUserAddressUseCase;
 import com.accesosport.user.domain.usecase.SaveUserPersonalInfoUseCase;
 import jakarta.transaction.Transactional;
@@ -83,9 +84,28 @@ public class UserService {
                 request.emergencyContactPhone(),
                 request.medicalConditions(),
                 request.bloodType(),
+                request.phone(),
+                request.gender(),
                 userId
         );
         CreateParticipantProfileUseCase useCase = new CreateParticipantProfileUseCase(participantProfileRepository, userRepository, roleRepository);
+        var result = useCase.execute(command);
+        return ParticipantProfileResponse.fromDomain(result.profile());
+    }
+
+    @Transactional
+    public ParticipantProfileResponse updateParticipantProfile(UUID userId, CreateParticipantProfileRequest request) {
+        var command = new UpdateParticipantProfileUseCase.Command(
+                request.shirtSize(),
+                request.emergencyContactName(),
+                request.emergencyContactPhone(),
+                request.medicalConditions(),
+                request.bloodType(),
+                request.phone(),
+                request.gender(),
+                userId
+        );
+        UpdateParticipantProfileUseCase useCase = new UpdateParticipantProfileUseCase(participantProfileRepository, userRepository);
         var result = useCase.execute(command);
         return ParticipantProfileResponse.fromDomain(result.profile());
     }

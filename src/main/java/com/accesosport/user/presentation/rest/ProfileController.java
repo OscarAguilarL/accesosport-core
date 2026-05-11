@@ -15,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -86,6 +88,17 @@ public class ProfileController {
         UUID participantId = userDetails.getUserId();
         ParticipantProfileResponse response = userService.createParticipantProfile(participantId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PutMapping("/participant")
+    @PreAuthorize("hasAuthority('ROLE_PARTICIPANT')")
+    public ResponseEntity<ParticipantProfileResponse> updateParticipantProfile(
+            @Valid @RequestBody CreateParticipantProfileRequest request,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        UUID participantId = userDetails.getUserId();
+        ParticipantProfileResponse response = userService.updateParticipantProfile(participantId, request);
+        return ResponseEntity.ok(response);
     }
 
     /**
