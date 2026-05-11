@@ -109,10 +109,10 @@ public class RegistrationController {
      */
     @GetMapping("/api/v1/registrations/{ticketCode}")
     @PreAuthorize("hasAnyAuthority('ROLE_ORGANIZER', 'ROLE_ADMIN')")
-    public ResponseEntity<RegistrationResponse> getRegistrationByTicketCode(
+    public ResponseEntity<ParticipantInEventResponse> getRegistrationByTicketCode(
             @PathVariable String ticketCode
     ) {
-        RegistrationResponse response = registrationApplicationService.getRegistrationByTicketCode(ticketCode);
+        ParticipantInEventResponse response = registrationApplicationService.getRegistrationByTicketCode(ticketCode);
         return ResponseEntity.ok(response);
     }
 
@@ -125,10 +125,10 @@ public class RegistrationController {
      */
     @PutMapping("/api/v1/registrations/{ticketCode}/kit-pickup")
     @PreAuthorize("hasAnyAuthority('ROLE_ORGANIZER', 'ROLE_ADMIN')")
-    public ResponseEntity<RegistrationResponse> markKitPickedUp(
+    public ResponseEntity<ParticipantInEventResponse> markKitPickedUp(
             @PathVariable String ticketCode
     ) {
-        RegistrationResponse response = registrationApplicationService.markKitPickedUp(ticketCode);
+        ParticipantInEventResponse response = registrationApplicationService.markKitPickedUp(ticketCode);
         return ResponseEntity.ok(response);
     }
 

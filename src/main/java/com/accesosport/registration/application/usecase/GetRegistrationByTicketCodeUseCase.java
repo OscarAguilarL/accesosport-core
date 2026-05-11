@@ -1,7 +1,7 @@
 package com.accesosport.registration.application.usecase;
 
-import com.accesosport.registration.application.dto.GetEventRegistrationsCommand;
 import com.accesosport.registration.application.dto.ParticipantInEventResponse;
+import com.accesosport.registration.domain.exception.RegistrationNotFoundException;
 import com.accesosport.registration.domain.model.Registration;
 import com.accesosport.registration.domain.repository.RegistrationRepository;
 import com.accesosport.shared.domain.usecase.UseCase;
@@ -10,23 +10,24 @@ import com.accesosport.user.domain.model.UserParticipantProfile;
 import com.accesosport.user.domain.repository.ParticipantProfileRepository;
 import lombok.AllArgsConstructor;
 
-import java.util.List;
 import java.util.Optional;
 
 @AllArgsConstructor
-public class GetEventRegistrationsUseCase extends UseCase<GetEventRegistrationsCommand, List<ParticipantInEventResponse>> {
+public class GetRegistrationByTicketCodeUseCase extends UseCase<GetRegistrationByTicketCodeUseCase.Command, ParticipantInEventResponse> {
 
     private final RegistrationRepository registrationRepository;
     private final ParticipantProfileRepository participantProfileRepository;
 
+    public record Command(String ticketCode) {}
+
     @Override
-    protected List<ParticipantInEventResponse> internalExecute(GetEventRegistrationsCommand command) {
-        return registrationRepository.findByEventId(command.eventId()).stream()
-                .map(this::toResponse)
-                .toList();
+    protected ParticipantInEventResponse internalExecute(Command command) {
+        Registration registration = registrationRepository.findByTicketCode(command.ticketCode())
+                .orElseThrow(() -> new RegistrationNotFoundException(command.ticketCode()));
+        return toResponse(registration);
     }
 
-    private ParticipantInEventResponse toResponse(Registration r) {
+    public ParticipantInEventResponse toResponse(Registration r) {
         Optional<UserParticipantProfile> profileOpt = participantProfileRepository.findByUserId(r.getParticipantId());
 
         String fullName = null;

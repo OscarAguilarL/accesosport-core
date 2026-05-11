@@ -17,5 +17,6 @@ public record ParticipantInEventResponse(
         String ticketCode,
         Integer bibNumber,
         boolean kitPickedUp,
+        LocalDateTime kitPickedUpAt,
         LocalDateTime registeredAt
 ) {}

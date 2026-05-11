@@ -12,6 +12,7 @@ import com.accesosport.registration.application.usecase.CancelRegistrationUseCas
 import com.accesosport.registration.application.usecase.GenerateTicketPdfUseCase;
 import com.accesosport.registration.application.usecase.GetEventRegistrationsUseCase;
 import com.accesosport.registration.application.usecase.GetMyRegistrationsUseCase;
+import com.accesosport.registration.application.usecase.GetRegistrationByTicketCodeUseCase;
 import com.accesosport.registration.application.usecase.RegisterParticipantUseCase;
 import com.accesosport.registration.domain.exception.RegistrationNotFoundException;
 import com.accesosport.registration.domain.model.Registration;
@@ -69,19 +70,23 @@ public class RegistrationApplicationService {
     }
 
     @Transactional(readOnly = true)
-    public RegistrationResponse getRegistrationByTicketCode(String ticketCode) {
-        Registration registration = registrationRepository.findByTicketCode(ticketCode)
-                .orElseThrow(() -> new RegistrationNotFoundException(ticketCode));
-        return RegistrationResponse.from(registration);
+    public ParticipantInEventResponse getRegistrationByTicketCode(String ticketCode) {
+        GetRegistrationByTicketCodeUseCase useCase = new GetRegistrationByTicketCodeUseCase(
+                registrationRepository, participantProfileRepository
+        );
+        return useCase.execute(new GetRegistrationByTicketCodeUseCase.Command(ticketCode));
     }
 
     @Transactional
-    public RegistrationResponse markKitPickedUp(String ticketCode) {
+    public ParticipantInEventResponse markKitPickedUp(String ticketCode) {
         Registration registration = registrationRepository.findByTicketCode(ticketCode)
                 .orElseThrow(() -> new RegistrationNotFoundException(ticketCode));
         registration.markKitPickedUp();
         registrationRepository.save(registration);
-        return RegistrationResponse.from(registration);
+        GetRegistrationByTicketCodeUseCase useCase = new GetRegistrationByTicketCodeUseCase(
+                registrationRepository, participantProfileRepository
+        );
+        return useCase.toResponse(registration);
     }
 
     @Transactional(readOnly = true)
