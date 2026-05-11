@@ -3,6 +3,7 @@ package com.accesosport.registration.presentation.exception;
 import com.accesosport.registration.domain.exception.DuplicateRegistrationException;
 import com.accesosport.registration.domain.exception.NoCapacityException;
 import com.accesosport.registration.domain.exception.RegistrationAccessDeniedException;
+import com.accesosport.registration.domain.exception.RegistrationNotConfirmedException;
 import com.accesosport.registration.domain.exception.RegistrationNotFoundException;
 import com.accesosport.registration.domain.exception.RegistrationNotOpenException;
 import com.accesosport.shared.domain.i18n.MessageKeys;
@@ -80,6 +81,21 @@ public class RegistrationExceptionHandler {
         );
         problemDetail.setTitle(messageTranslator.translate(MessageKeys.Registrations.PROBLEM_NO_CAPACITY));
         problemDetail.setType(URI.create("https://api.accesosport.com/errors/registration-no-capacity"));
+        problemDetail.setProperty("timestamp", Instant.now());
+
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(problemDetail);
+    }
+
+    @ExceptionHandler(RegistrationNotConfirmedException.class)
+    public ResponseEntity<ProblemDetail> handleNotConfirmed(RegistrationNotConfirmedException ex) {
+        log.error("Registration not confirmed: {}", ex.getMessage());
+
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.UNPROCESSABLE_ENTITY,
+                messageTranslator.translate(ex.getMessage(), ex.getArgs())
+        );
+        problemDetail.setTitle(messageTranslator.translate(MessageKeys.Registrations.PROBLEM_REGISTRATION_NOT_CONFIRMED));
+        problemDetail.setType(URI.create("https://api.accesosport.com/errors/registration-not-confirmed"));
         problemDetail.setProperty("timestamp", Instant.now());
 
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(problemDetail);

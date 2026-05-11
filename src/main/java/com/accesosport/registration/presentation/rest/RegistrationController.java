@@ -6,6 +6,7 @@ import com.accesosport.registration.application.dto.RegistrationResponse;
 import com.accesosport.registration.application.service.RegistrationApplicationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -129,6 +130,19 @@ public class RegistrationController {
     ) {
         RegistrationResponse response = registrationApplicationService.markKitPickedUp(ticketCode);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/api/v1/user/registrations/{registrationId}/ticket")
+    @PreAuthorize("hasAuthority('ROLE_PARTICIPANT')")
+    public ResponseEntity<byte[]> downloadTicket(
+            @PathVariable UUID registrationId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        byte[] pdf = registrationApplicationService.generateTicketPdf(registrationId, userDetails.getUserId());
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_TYPE, "application/pdf")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"boleto-" + registrationId + ".pdf\"")
+                .body(pdf);
     }
 
     private boolean isAdminOrOrganizer(CustomUserDetails userDetails) {

@@ -9,6 +9,7 @@ import com.accesosport.registration.application.dto.ParticipantInEventResponse;
 import com.accesosport.registration.application.dto.RegisterParticipantCommand;
 import com.accesosport.registration.application.dto.RegistrationResponse;
 import com.accesosport.registration.application.usecase.CancelRegistrationUseCase;
+import com.accesosport.registration.application.usecase.GenerateTicketPdfUseCase;
 import com.accesosport.registration.application.usecase.GetEventRegistrationsUseCase;
 import com.accesosport.registration.application.usecase.GetMyRegistrationsUseCase;
 import com.accesosport.registration.application.usecase.RegisterParticipantUseCase;
@@ -17,6 +18,7 @@ import com.accesosport.registration.domain.model.Registration;
 import com.accesosport.registration.domain.repository.RegistrationRepository;
 import com.accesosport.shared.domain.events.DomainEventPublisher;
 import com.accesosport.user.domain.repository.ParticipantProfileRepository;
+import com.accesosport.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -35,6 +37,8 @@ public class RegistrationApplicationService {
     private final EventCapacityRepository eventCapacityRepository;
     private final DomainEventPublisher domainEventPublisher;
     private final ParticipantProfileRepository participantProfileRepository;
+    private final UserRepository userRepository;
+    private final TicketPdfGenerator ticketPdfGenerator;
 
     @Transactional
     public RegistrationResponse registerParticipant(UUID eventId, UUID participantId) {
@@ -78,5 +82,13 @@ public class RegistrationApplicationService {
         registration.markKitPickedUp();
         registrationRepository.save(registration);
         return RegistrationResponse.from(registration);
+    }
+
+    @Transactional(readOnly = true)
+    public byte[] generateTicketPdf(UUID registrationId, UUID requesterId) {
+        GenerateTicketPdfUseCase useCase = new GenerateTicketPdfUseCase(
+                registrationRepository, eventRepository, userRepository, ticketPdfGenerator
+        );
+        return useCase.execute(new GenerateTicketPdfUseCase.Command(registrationId, requesterId));
     }
 }
