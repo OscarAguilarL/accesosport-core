@@ -11,6 +11,7 @@ public class Registration {
     private UUID id;
     private UUID eventId;
     private UUID participantId;
+    private UUID modalityId;
     private RegistrationStatus status;
     private String ticketCode;
     private Integer bibNumber;
@@ -23,11 +24,12 @@ public class Registration {
     private Registration() {
     }
 
-    public static Registration create(UUID eventId, UUID participantId, RegistrationStatus status) {
+    public static Registration create(UUID eventId, UUID participantId, UUID modalityId, RegistrationStatus status) {
         Registration registration = new Registration();
         registration.id = UUID.randomUUID();
         registration.eventId = eventId;
         registration.participantId = participantId;
+        registration.modalityId = modalityId;
         registration.status = status;
         registration.ticketCode = TicketCodeGenerator.generate();
         registration.bibNumber = null;
@@ -43,6 +45,7 @@ public class Registration {
             UUID id,
             UUID eventId,
             UUID participantId,
+            UUID modalityId,
             RegistrationStatus status,
             String ticketCode,
             Integer bibNumber,
@@ -56,6 +59,7 @@ public class Registration {
         registration.id = id;
         registration.eventId = eventId;
         registration.participantId = participantId;
+        registration.modalityId = modalityId;
         registration.status = status;
         registration.ticketCode = ticketCode;
         registration.bibNumber = bibNumber;

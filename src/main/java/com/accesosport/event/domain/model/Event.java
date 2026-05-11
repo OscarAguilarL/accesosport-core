@@ -6,7 +6,6 @@ import com.accesosport.user.domain.model.User;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -21,9 +20,6 @@ public class Event {
     private String description;
     private LocalDateTime eventDate;
     private Location location;
-    private RaceType raceType;
-    private Distance distance;
-    private BigDecimal price;
     private RegistrationPeriod registrationPeriod;
     @Setter
     private EventStatus status;
@@ -49,9 +45,6 @@ public class Event {
             String description,
             LocalDateTime eventDate,
             Location location,
-            RaceType raceType,
-            Distance distance,
-            BigDecimal price,
             RegistrationPeriod registrationPeriod,
             EventStatus status,
             User createdBy,
@@ -68,9 +61,6 @@ public class Event {
         event.description = description;
         event.eventDate = eventDate;
         event.location = location;
-        event.raceType = raceType;
-        event.distance = distance;
-        event.price = price;
         event.registrationPeriod = registrationPeriod;
         event.status = status;
         event.createdBy = createdBy;
@@ -87,9 +77,6 @@ public class Event {
             String description,
             LocalDateTime eventDate,
             Location location,
-            RaceType raceType,
-            Distance distance,
-            BigDecimal price,
             RegistrationPeriod registrationPeriod,
             User createdBy
     ) {
@@ -99,9 +86,6 @@ public class Event {
         event.description = description;
         event.eventDate = eventDate;
         event.location = location;
-        event.raceType = raceType;
-        event.distance = distance;
-        event.price = price;
         event.registrationPeriod = registrationPeriod;
         event.status = EventStatus.DRAFT;
         event.createdBy = createdBy;
@@ -117,9 +101,6 @@ public class Event {
                        String description,
                        LocalDateTime eventDate,
                        Location location,
-                       RaceType raceType,
-                       Distance distance,
-                       BigDecimal price,
                        RegistrationPeriod registrationPeriod) {
         if (status != EventStatus.DRAFT) {
             throw new EventInvalidStatusException(MessageKeys.Events.EVENT_UPDATE_ONLY_DRAFT, status);
@@ -128,9 +109,6 @@ public class Event {
         this.description = description;
         this.eventDate = eventDate;
         this.location = location;
-        this.raceType = raceType;
-        this.distance = distance;
-        this.price = price;
         this.registrationPeriod = registrationPeriod;
 
         validate();
@@ -207,12 +185,6 @@ public class Event {
         }
         if (location == null) {
             throw new IllegalArgumentException(MessageKeys.Events.EVENT_VALIDATION_LOCATION_REQUIRED);
-        }
-        if (distance == null) {
-            throw new IllegalArgumentException(MessageKeys.Events.EVENT_VALIDATION_DISTANCE_REQUIRED);
-        }
-        if (price == null || price.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException(MessageKeys.Events.EVENT_VALIDATION_PRICE_POSITIVE);
         }
         if (registrationPeriod == null) {
             throw new IllegalArgumentException(MessageKeys.Events.EVENT_VALIDATION_REGISTRATION_REQUIRED);

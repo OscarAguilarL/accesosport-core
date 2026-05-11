@@ -60,9 +60,9 @@ public interface EventJpaRepository extends JpaRepository<EventJpaEntity, UUID> 
             WHERE e.status = 'REGISTRATION_OPEN'
             AND e.eventDate > CURRENT_TIMESTAMP
             AND EXISTS (
-                SELECT 1 FROM EventCapacityJpaEntity c
-                WHERE c.eventId = e.id
-                  AND (c.maxCapacity IS NULL OR c.reserved < c.maxCapacity)
+                SELECT 1 FROM EventModalityJpaEntity m
+                WHERE m.eventId = e.id
+                  AND m.registeredCount < m.capacity
             )
             ORDER BY e.eventDate
             """)

@@ -47,7 +47,7 @@ public class TicketPdfGenerator {
     private static final Color DIVIDER_GRAY = new Color(200, 200, 200);
     private static final Color MUTED_GRAY = new Color(160, 160, 160);
 
-    public byte[] generate(Registration registration, Event event, User participant) throws IOException {
+    public byte[] generate(Registration registration, Event event, User participant, String distanceLabel) throws IOException {
         try (PDDocument doc = new PDDocument()) {
             PDPage page = new PDPage(PDRectangle.A4);
             doc.addPage(page);
@@ -65,7 +65,7 @@ public class TicketPdfGenerator {
                 drawBackground(cs);
                 drawHeader(cs, bold, regular, logoImage);
                 drawEventSection(cs, event, bold, regular);
-                drawParticipantSection(cs, registration, event, participant, bold, regular);
+                drawParticipantSection(cs, registration, distanceLabel, participant, bold, regular);
                 drawQrCode(cs, qrImage, registration, bold);
                 drawFooter(cs, bold, regular);
             }
@@ -166,7 +166,7 @@ public class TicketPdfGenerator {
     }
 
     private void drawParticipantSection(PDPageContentStream cs, Registration registration,
-                                        Event event, User participant,
+                                        String distanceLabel, User participant,
                                         PDType1Font bold, PDType1Font regular) throws IOException {
         float startY = PAGE_HEIGHT - 212f;
         float leftCol = MARGIN + DATA_CARD_PADDING;
@@ -180,7 +180,7 @@ public class TicketPdfGenerator {
 
         drawLabel(cs, bold, leftCol, startY - 105f, "DISTANCIA");
         drawValue(cs, bold, 13, leftCol, startY - 121f,
-                event.getDistance() != null ? event.getDistance().toString() : "-");
+                distanceLabel != null ? distanceLabel : "-");
 
         drawLabel(cs, bold, leftCol, startY - 151f, "FOLIO");
         drawValue(cs, bold, 13, leftCol, startY - 167f, registration.getTicketCode());

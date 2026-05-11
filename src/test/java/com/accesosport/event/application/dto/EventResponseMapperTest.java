@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -16,18 +18,12 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-/**
- * Tests for EventResponseMapper, focused on the capacity-related fields
- * that moved from Event to EventCapacity in ARCH-02.
- */
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class EventResponseMapperTest {
 
-    @Mock
-    private Event event;
-
-    @Mock
-    private User organizer;
+    @Mock private Event event;
+    @Mock private User organizer;
 
     private final UUID eventId = UUID.randomUUID();
     private final Location location = Location.of("Bosque de Chapultepec", "CDMX", "México", null, null);
@@ -40,6 +36,11 @@ class EventResponseMapperTest {
             LocalDateTime.now().minusDays(1)
     );
 
+    private EventModality modalityWith(int capacity, int registered) {
+        return EventModality.reconstitute(UUID.randomUUID(), eventId, "10K",
+                new BigDecimal("10"), DistanceUnit.KM, new BigDecimal("150"), capacity, registered);
+    }
+
     @BeforeEach
     void setUpEventMock() {
         when(organizer.getId()).thenReturn(UUID.randomUUID());
@@ -50,23 +51,18 @@ class EventResponseMapperTest {
         when(event.getDescription()).thenReturn("Descripción");
         when(event.getEventDate()).thenReturn(LocalDateTime.now().plusMonths(3));
         when(event.getLocation()).thenReturn(location);
-        when(event.getRaceType()).thenReturn(RaceType.MARATHON);
-        when(event.getDistance()).thenReturn(Distance.of(BigDecimal.valueOf(42.195), DistanceUnit.KM));
-        when(event.getPrice()).thenReturn(BigDecimal.valueOf(500));
         when(event.getCoverImageUrl()).thenReturn(null);
         when(event.getCreatedOn()).thenReturn(LocalDateTime.now());
         when(event.getCreatedBy()).thenReturn(organizer);
     }
 
-    // --- canRegister ---
-
     @Test
-    void canRegister_trueWhenOpenStatusAndOpenPeriodAndCapacityAvailable() {
+    void canRegister_trueWhenOpenStatusAndOpenPeriodAndModalityHasSpots() {
         when(event.getStatus()).thenReturn(EventStatus.REGISTRATION_OPEN);
         when(event.getRegistrationPeriod()).thenReturn(openPeriod);
-        var capacity = EventCapacity.reconstitute(eventId, 5, 100);
 
-        EventResponse response = EventResponseMapper.toEventResponse(event, capacity, List.of());
+        EventResponse response = EventResponseMapper.toEventResponse(
+                event, List.of(modalityWith(100, 5)), List.of());
 
         assertThat(response.canRegister()).isTrue();
     }
@@ -75,9 +71,9 @@ class EventResponseMapperTest {
     void canRegister_falseWhenStatusIsNotRegistrationOpen() {
         when(event.getStatus()).thenReturn(EventStatus.PUBLISHED);
         when(event.getRegistrationPeriod()).thenReturn(openPeriod);
-        var capacity = EventCapacity.reconstitute(eventId, 0, 100);
 
-        EventResponse response = EventResponseMapper.toEventResponse(event, capacity, List.of());
+        EventResponse response = EventResponseMapper.toEventResponse(
+                event, List.of(modalityWith(100, 0)), List.of());
 
         assertThat(response.canRegister()).isFalse();
     }
@@ -86,78 +82,61 @@ class EventResponseMapperTest {
     void canRegister_falseWhenRegistrationPeriodIsClosed() {
         when(event.getStatus()).thenReturn(EventStatus.REGISTRATION_OPEN);
         when(event.getRegistrationPeriod()).thenReturn(closedPeriod);
-        var capacity = EventCapacity.reconstitute(eventId, 0, 100);
 
-        EventResponse response = EventResponseMapper.toEventResponse(event, capacity, List.of());
-
-        assertThat(response.canRegister()).isFalse();
-    }
-
-    @Test
-    void canRegister_falseWhenCapacityIsFull() {
-        when(event.getStatus()).thenReturn(EventStatus.REGISTRATION_OPEN);
-        when(event.getRegistrationPeriod()).thenReturn(openPeriod);
-        var capacity = EventCapacity.reconstitute(eventId, 100, 100); // full
-
-        EventResponse response = EventResponseMapper.toEventResponse(event, capacity, List.of());
+        EventResponse response = EventResponseMapper.toEventResponse(
+                event, List.of(modalityWith(100, 0)), List.of());
 
         assertThat(response.canRegister()).isFalse();
     }
 
     @Test
-    void canRegister_trueWhenUnlimitedCapacity() {
+    void canRegister_falseWhenAllModalitiesFull() {
         when(event.getStatus()).thenReturn(EventStatus.REGISTRATION_OPEN);
         when(event.getRegistrationPeriod()).thenReturn(openPeriod);
-        var capacity = EventCapacity.reconstitute(eventId, 999, null); // unlimited
 
-        EventResponse response = EventResponseMapper.toEventResponse(event, capacity, List.of());
+        EventResponse response = EventResponseMapper.toEventResponse(
+                event, List.of(modalityWith(100, 100)), List.of());
+
+        assertThat(response.canRegister()).isFalse();
+    }
+
+    @Test
+    void canRegister_trueWhenAtLeastOneModalityHasSpots() {
+        when(event.getStatus()).thenReturn(EventStatus.REGISTRATION_OPEN);
+        when(event.getRegistrationPeriod()).thenReturn(openPeriod);
+
+        List<EventModality> modalities = List.of(modalityWith(50, 50), modalityWith(200, 100));
+
+        EventResponse response = EventResponseMapper.toEventResponse(event, modalities, List.of());
 
         assertThat(response.canRegister()).isTrue();
     }
 
-    // --- Capacity fields come from EventCapacity, not Event ---
-
     @Test
-    void registeredParticipants_comesFromCapacityReserved() {
+    void response_includesAllModalities() {
         when(event.getStatus()).thenReturn(EventStatus.DRAFT);
         when(event.getRegistrationPeriod()).thenReturn(openPeriod);
-        var capacity = EventCapacity.reconstitute(eventId, 42, 100);
 
-        EventResponse response = EventResponseMapper.toEventResponse(event, capacity, List.of());
+        List<EventModality> modalities = List.of(modalityWith(100, 10), modalityWith(200, 50));
 
-        assertThat(response.registeredParticipants()).isEqualTo(42);
+        EventResponse response = EventResponseMapper.toEventResponse(event, modalities, List.of());
+
+        assertThat(response.modalities()).hasSize(2);
     }
 
     @Test
-    void registrationsAvailable_comesFromCapacityGetAvailable() {
-        when(event.getStatus()).thenReturn(EventStatus.DRAFT);
+    void summaryResponse_computesMinPriceAndTotalAvailableSpots() {
+        when(event.getStatus()).thenReturn(EventStatus.REGISTRATION_OPEN);
         when(event.getRegistrationPeriod()).thenReturn(openPeriod);
-        var capacity = EventCapacity.reconstitute(eventId, 30, 100);
 
-        EventResponse response = EventResponseMapper.toEventResponse(event, capacity, List.of());
+        EventModality cheap = EventModality.reconstitute(UUID.randomUUID(), eventId, "5K",
+                new BigDecimal("5"), DistanceUnit.KM, new BigDecimal("100"), 300, 50);
+        EventModality expensive = EventModality.reconstitute(UUID.randomUUID(), eventId, "21K",
+                new BigDecimal("21.097"), DistanceUnit.KM, new BigDecimal("350"), 200, 30);
 
-        assertThat(response.registrationsAvailable()).isEqualTo(70);
-    }
+        EventSummaryResponse summary = EventResponseMapper.toEventSummaryResponse(event, List.of(cheap, expensive));
 
-    @Test
-    void maxParticipants_comesFromCapacityMaxCapacity() {
-        when(event.getStatus()).thenReturn(EventStatus.DRAFT);
-        when(event.getRegistrationPeriod()).thenReturn(openPeriod);
-        var capacity = EventCapacity.reconstitute(eventId, 0, 500);
-
-        EventResponse response = EventResponseMapper.toEventResponse(event, capacity, List.of());
-
-        assertThat(response.maxParticipants()).isEqualTo(500);
-    }
-
-    @Test
-    void maxParticipants_isNullWhenUnlimited() {
-        when(event.getStatus()).thenReturn(EventStatus.DRAFT);
-        when(event.getRegistrationPeriod()).thenReturn(openPeriod);
-        var capacity = EventCapacity.create(eventId, null);
-
-        EventResponse response = EventResponseMapper.toEventResponse(event, capacity, List.of());
-
-        assertThat(response.maxParticipants()).isNull();
+        assertThat(summary.minPrice()).isEqualByComparingTo(new BigDecimal("100"));
+        assertThat(summary.totalAvailableSpots()).isEqualTo(250 + 170);
     }
 }

@@ -1,16 +1,8 @@
 package com.accesosport.event.application.dto;
 
-import com.accesosport.event.domain.model.DistanceUnit;
-import com.accesosport.event.domain.model.RaceType;
 import com.accesosport.shared.domain.i18n.MessageKeys;
+import jakarta.validation.constraints.*;
 
-import jakarta.validation.constraints.DecimalMax;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.Size;
-
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public record UpdateEventRequest(
@@ -36,25 +28,11 @@ public record UpdateEventRequest(
         @DecimalMax(value = "180", message = MessageKeys.Events.EVENT_VALIDATION_LONGITUDE_INVALID)
         Double longitude,
 
-        RaceType raceType,
-
-        @DecimalMin(value = "0.01", message = MessageKeys.Events.EVENT_VALIDATION_DISTANCE_POSITIVE)
-        @DecimalMax(value = "300", message = MessageKeys.Events.EVENT_VALIDATION_DISTANCE_MAX)
-        BigDecimal distance,
-
-        DistanceUnit distanceUnit,
-
-        @DecimalMin(value = "0.0", message = MessageKeys.Events.EVENT_VALIDATION_PRICE_POSITIVE)
-        BigDecimal price,
-
         @Future(message = MessageKeys.Events.EVENT_VALIDATION_REGISTRATION_START_FUTURE)
         LocalDateTime registrationStartDate,
 
         @Future(message = MessageKeys.Events.EVENT_VALIDATION_REGISTRATION_END_FUTURE)
-        LocalDateTime registrationEndDate,
-
-        @Min(value = 1, message = MessageKeys.Events.EVENT_VALIDATION_MAX_PARTICIPANTS_POSITIVE)
-        Integer maxParticipants
+        LocalDateTime registrationEndDate
 
 ) {
     public UpdateEventRequest {
@@ -64,7 +42,6 @@ public record UpdateEventRequest(
                         MessageKeys.Events.EVENT_VALIDATION_REGISTRATION_END_AFTER_START);
             }
         }
-
         if (eventDate != null && registrationEndDate != null) {
             if (registrationEndDate.isAfter(eventDate)) {
                 throw new IllegalArgumentException(

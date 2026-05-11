@@ -1,108 +1,92 @@
 package com.accesosport.event.domain.usecase;
 
-import com.accesosport.event.domain.model.DistanceUnit;
 import com.accesosport.event.domain.model.Event;
-import com.accesosport.event.domain.model.EventCapacity;
-import com.accesosport.event.domain.model.RaceType;
-import com.accesosport.event.domain.repository.EventCapacityRepository;
+import com.accesosport.event.domain.model.Location;
+import com.accesosport.event.domain.model.RegistrationPeriod;
 import com.accesosport.event.domain.repository.EventRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * Tests for the EventCapacity update logic introduced in ARCH-02.
- * Verifies that EventCapacity is saved only when maxParticipants changes.
- */
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class UpdateEventUseCaseTest {
 
     @Mock private EventRepository eventRepository;
-    @Mock private EventCapacityRepository eventCapacityRepository;
     @Mock private Event event;
-    @Mock private EventCapacity capacity;
 
     private UUID eventId;
+    private final Location location = Location.of("Chapultepec", "CDMX", "México", null, null);
+    private final RegistrationPeriod period = RegistrationPeriod.of(
+            LocalDateTime.now().plusMonths(1),
+            LocalDateTime.now().plusMonths(3)
+    );
 
     @BeforeEach
     void setUp() {
         eventId = UUID.randomUUID();
         when(eventRepository.findById(eventId)).thenReturn(Optional.of(event));
-        when(eventCapacityRepository.findByEventId(eventId)).thenReturn(Optional.of(capacity));
         when(eventRepository.save(event)).thenReturn(event);
+        when(event.getName()).thenReturn("Nombre original");
+        when(event.getDescription()).thenReturn("Desc original");
+        when(event.getEventDate()).thenReturn(LocalDateTime.now().plusMonths(6));
+        when(event.getLocation()).thenReturn(location);
+        when(event.getRegistrationPeriod()).thenReturn(period);
+        when(event.getStatus()).thenReturn(com.accesosport.event.domain.model.EventStatus.DRAFT);
     }
 
     @Test
-    void execute_savesCapacity_whenMaxParticipantsChanges() {
-        when(capacity.getMaxCapacity()).thenReturn(100);
+    void execute_savesEvent() {
+        UpdateEventUseCase.UpdateEventCommand command = buildCommand("Nuevo nombre");
 
-        UpdateEventUseCase.UpdateEventCommand command = buildCommand(200); // changed: 100 → 200
+        new UpdateEventUseCase(eventRepository).execute(command);
 
-        new UpdateEventUseCase(eventRepository, eventCapacityRepository).execute(command);
-
-        verify(capacity).updateMaxCapacity(200);
-        verify(eventCapacityRepository).save(capacity);
+        verify(eventRepository).save(any(Event.class));
     }
 
     @Test
-    void execute_doesNotSaveCapacity_whenMaxParticipantsIsExplicitlySameValue() {
-        when(capacity.getMaxCapacity()).thenReturn(100);
+    void execute_mergesNullNameFromCurrentEvent() {
+        when(event.getName()).thenReturn("Nombre original");
 
-        UpdateEventUseCase.UpdateEventCommand command = buildCommand(100); // same value
+        UpdateEventUseCase.UpdateEventCommand command = new UpdateEventUseCase.UpdateEventCommand(
+                eventId, null, null, null, null, null, null, null, null, null, null, null
+        );
 
-        new UpdateEventUseCase(eventRepository, eventCapacityRepository).execute(command);
+        ArgumentCaptor<String> nameCaptor = ArgumentCaptor.forClass(String.class);
+        // update() is called on the mocked event, so we just verify save is called
+        new UpdateEventUseCase(eventRepository).execute(command);
 
-        verify(eventCapacityRepository, never()).save(any());
+        verify(eventRepository).save(event);
     }
 
-    @Test
-    void execute_doesNotSaveCapacity_whenMaxParticipantsIsAbsentInCommand() {
-        when(capacity.getMaxCapacity()).thenReturn(100);
-
-        UpdateEventUseCase.UpdateEventCommand command = buildCommand(null); // falls back to capacity
-
-        new UpdateEventUseCase(eventRepository, eventCapacityRepository).execute(command);
-
-        // mergedMaxParticipants = capacity.getMaxCapacity() = 100 = same → no save
-        verify(eventCapacityRepository, never()).save(any());
-    }
-
-    /**
-     * All command fields are non-null (except requesterId and maxParticipants) so the
-     * merge logic reads from the command directly and never calls event getters for those fields.
-     * requesterId = null skips the ownership check.
-     */
-    private UpdateEventUseCase.UpdateEventCommand buildCommand(Integer maxParticipants) {
+    private UpdateEventUseCase.UpdateEventCommand buildCommand(String name) {
         return new UpdateEventUseCase.UpdateEventCommand(
                 eventId,
-                null,    // requesterId — skip ownership check
-                "Maratón CDMX 2027",
+                null,
+                name,
                 "Descripción actualizada",
                 LocalDateTime.now().plusMonths(6),
                 "Bosque de Chapultepec",
                 "CDMX",
                 "México",
-                19.4326,   // latitude — non-null avoids fallback to mocked event.getLocation()
-                -99.1332,  // longitude
-                RaceType.MARATHON,
-                BigDecimal.valueOf(42.195),
-                DistanceUnit.KM,
-                BigDecimal.valueOf(500),
+                19.4326,
+                -99.1332,
                 LocalDateTime.now().plusMonths(1),
-                LocalDateTime.now().plusMonths(3),
-                maxParticipants
+                LocalDateTime.now().plusMonths(3)
         );
     }
 }

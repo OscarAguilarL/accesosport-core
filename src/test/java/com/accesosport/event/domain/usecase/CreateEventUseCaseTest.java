@@ -2,9 +2,8 @@ package com.accesosport.event.domain.usecase;
 
 import com.accesosport.event.domain.model.DistanceUnit;
 import com.accesosport.event.domain.model.Event;
-import com.accesosport.event.domain.model.EventCapacity;
-import com.accesosport.event.domain.model.RaceType;
-import com.accesosport.event.domain.repository.EventCapacityRepository;
+import com.accesosport.event.domain.model.EventModality;
+import com.accesosport.event.domain.repository.EventModalityRepository;
 import com.accesosport.event.domain.repository.EventRepository;
 import com.accesosport.user.domain.model.RoleEnumeration;
 import com.accesosport.user.domain.model.User;
@@ -18,11 +17,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -31,7 +32,7 @@ class CreateEventUseCaseTest {
 
     @Mock private EventRepository eventRepository;
     @Mock private UserRepository userRepository;
-    @Mock private EventCapacityRepository eventCapacityRepository;
+    @Mock private EventModalityRepository eventModalityRepository;
     @Mock private User organizer;
 
     private UUID organizerId;
@@ -42,41 +43,43 @@ class CreateEventUseCaseTest {
         when(organizer.hasRole(RoleEnumeration.ROLE_ORGANIZER)).thenReturn(true);
         when(userRepository.findById(organizerId)).thenReturn(Optional.of(organizer));
         when(eventRepository.save(any(Event.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(eventModalityRepository.save(any(EventModality.class))).thenAnswer(inv -> inv.getArgument(0));
     }
 
     @Test
-    void execute_createsEventCapacity_withCorrectEventIdAndMaxParticipants() {
-        CreateEventUseCase.CreateEventCommand command = buildCommand(100);
+    void execute_savesEventAndModalities() {
+        CreateEventUseCase.CreateEventCommand command = buildCommand(List.of(
+                new CreateEventUseCase.ModalityData("10K", BigDecimal.TEN, DistanceUnit.KM, new BigDecimal("150"), 300),
+                new CreateEventUseCase.ModalityData("21K", new BigDecimal("21.097"), DistanceUnit.KM, new BigDecimal("350"), 200)
+        ));
 
-        new CreateEventUseCase(eventRepository, userRepository, eventCapacityRepository).execute(command);
+        CreateEventUseCase.CreateEventResult result =
+                new CreateEventUseCase(eventRepository, userRepository, eventModalityRepository).execute(command);
+
+        verify(eventRepository).save(any(Event.class));
+        verify(eventModalityRepository, times(2)).save(any(EventModality.class));
+        assertThat(result.modalities()).hasSize(2);
+    }
+
+    @Test
+    void execute_modalitiesAreLinkedToSavedEvent() {
+        CreateEventUseCase.CreateEventCommand command = buildCommand(List.of(
+                new CreateEventUseCase.ModalityData("5K", new BigDecimal("5"), DistanceUnit.KM, BigDecimal.ZERO, 500)
+        ));
 
         ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
+        ArgumentCaptor<EventModality> modalityCaptor = ArgumentCaptor.forClass(EventModality.class);
+
+        new CreateEventUseCase(eventRepository, userRepository, eventModalityRepository).execute(command);
+
         verify(eventRepository).save(eventCaptor.capture());
-        UUID savedEventId = eventCaptor.getValue().getId();
+        verify(eventModalityRepository).save(modalityCaptor.capture());
 
-        ArgumentCaptor<EventCapacity> capacityCaptor = ArgumentCaptor.forClass(EventCapacity.class);
-        verify(eventCapacityRepository).save(capacityCaptor.capture());
-        EventCapacity savedCapacity = capacityCaptor.getValue();
-
-        assertThat(savedCapacity.getEventId()).isEqualTo(savedEventId);
-        assertThat(savedCapacity.getMaxCapacity()).isEqualTo(100);
-        assertThat(savedCapacity.getReserved()).isZero();
+        assertThat(modalityCaptor.getValue().getEventId())
+                .isEqualTo(eventCaptor.getValue().getId());
     }
 
-    @Test
-    void execute_createsEventCapacity_withNullMaxCapacity_whenCommandHasNoLimit() {
-        CreateEventUseCase.CreateEventCommand command = buildCommand(null);
-
-        new CreateEventUseCase(eventRepository, userRepository, eventCapacityRepository).execute(command);
-
-        ArgumentCaptor<EventCapacity> capacityCaptor = ArgumentCaptor.forClass(EventCapacity.class);
-        verify(eventCapacityRepository).save(capacityCaptor.capture());
-
-        assertThat(capacityCaptor.getValue().getMaxCapacity()).isNull();
-        assertThat(capacityCaptor.getValue().getReserved()).isZero();
-    }
-
-    private CreateEventUseCase.CreateEventCommand buildCommand(Integer maxParticipants) {
+    private CreateEventUseCase.CreateEventCommand buildCommand(List<CreateEventUseCase.ModalityData> modalities) {
         return new CreateEventUseCase.CreateEventCommand(
                 "Maratón CDMX 2027",
                 "Carrera de montaña por la ciudad",
@@ -86,13 +89,9 @@ class CreateEventUseCaseTest {
                 "México",
                 null,
                 null,
-                RaceType.MARATHON,
-                BigDecimal.valueOf(42.195),
-                DistanceUnit.KM,
-                BigDecimal.valueOf(500),
                 LocalDateTime.now().plusMonths(1),
                 LocalDateTime.now().plusMonths(3),
-                maxParticipants,
+                modalities,
                 organizerId
         );
     }

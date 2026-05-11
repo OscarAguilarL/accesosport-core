@@ -2,6 +2,7 @@ package com.accesosport.registration.presentation.rest;
 
 import com.accesosport.auth.infrastructure.security.CustomUserDetails;
 import com.accesosport.registration.application.dto.ParticipantInEventResponse;
+import com.accesosport.registration.application.dto.RegisterParticipantRequest;
 import com.accesosport.registration.application.dto.RegistrationResponse;
 import com.accesosport.registration.application.service.RegistrationApplicationService;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -39,10 +41,12 @@ public class RegistrationController {
     @PreAuthorize("hasAuthority('ROLE_PARTICIPANT')")
     public ResponseEntity<RegistrationResponse> registerParticipant(
             @PathVariable UUID eventId,
+            @RequestBody(required = false) RegisterParticipantRequest body,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         UUID participantId = userDetails.getUserId();
-        RegistrationResponse response = registrationApplicationService.registerParticipant(eventId, participantId);
+        UUID modalityId = body != null ? body.modalityId() : null;
+        RegistrationResponse response = registrationApplicationService.registerParticipant(eventId, participantId, modalityId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

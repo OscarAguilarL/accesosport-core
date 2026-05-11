@@ -1,9 +1,9 @@
 package com.accesosport.registration.application.usecase;
 
 import com.accesosport.event.domain.model.Event;
-import com.accesosport.event.domain.model.EventStatus;
+import com.accesosport.event.domain.model.EventModality;
+import com.accesosport.event.domain.repository.EventModalityRepository;
 import com.accesosport.event.domain.repository.EventRepository;
-import com.accesosport.event.domain.repository.EventCapacityRepository;
 import com.accesosport.registration.application.dto.RegisterParticipantCommand;
 import com.accesosport.registration.application.dto.RegistrationResponse;
 import com.accesosport.registration.domain.events.RegistrationConfirmedEvent;
@@ -18,40 +18,49 @@ import com.accesosport.shared.domain.usecase.UseCase;
 import lombok.AllArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.UUID;
 
 @AllArgsConstructor
 public class RegisterParticipantUseCase extends UseCase<RegisterParticipantCommand, RegistrationResponse> {
 
     private final RegistrationRepository registrationRepository;
     private final EventRepository eventRepository;
-    private final EventCapacityRepository eventCapacityRepository;
     private final DomainEventPublisher domainEventPublisher;
+    private final EventModalityRepository eventModalityRepository;
 
     @Override
     protected RegistrationResponse internalExecute(RegisterParticipantCommand command) {
-        // 1. Verificar duplicado (falla rápido)
         if (registrationRepository.existsByEventIdAndParticipantId(command.eventId(), command.participantId())) {
             throw new DuplicateRegistrationException(command.eventId(), command.participantId());
         }
 
-        // 2. Fetch event once — used both for status check and price check
         Event event = eventRepository.findById(command.eventId())
                 .orElseThrow(() -> new RegistrationNotOpenException(command.eventId()));
 
-        // 3. Reservar cupo atómicamente
-        int reserved = eventCapacityRepository.reserveIfAvailable(command.eventId());
+        if (command.modalityId() == null) {
+            throw new IllegalArgumentException("Este evento requiere seleccionar una modalidad");
+        }
+
+        List<EventModality> modalities = eventModalityRepository.findByEventId(command.eventId());
+        EventModality modality = modalities.stream()
+                .filter(m -> m.getId().equals(command.modalityId()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Modalidad no encontrada para este evento"));
+
+        int reserved = eventModalityRepository.reserveIfAvailable(modality.getId());
         if (reserved == 0) {
-            if (event.getStatus() != EventStatus.REGISTRATION_OPEN) {
+            if (!event.getStatus().acceptsRegistrations()) {
                 throw new RegistrationNotOpenException(command.eventId());
             }
             throw new NoCapacityException(command.eventId());
         }
 
+        BigDecimal price = modality.getPrice();
         Registration registration;
 
-        if (event.getPrice().compareTo(BigDecimal.ZERO) == 0) {
-            // GRATUITO: confirmar directamente
-            registration = Registration.create(command.eventId(), command.participantId(), RegistrationStatus.CONFIRMED);
+        if (price.compareTo(BigDecimal.ZERO) == 0) {
+            registration = Registration.create(command.eventId(), command.participantId(), modality.getId(), RegistrationStatus.CONFIRMED);
             registrationRepository.save(registration);
             domainEventPublisher.publish(new RegistrationConfirmedEvent(
                     registration.getId(),
@@ -61,8 +70,7 @@ public class RegisterParticipantUseCase extends UseCase<RegisterParticipantComma
                     null
             ));
         } else {
-            // PAGO: crear en PENDING_PAYMENT
-            registration = Registration.create(command.eventId(), command.participantId(), RegistrationStatus.PENDING_PAYMENT);
+            registration = Registration.create(command.eventId(), command.participantId(), modality.getId(), RegistrationStatus.PENDING_PAYMENT);
             registrationRepository.save(registration);
         }
 

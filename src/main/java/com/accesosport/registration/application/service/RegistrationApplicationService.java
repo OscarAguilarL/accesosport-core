@@ -1,6 +1,6 @@
 package com.accesosport.registration.application.service;
 
-import com.accesosport.event.domain.repository.EventCapacityRepository;
+import com.accesosport.event.domain.repository.EventModalityRepository;
 import com.accesosport.event.domain.repository.EventRepository;
 import com.accesosport.registration.application.dto.CancelRegistrationCommand;
 import com.accesosport.registration.application.dto.GetEventRegistrationsCommand;
@@ -35,24 +35,24 @@ public class RegistrationApplicationService {
 
     private final RegistrationRepository registrationRepository;
     private final EventRepository eventRepository;
-    private final EventCapacityRepository eventCapacityRepository;
+    private final EventModalityRepository eventModalityRepository;
     private final DomainEventPublisher domainEventPublisher;
     private final ParticipantProfileRepository participantProfileRepository;
     private final UserRepository userRepository;
     private final TicketPdfGenerator ticketPdfGenerator;
 
     @Transactional
-    public RegistrationResponse registerParticipant(UUID eventId, UUID participantId) {
+    public RegistrationResponse registerParticipant(UUID eventId, UUID participantId, UUID modalityId) {
         RegisterParticipantUseCase useCase = new RegisterParticipantUseCase(
-                registrationRepository, eventRepository, eventCapacityRepository, domainEventPublisher
+                registrationRepository, eventRepository, domainEventPublisher, eventModalityRepository
         );
-        return useCase.execute(new RegisterParticipantCommand(eventId, participantId));
+        return useCase.execute(new RegisterParticipantCommand(eventId, participantId, modalityId));
     }
 
     @Transactional
     public RegistrationResponse cancelRegistration(UUID registrationId, UUID requesterId, boolean isAdmin) {
         CancelRegistrationUseCase useCase = new CancelRegistrationUseCase(
-                registrationRepository, eventCapacityRepository, domainEventPublisher
+                registrationRepository, eventModalityRepository, domainEventPublisher
         );
         return useCase.execute(new CancelRegistrationCommand(registrationId, requesterId, isAdmin));
     }
@@ -92,7 +92,7 @@ public class RegistrationApplicationService {
     @Transactional(readOnly = true)
     public byte[] generateTicketPdf(UUID registrationId, UUID requesterId) {
         GenerateTicketPdfUseCase useCase = new GenerateTicketPdfUseCase(
-                registrationRepository, eventRepository, userRepository, ticketPdfGenerator
+                registrationRepository, eventRepository, userRepository, eventModalityRepository, ticketPdfGenerator
         );
         return useCase.execute(new GenerateTicketPdfUseCase.Command(registrationId, requesterId));
     }

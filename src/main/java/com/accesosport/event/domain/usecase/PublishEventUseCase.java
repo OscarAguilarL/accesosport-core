@@ -3,21 +3,18 @@ package com.accesosport.event.domain.usecase;
 import com.accesosport.event.domain.exception.EventAccessDeniedException;
 import com.accesosport.event.domain.exception.EventNotFoundException;
 import com.accesosport.event.domain.model.Event;
+import com.accesosport.event.domain.repository.EventModalityRepository;
 import com.accesosport.event.domain.repository.EventRepository;
-
 import com.accesosport.shared.domain.usecase.UseCase;
 import lombok.AllArgsConstructor;
 
 import java.util.UUID;
 
-/**
- * PublishEventUseCase handles the publishing of events,
- * ensuring that necessary business rules and validations are applied during the process.
- */
 @AllArgsConstructor
 public class PublishEventUseCase extends UseCase<PublishEventUseCase.PublishEventCommand, PublishEventUseCase.PublishEventResult> {
 
     private final EventRepository eventRepository;
+    private final EventModalityRepository eventModalityRepository;
 
     @Override
     protected PublishEventResult internalExecute(PublishEventCommand command) {
@@ -28,27 +25,16 @@ public class PublishEventUseCase extends UseCase<PublishEventUseCase.PublishEven
             throw new EventAccessDeniedException();
         }
 
+        if (eventModalityRepository.findByEventId(command.eventId()).isEmpty()) {
+            throw new IllegalStateException("El evento debe tener al menos una modalidad antes de publicarse");
+        }
+
         event.publish();
 
-        Event publishedEvent = eventRepository.save(event);
-
-        return new PublishEventResult(publishedEvent);
+        return new PublishEventResult(eventRepository.save(event));
     }
 
-    /**
-     * Represents a command to publish an event, encapsulating the event identifier.
-     *
-     * @param eventId Event identifier to be published
-     */
-    public record PublishEventCommand(UUID eventId, UUID requesterId) {
-    }
+    public record PublishEventCommand(UUID eventId, UUID requesterId) {}
 
-    /**
-     * Represents the result of publishing an event.
-     *
-     * @param event Published event entity
-     */
-    public record PublishEventResult(Event event) {
-
-    }
+    public record PublishEventResult(Event event) {}
 }

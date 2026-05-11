@@ -1,21 +1,15 @@
 package com.accesosport.event.infrastructure.persistence.entity;
 
-import com.accesosport.event.domain.model.DistanceUnit;
 import com.accesosport.event.domain.model.EventStatus;
-import com.accesosport.event.domain.model.RaceType;
 import com.accesosport.user.infrastructure.persistence.entity.UserJpaEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-/**
- * Represents a JPA entity for storing information about an event.
- */
 @Entity
 @Table(name = "events")
 @Data
@@ -34,7 +28,7 @@ public class EventJpaEntity {
     @Column(nullable = false, length = 200)
     private String name;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     @Column(name = "event_date", nullable = false)
@@ -42,20 +36,6 @@ public class EventJpaEntity {
 
     @Embedded
     private LocationEmbeddable location;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "race_type", nullable = false, length = 30)
-    private RaceType raceType;
-
-    @Column(nullable = false, precision = 10, scale = 3)
-    private BigDecimal distance;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "distance_unit", nullable = false, length = 15)
-    private DistanceUnit distanceUnit;
-
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal price;
 
     @Column(name = "registration_start", nullable = false)
     private LocalDateTime registrationStart;
@@ -91,7 +71,6 @@ public class EventJpaEntity {
         if (this.createdOn == null) {
             this.createdOn = LocalDateTime.now();
         }
-
         if (this.updatedOn == null) {
             this.updatedOn = LocalDateTime.now();
         }

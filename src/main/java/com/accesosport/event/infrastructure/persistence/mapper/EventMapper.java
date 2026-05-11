@@ -1,6 +1,5 @@
 package com.accesosport.event.infrastructure.persistence.mapper;
 
-import com.accesosport.event.domain.model.Distance;
 import com.accesosport.event.domain.model.Event;
 import com.accesosport.event.domain.model.Location;
 import com.accesosport.event.domain.model.RegistrationPeriod;
@@ -13,36 +12,31 @@ import java.math.BigDecimal;
 
 public class EventMapper {
 
-    public static Event toDomain(EventJpaEntity eventJpaEntity) {
-        if (eventJpaEntity == null) return null;
+    public static Event toDomain(EventJpaEntity entity) {
+        if (entity == null) return null;
 
-        Location location = mapLocation(eventJpaEntity.getLocation());
-        Distance distance = Distance.of(eventJpaEntity.getDistance(), eventJpaEntity.getDistanceUnit());
+        Location location = mapLocation(entity.getLocation());
         RegistrationPeriod registrationPeriod = RegistrationPeriod.of(
-                eventJpaEntity.getRegistrationStart(),
-                eventJpaEntity.getRegistrationEnd()
+                entity.getRegistrationStart(),
+                entity.getRegistrationEnd()
         );
-
-        User organizer = UserMapper.toDomain(eventJpaEntity.getCreatedBy());
+        User organizer = UserMapper.toDomain(entity.getCreatedBy());
 
         return Event.reconstitute(
-                eventJpaEntity.getId(),
-                eventJpaEntity.getVersion(),
-                eventJpaEntity.getName(),
-                eventJpaEntity.getDescription(),
-                eventJpaEntity.getEventDate(),
+                entity.getId(),
+                entity.getVersion(),
+                entity.getName(),
+                entity.getDescription(),
+                entity.getEventDate(),
                 location,
-                eventJpaEntity.getRaceType(),
-                distance,
-                eventJpaEntity.getPrice(),
                 registrationPeriod,
-                eventJpaEntity.getStatus(),
+                entity.getStatus(),
                 organizer,
-                eventJpaEntity.getCreatedOn(),
-                eventJpaEntity.getUpdatedOn(),
-                eventJpaEntity.getCoverImageUrl(),
-                eventJpaEntity.getCoverImagePublicId(),
-                eventJpaEntity.getReminderSentAt()
+                entity.getCreatedOn(),
+                entity.getUpdatedOn(),
+                entity.getCoverImageUrl(),
+                entity.getCoverImagePublicId(),
+                entity.getReminderSentAt()
         );
     }
 
@@ -56,10 +50,6 @@ public class EventMapper {
         entity.setDescription(domain.getDescription());
         entity.setEventDate(domain.getEventDate());
         entity.setLocation(mapLocationEmbeddable(domain.getLocation()));
-        entity.setRaceType(domain.getRaceType());
-        entity.setDistance(domain.getDistance().value());
-        entity.setDistanceUnit(domain.getDistance().unit());
-        entity.setPrice(domain.getPrice());
         entity.setRegistrationStart(domain.getRegistrationPeriod().start());
         entity.setRegistrationEnd(domain.getRegistrationPeriod().end());
         entity.setStatus(domain.getStatus());
@@ -73,20 +63,19 @@ public class EventMapper {
         return entity;
     }
 
-    private static Location mapLocation(LocationEmbeddable locationEmbeddable) {
-        if (locationEmbeddable == null) return null;
+    private static Location mapLocation(LocationEmbeddable loc) {
+        if (loc == null) return null;
         return Location.of(
-                locationEmbeddable.getPlace(),
-                locationEmbeddable.getCity(),
-                locationEmbeddable.getCountry(),
-                locationEmbeddable.getLatitude() != null ? locationEmbeddable.getLatitude().doubleValue() : null,
-                locationEmbeddable.getLongitude() != null ? locationEmbeddable.getLongitude().doubleValue() : null
+                loc.getPlace(),
+                loc.getCity(),
+                loc.getCountry(),
+                loc.getLatitude() != null ? loc.getLatitude().doubleValue() : null,
+                loc.getLongitude() != null ? loc.getLongitude().doubleValue() : null
         );
     }
 
     private static LocationEmbeddable mapLocationEmbeddable(Location location) {
         if (location == null) return null;
-
         return new LocationEmbeddable(
                 location.place(),
                 location.city(),

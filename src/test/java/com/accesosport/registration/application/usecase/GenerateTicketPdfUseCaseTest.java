@@ -1,9 +1,8 @@
 package com.accesosport.registration.application.usecase;
 
-import com.accesosport.event.domain.model.Distance;
-import com.accesosport.event.domain.model.DistanceUnit;
 import com.accesosport.event.domain.model.Event;
 import com.accesosport.event.domain.model.Location;
+import com.accesosport.event.domain.repository.EventModalityRepository;
 import com.accesosport.event.domain.repository.EventRepository;
 import com.accesosport.registration.application.service.TicketPdfGenerator;
 import com.accesosport.registration.domain.exception.RegistrationAccessDeniedException;
@@ -41,6 +40,7 @@ class GenerateTicketPdfUseCaseTest {
     @Mock private RegistrationRepository registrationRepository;
     @Mock private EventRepository eventRepository;
     @Mock private UserRepository userRepository;
+    @Mock private EventModalityRepository eventModalityRepository;
     @Mock private TicketPdfGenerator ticketPdfGenerator;
     @Mock private Event event;
     @Mock private Location location;
@@ -53,7 +53,7 @@ class GenerateTicketPdfUseCaseTest {
     @BeforeEach
     void setUp() throws IOException {
         useCase = new GenerateTicketPdfUseCase(
-                registrationRepository, eventRepository, userRepository, ticketPdfGenerator);
+                registrationRepository, eventRepository, userRepository, eventModalityRepository, ticketPdfGenerator);
         registrationId = UUID.randomUUID();
         participantId = UUID.randomUUID();
         eventId = UUID.randomUUID();
@@ -62,7 +62,6 @@ class GenerateTicketPdfUseCaseTest {
         when(event.getName()).thenReturn("Maratón CDMX 2026");
         when(event.getEventDate()).thenReturn(LocalDateTime.of(2026, 6, 15, 8, 0));
         when(event.getLocation()).thenReturn(location);
-        when(event.getDistance()).thenReturn(Distance.of(BigDecimal.valueOf(42.195), DistanceUnit.KM));
         when(location.place()).thenReturn("Av. Reforma, CDMX");
         when(eventRepository.findById(eventId)).thenReturn(Optional.of(event));
 
@@ -76,7 +75,7 @@ class GenerateTicketPdfUseCaseTest {
                 .build();
         when(userRepository.findById(participantId)).thenReturn(Optional.of(participant));
 
-        when(ticketPdfGenerator.generate(any(), any(), any())).thenReturn(new byte[]{1, 2, 3});
+        when(ticketPdfGenerator.generate(any(), any(), any(), any())).thenReturn(new byte[]{1, 2, 3});
     }
 
     @Test
@@ -86,7 +85,7 @@ class GenerateTicketPdfUseCaseTest {
         assertThatThrownBy(() -> useCase.execute(new GenerateTicketPdfUseCase.Command(registrationId, participantId)))
                 .isInstanceOf(RegistrationNotFoundException.class);
 
-        verify(ticketPdfGenerator, never()).generate(any(), any(), any());
+        verify(ticketPdfGenerator, never()).generate(any(), any(), any(), any());
     }
 
     @Test
@@ -98,7 +97,7 @@ class GenerateTicketPdfUseCaseTest {
         assertThatThrownBy(() -> useCase.execute(new GenerateTicketPdfUseCase.Command(registrationId, otherId)))
                 .isInstanceOf(RegistrationAccessDeniedException.class);
 
-        verify(ticketPdfGenerator, never()).generate(any(), any(), any());
+        verify(ticketPdfGenerator, never()).generate(any(), any(), any(), any());
     }
 
     @Test
@@ -109,7 +108,7 @@ class GenerateTicketPdfUseCaseTest {
         assertThatThrownBy(() -> useCase.execute(new GenerateTicketPdfUseCase.Command(registrationId, participantId)))
                 .isInstanceOf(RegistrationNotConfirmedException.class);
 
-        verify(ticketPdfGenerator, never()).generate(any(), any(), any());
+        verify(ticketPdfGenerator, never()).generate(any(), any(), any(), any());
     }
 
     @Test
@@ -129,14 +128,14 @@ class GenerateTicketPdfUseCaseTest {
         byte[] result = useCase.execute(new GenerateTicketPdfUseCase.Command(registrationId, participantId));
 
         assertThat(result).isNotNull().isNotEmpty();
-        verify(ticketPdfGenerator).generate(eq(registration), eq(event), any(User.class));
+        verify(ticketPdfGenerator).generate(eq(registration), eq(event), any(User.class), any());
     }
 
     @Test
     void execute_whenPdfGeneratorThrows_shouldWrapInRuntimeException() throws Exception {
         Registration registration = confirmedRegistration();
         when(registrationRepository.findById(registrationId)).thenReturn(Optional.of(registration));
-        when(ticketPdfGenerator.generate(any(), any(), any())).thenThrow(new IOException("PDFBox error"));
+        when(ticketPdfGenerator.generate(any(), any(), any(), any())).thenThrow(new IOException("PDFBox error"));
 
         assertThatThrownBy(() -> useCase.execute(new GenerateTicketPdfUseCase.Command(registrationId, participantId)))
                 .isInstanceOf(RuntimeException.class)
@@ -149,7 +148,7 @@ class GenerateTicketPdfUseCaseTest {
 
     private Registration registrationWithStatus(RegistrationStatus status) {
         return Registration.reconstitute(
-                registrationId, eventId, participantId,
+                registrationId, eventId, participantId, null,
                 status, "ACSP-TEST", 42, null, false, null,
                 LocalDateTime.now(), null);
     }

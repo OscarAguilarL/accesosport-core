@@ -20,6 +20,7 @@ public class RegistrationMapper {
                 entity.getId(),
                 entity.getEventId(),
                 entity.getParticipantId(),
+                entity.getModalityId(),
                 RegistrationStatus.valueOf(entity.getStatus()),
                 entity.getTicketCode(),
                 entity.getBibNumber(),
@@ -38,6 +39,7 @@ public class RegistrationMapper {
         entity.setId(domain.getId());
         entity.setEventId(domain.getEventId());
         entity.setParticipantId(domain.getParticipantId());
+        entity.setModalityId(domain.getModalityId());
         entity.setStatus(domain.getStatus().name());
         entity.setTicketCode(domain.getTicketCode());
         entity.setBibNumber(domain.getBibNumber());

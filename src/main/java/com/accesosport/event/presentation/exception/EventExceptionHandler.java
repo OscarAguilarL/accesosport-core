@@ -6,6 +6,8 @@ import com.accesosport.event.domain.exception.EventNotFoundException;
 import com.accesosport.event.domain.exception.EventNotPublishableException;
 import com.accesosport.event.domain.exception.EventRegistrationClosedException;
 import com.accesosport.event.domain.exception.EventRegistrationFullException;
+import com.accesosport.event.domain.exception.ModalityHasRegistrationsException;
+import com.accesosport.event.domain.exception.ModalityNotFoundException;
 import com.accesosport.shared.domain.i18n.MessageKeys;
 import com.accesosport.shared.domain.i18n.MessageTranslator;
 
@@ -239,6 +241,26 @@ public class EventExceptionHandler {
      * @param ex the {@link IllegalArgumentException} that is thrown when an invalid argument is supplied
      * @return a {@link ProblemDetail} instance containing the error details, including status, title, type, and timestamp
      */
+    @ExceptionHandler(ModalityNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ProblemDetail handleModalityNotFound(ModalityNotFoundException ex) {
+        log.error("Modality not found: {}", ex.getMessage());
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+        pd.setTitle("Modality Not Found");
+        pd.setProperty("timestamp", Instant.now());
+        return pd;
+    }
+
+    @ExceptionHandler(ModalityHasRegistrationsException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ProblemDetail handleModalityHasRegistrations(ModalityHasRegistrationsException ex) {
+        log.error("Modality has registrations: {}", ex.getMessage());
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+        pd.setTitle("Modality Has Registrations");
+        pd.setProperty("timestamp", Instant.now());
+        return pd;
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ProblemDetail handleIllegalArgument(IllegalArgumentException ex) {

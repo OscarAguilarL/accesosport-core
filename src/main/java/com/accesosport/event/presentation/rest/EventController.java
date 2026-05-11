@@ -2,10 +2,13 @@ package com.accesosport.event.presentation.rest;
 
 import com.accesosport.auth.infrastructure.security.CustomUserDetails;
 import com.accesosport.event.application.dto.CreateEventRequest;
+import com.accesosport.event.application.dto.CreateModalityRequest;
 import com.accesosport.event.application.dto.EventResponse;
 import com.accesosport.event.application.dto.EventSummaryResponse;
+import com.accesosport.event.application.dto.ModalityResponse;
 import com.accesosport.event.application.dto.UpdateEventRequest;
 import com.accesosport.event.application.service.EventApplicationService;
+import com.accesosport.event.application.service.EventModalityApplicationService;
 import com.accesosport.event.domain.model.EventStatus;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +44,7 @@ import java.util.UUID;
 public class EventController {
 
     private final EventApplicationService eventApplicationService;
+    private final EventModalityApplicationService eventModalityApplicationService;
 
     /**
      * Creates a new event based on the provided request data.
@@ -200,6 +204,35 @@ public class EventController {
         UUID requesterId = isAdmin(userDetails) ? null : userDetails.getUserId();
         EventResponse eventResponse = eventApplicationService.cancelEvent(eventId, reason, requesterId);
         return ResponseEntity.ok(eventResponse);
+    }
+
+    @PostMapping("/{eventId}/modalities")
+    @PreAuthorize("hasAnyAuthority('ROLE_ORGANIZER', 'ROLE_ADMIN')")
+    public ResponseEntity<ModalityResponse> addModality(
+            @PathVariable UUID eventId,
+            @Valid @RequestBody CreateModalityRequest request,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        UUID requesterId = isAdmin(userDetails) ? null : userDetails.getUserId();
+        ModalityResponse response = eventModalityApplicationService.addModality(eventId, requesterId, isAdmin(userDetails), request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @GetMapping("/{eventId}/modalities")
+    public ResponseEntity<List<ModalityResponse>> listModalities(@PathVariable UUID eventId) {
+        return ResponseEntity.ok(eventModalityApplicationService.listModalities(eventId));
+    }
+
+    @DeleteMapping("/{eventId}/modalities/{modalityId}")
+    @PreAuthorize("hasAnyAuthority('ROLE_ORGANIZER', 'ROLE_ADMIN')")
+    public ResponseEntity<Void> deleteModality(
+            @PathVariable UUID eventId,
+            @PathVariable UUID modalityId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        UUID requesterId = isAdmin(userDetails) ? null : userDetails.getUserId();
+        eventModalityApplicationService.deleteModality(eventId, modalityId, requesterId, isAdmin(userDetails));
+        return ResponseEntity.noContent().build();
     }
 
     private boolean isAdmin(CustomUserDetails userDetails) {

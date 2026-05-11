@@ -9,9 +9,8 @@ public record EventSummaryResponse(
         String name,
         LocalDateTime eventDate,
         String location,
-        String distance,
-        BigDecimal price,
-        Integer registrationsAvailable,
+        BigDecimal minPrice,
+        int totalAvailableSpots,
         String status,
         boolean canRegister
 ) {

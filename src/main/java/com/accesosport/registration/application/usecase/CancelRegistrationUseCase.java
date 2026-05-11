@@ -1,6 +1,6 @@
 package com.accesosport.registration.application.usecase;
 
-import com.accesosport.event.domain.repository.EventCapacityRepository;
+import com.accesosport.event.domain.repository.EventModalityRepository;
 import com.accesosport.registration.application.dto.CancelRegistrationCommand;
 import com.accesosport.registration.application.dto.RegistrationResponse;
 import com.accesosport.registration.domain.events.RegistrationCancelledEvent;
@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CancelRegistrationUseCase extends UseCase<CancelRegistrationCommand, RegistrationResponse> {
 
     private final RegistrationRepository registrationRepository;
-    private final EventCapacityRepository eventCapacityRepository;
+    private final EventModalityRepository eventModalityRepository;
     private final DomainEventPublisher domainEventPublisher;
 
     @Override
@@ -26,16 +26,16 @@ public class CancelRegistrationUseCase extends UseCase<CancelRegistrationCommand
         Registration registration = registrationRepository.findById(command.registrationId())
                 .orElseThrow(() -> new RegistrationNotFoundException(command.registrationId()));
 
-        // Verificar ownership (si no es admin, solo puede cancelar las propias)
         if (!command.isAdmin() && !registration.getParticipantId().equals(command.requesterId())) {
             throw new RegistrationAccessDeniedException(command.registrationId(), command.requesterId());
         }
 
-        registration.cancel(); // lanza IllegalStateException si ya está CANCELLED
+        registration.cancel();
         registrationRepository.save(registration);
 
-        // Liberar cupo
-        eventCapacityRepository.release(registration.getEventId());
+        if (registration.getModalityId() != null) {
+            eventModalityRepository.release(registration.getModalityId());
+        }
 
         domainEventPublisher.publish(new RegistrationCancelledEvent(
                 registration.getId(),
