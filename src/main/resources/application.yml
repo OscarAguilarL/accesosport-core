@@ -37,6 +37,9 @@ spring:
       max-request-size: 5MB
 
 app:
+  checkin:
+    token:
+      valid-hours: ${APP_CHECKIN_TOKEN_VALID_HOURS:12}
   security:
     jwt:
       secret: ${APP_JWT_SECRET}          # Sin default — requerido en todos los entornos

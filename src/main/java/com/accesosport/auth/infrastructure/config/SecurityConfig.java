@@ -1,5 +1,6 @@
 package com.accesosport.auth.infrastructure.config;
 
+import com.accesosport.auth.infrastructure.security.CheckinTokenAuthenticationFilter;
 import com.accesosport.auth.infrastructure.security.CustomUserDetailsService;
 import com.accesosport.auth.infrastructure.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,7 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final CheckinTokenAuthenticationFilter checkinTokenAuthenticationFilter;
     private final CustomUserDetailsService customUserDetailsService;
 
     @Value("${app.cors.allowed-origins:http://localhost:*}")
@@ -53,7 +55,8 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(checkinTokenAuthenticationFilter, JwtAuthenticationFilter.class);
 
         return http.build();
     }

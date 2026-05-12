@@ -1,6 +1,8 @@
 package com.accesosport.registration.presentation.rest;
 
 import com.accesosport.auth.infrastructure.security.CustomUserDetails;
+import com.accesosport.registration.application.dto.CheckinTokenResponse;
+import com.accesosport.registration.application.dto.CheckinTokenValidationResponse;
 import com.accesosport.registration.application.dto.ParticipantInEventResponse;
 import com.accesosport.registration.application.dto.RegisterParticipantRequest;
 import com.accesosport.registration.application.dto.RegistrationResponse;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -82,7 +85,7 @@ public class RegistrationController {
      * @return 200 OK with the list of participant registrations
      */
     @GetMapping("/api/v1/events/{eventId}/registrations")
-    @PreAuthorize("hasAnyAuthority('ROLE_ORGANIZER', 'ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ORGANIZER', 'ROLE_ADMIN', 'ROLE_CHECKIN_AGENT')")
     public ResponseEntity<List<ParticipantInEventResponse>> getEventRegistrations(
             @PathVariable UUID eventId
     ) {
@@ -114,7 +117,7 @@ public class RegistrationController {
      * @return 200 OK with the registration details
      */
     @GetMapping("/api/v1/registrations/{ticketCode}")
-    @PreAuthorize("hasAnyAuthority('ROLE_ORGANIZER', 'ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ORGANIZER', 'ROLE_ADMIN', 'ROLE_CHECKIN_AGENT')")
     public ResponseEntity<ParticipantInEventResponse> getRegistrationByTicketCode(
             @PathVariable String ticketCode
     ) {
@@ -130,7 +133,7 @@ public class RegistrationController {
      * @return 200 OK with the updated registration details
      */
     @PutMapping("/api/v1/registrations/{ticketCode}/kit-pickup")
-    @PreAuthorize("hasAnyAuthority('ROLE_ORGANIZER', 'ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ORGANIZER', 'ROLE_ADMIN', 'ROLE_CHECKIN_AGENT')")
     public ResponseEntity<ParticipantInEventResponse> markKitPickedUp(
             @PathVariable String ticketCode
     ) {
@@ -159,6 +162,25 @@ public class RegistrationController {
                 .header(HttpHeaders.CONTENT_TYPE, "application/pdf")
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"boleto-" + registrationId + ".pdf\"")
                 .body(pdf);
+    }
+
+    @PostMapping("/api/v1/events/{eventId}/checkin-token")
+    @PreAuthorize("hasAnyAuthority('ROLE_ORGANIZER', 'ROLE_ADMIN')")
+    public ResponseEntity<CheckinTokenResponse> generateCheckinToken(
+            @PathVariable UUID eventId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        CheckinTokenResponse response = registrationApplicationService.generateCheckinToken(eventId, userDetails.getUserId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @GetMapping("/api/v1/public/checkin/validate")
+    public ResponseEntity<CheckinTokenValidationResponse> validateCheckinToken(
+            @RequestParam String token,
+            @RequestParam UUID eventId
+    ) {
+        CheckinTokenValidationResponse response = registrationApplicationService.validateCheckinToken(token, eventId);
+        return ResponseEntity.ok(response);
     }
 
     private boolean isAdminOrOrganizer(CustomUserDetails userDetails) {

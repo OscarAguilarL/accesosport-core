@@ -1,8 +1,11 @@
 package com.accesosport.registration.application.service;
 
+import com.accesosport.event.domain.model.Event;
 import com.accesosport.event.domain.repository.EventModalityRepository;
 import com.accesosport.event.domain.repository.EventRepository;
 import com.accesosport.registration.application.dto.CancelRegistrationCommand;
+import com.accesosport.registration.application.dto.CheckinTokenResponse;
+import com.accesosport.registration.application.dto.CheckinTokenValidationResponse;
 import com.accesosport.registration.application.dto.GetEventRegistrationsCommand;
 import com.accesosport.registration.application.dto.GetMyRegistrationsCommand;
 import com.accesosport.registration.application.dto.ParticipantInEventResponse;
@@ -16,7 +19,9 @@ import com.accesosport.registration.application.usecase.GetRegistrationByTicketC
 import com.accesosport.registration.application.usecase.RegisterParticipantUseCase;
 import com.accesosport.registration.application.usecase.ResendTicketEmailUseCase;
 import com.accesosport.registration.domain.exception.RegistrationNotFoundException;
+import com.accesosport.registration.domain.model.CheckinToken;
 import com.accesosport.registration.domain.model.Registration;
+import com.accesosport.registration.domain.repository.CheckinTokenRepository;
 import com.accesosport.registration.domain.repository.RegistrationRepository;
 import com.accesosport.shared.domain.events.DomainEventPublisher;
 import com.accesosport.shared.domain.port.EmailService;
@@ -24,8 +29,11 @@ import com.accesosport.user.domain.repository.ParticipantProfileRepository;
 import com.accesosport.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.UUID;
@@ -43,6 +51,10 @@ public class RegistrationApplicationService {
     private final UserRepository userRepository;
     private final TicketPdfGenerator ticketPdfGenerator;
     private final EmailService emailService;
+    private final CheckinTokenRepository checkinTokenRepository;
+
+    @Value("${app.checkin.token.valid-hours:12}")
+    private int checkinTokenValidHours;
 
     @Transactional
     public RegistrationResponse registerParticipant(UUID eventId, UUID participantId, UUID modalityId, boolean waiverAccepted, boolean wantsShirt) {
@@ -107,5 +119,24 @@ public class RegistrationApplicationService {
                 ticketPdfGenerator, emailService
         );
         useCase.execute(new ResendTicketEmailUseCase.Command(registrationId, requesterId));
+    }
+
+    @Transactional
+    public CheckinTokenResponse generateCheckinToken(UUID eventId, UUID organizerId) {
+        CheckinToken token = CheckinToken.generate(eventId, organizerId, checkinTokenValidHours);
+        CheckinToken saved = checkinTokenRepository.save(token);
+        return new CheckinTokenResponse(saved.getToken(), saved.getEventId(), saved.getExpiresAt());
+    }
+
+    @Transactional(readOnly = true)
+    public CheckinTokenValidationResponse validateCheckinToken(String token, UUID eventId) {
+        return checkinTokenRepository.findByToken(token)
+                .filter(t -> !t.isExpired() && t.getEventId().equals(eventId))
+                .map(t -> {
+                    Event event = eventRepository.findById(t.getEventId())
+                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                    return new CheckinTokenValidationResponse(true, t.getEventId(), event.getName());
+                })
+                .orElse(new CheckinTokenValidationResponse(false, eventId, null));
     }
 }
