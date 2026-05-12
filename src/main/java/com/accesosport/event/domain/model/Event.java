@@ -173,6 +173,14 @@ public class Event {
         this.status = EventStatus.REGISTRATION_OPEN;
         this.updatedOn = LocalDateTime.now();
     }
+    
+    public void openRegistrationManually() {
+    	if (!status.canOpenRegistration()) {
+    		throw new IllegalStateException(MessageKeys.Events.EVENT_REGISTRATION_ONLY_PUBLISHED);
+    	}
+    	this.status = EventStatus.REGISTRATION_OPEN;
+    	this.updatedOn = LocalDateTime.now();
+    }
 
     public void closeRegistration() {
         if (status != EventStatus.REGISTRATION_OPEN) {

@@ -27,7 +27,7 @@ public class OpenRegistrationUseCase extends UseCase<OpenRegistrationUseCase.Ope
             throw new EventAccessDeniedException();
         }
 
-        event.openRegistration();
+        event.openRegistrationManually();
 
         Event savedEvent = eventRepository.save(event);
 
