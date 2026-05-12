@@ -45,11 +45,11 @@ public class RegistrationApplicationService {
     private final EmailService emailService;
 
     @Transactional
-    public RegistrationResponse registerParticipant(UUID eventId, UUID participantId, UUID modalityId, boolean waiverAccepted) {
+    public RegistrationResponse registerParticipant(UUID eventId, UUID participantId, UUID modalityId, boolean waiverAccepted, boolean wantsShirt) {
         RegisterParticipantUseCase useCase = new RegisterParticipantUseCase(
                 registrationRepository, eventRepository, domainEventPublisher, eventModalityRepository, userRepository
         );
-        return useCase.execute(new RegisterParticipantCommand(eventId, participantId, modalityId, waiverAccepted));
+        return useCase.execute(new RegisterParticipantCommand(eventId, participantId, modalityId, waiverAccepted, wantsShirt));
     }
 
     @Transactional

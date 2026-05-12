@@ -67,7 +67,7 @@ class TicketEmailEventHandlerTest {
         registration = Registration.reconstitute(
                 registrationId, eventId, participantId, null,
                 RegistrationStatus.CONFIRMED, "ACSP-TEST", null, null,
-                false, null, null, null, null, null
+                false, null, null, null, null, null, true
         );
 
         when(registrationRepository.findById(registrationId)).thenReturn(Optional.of(registration));

@@ -71,12 +71,15 @@ public class RegisterParticipantUseCase extends UseCase<RegisterParticipantComma
         LocalDateTime waiverAcceptedAt = LocalDateTime.now();
         String waiverText = interpolateWaiver(event, command.participantId(), waiverAcceptedAt);
 
-        BigDecimal price = modality.getPrice();
+        boolean wantsShirt = command.wantsShirt();
+        BigDecimal price = (!wantsShirt && modality.getPriceWithoutShirt() != null)
+                ? modality.getPriceWithoutShirt()
+                : modality.getPrice();
         Registration registration;
 
         if (price.compareTo(BigDecimal.ZERO) == 0) {
             registration = Registration.create(command.eventId(), command.participantId(), modality.getId(),
-                    RegistrationStatus.CONFIRMED, waiverAcceptedAt, waiverText);
+                    RegistrationStatus.CONFIRMED, waiverAcceptedAt, waiverText, wantsShirt);
             registrationRepository.save(registration);
             domainEventPublisher.publish(new RegistrationConfirmedEvent(
                     registration.getId(),
@@ -87,7 +90,7 @@ public class RegisterParticipantUseCase extends UseCase<RegisterParticipantComma
             ));
         } else {
             registration = Registration.create(command.eventId(), command.participantId(), modality.getId(),
-                    RegistrationStatus.PENDING_PAYMENT, waiverAcceptedAt, waiverText);
+                    RegistrationStatus.PENDING_PAYMENT, waiverAcceptedAt, waiverText, wantsShirt);
             registrationRepository.save(registration);
         }
 

@@ -66,7 +66,7 @@ class RegisterParticipantUseCaseTest {
 
         modality = EventModality.reconstitute(
                 modalityId, eventId, "21K", new BigDecimal("21.097"),
-                DistanceUnit.KM, new BigDecimal("350.00"), 200, 50
+                DistanceUnit.KM, new BigDecimal("350.00"), null, 200, 50
         );
 
         when(eventRepository.findById(eventId)).thenReturn(Optional.of(event));
@@ -79,7 +79,7 @@ class RegisterParticipantUseCaseTest {
 
     @Test
     void modalidadDePago_creaRegistroPENDING_PAYMENT() {
-        RegistrationResponse result = useCase.execute(new RegisterParticipantCommand(eventId, participantId, modalityId, true));
+        RegistrationResponse result = useCase.execute(new RegisterParticipantCommand(eventId, participantId, modalityId, true, true));
 
         assertThat(result.status()).isEqualTo(RegistrationStatus.PENDING_PAYMENT.name());
         verify(domainEventPublisher, never()).publish(any());
@@ -89,11 +89,11 @@ class RegisterParticipantUseCaseTest {
     void modalidadGratuita_creaRegistroCONFIRMED_yPublicaEvento() {
         EventModality freeModality = EventModality.reconstitute(
                 modalityId, eventId, "5K Gratis", new BigDecimal("5"),
-                DistanceUnit.KM, BigDecimal.ZERO, 300, 0
+                DistanceUnit.KM, BigDecimal.ZERO, null, 300, 0
         );
         when(eventModalityRepository.findByEventId(eventId)).thenReturn(List.of(freeModality));
 
-        RegistrationResponse result = useCase.execute(new RegisterParticipantCommand(eventId, participantId, modalityId, true));
+        RegistrationResponse result = useCase.execute(new RegisterParticipantCommand(eventId, participantId, modalityId, true, true));
 
         assertThat(result.status()).isEqualTo(RegistrationStatus.CONFIRMED.name());
         verify(domainEventPublisher).publish(any());
@@ -104,7 +104,7 @@ class RegisterParticipantUseCaseTest {
         when(eventModalityRepository.reserveIfAvailable(modalityId)).thenReturn(0);
         when(event.getStatus()).thenReturn(EventStatus.REGISTRATION_OPEN);
 
-        assertThatThrownBy(() -> useCase.execute(new RegisterParticipantCommand(eventId, participantId, modalityId, true)))
+        assertThatThrownBy(() -> useCase.execute(new RegisterParticipantCommand(eventId, participantId, modalityId, true, true)))
                 .isInstanceOf(NoCapacityException.class);
 
         verify(registrationRepository, never()).save(any());
@@ -112,7 +112,7 @@ class RegisterParticipantUseCaseTest {
 
     @Test
     void sinModalidadSeleccionada_lanzaIllegalArgument() {
-        assertThatThrownBy(() -> useCase.execute(new RegisterParticipantCommand(eventId, participantId, null, true)))
+        assertThatThrownBy(() -> useCase.execute(new RegisterParticipantCommand(eventId, participantId, null, true, true)))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
@@ -120,7 +120,7 @@ class RegisterParticipantUseCaseTest {
     void modalidadDeOtroEvento_lanzaIllegalArgument() {
         UUID otherModalityId = UUID.randomUUID();
 
-        assertThatThrownBy(() -> useCase.execute(new RegisterParticipantCommand(eventId, participantId, otherModalityId, true)))
+        assertThatThrownBy(() -> useCase.execute(new RegisterParticipantCommand(eventId, participantId, otherModalityId, true, true)))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
@@ -128,7 +128,7 @@ class RegisterParticipantUseCaseTest {
     void duplicado_lanzaDuplicateRegistrationException_antesDeReservar() {
         when(registrationRepository.existsByEventIdAndParticipantId(eventId, participantId)).thenReturn(true);
 
-        assertThatThrownBy(() -> useCase.execute(new RegisterParticipantCommand(eventId, participantId, modalityId, true)))
+        assertThatThrownBy(() -> useCase.execute(new RegisterParticipantCommand(eventId, participantId, modalityId, true, true)))
                 .isInstanceOf(DuplicateRegistrationException.class);
 
         verify(eventModalityRepository, never()).reserveIfAvailable(any());
@@ -138,7 +138,7 @@ class RegisterParticipantUseCaseTest {
     void eventoNoEncontrado_lanzaRegistrationNotOpenException() {
         when(eventRepository.findById(eventId)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> useCase.execute(new RegisterParticipantCommand(eventId, participantId, modalityId, true)))
+        assertThatThrownBy(() -> useCase.execute(new RegisterParticipantCommand(eventId, participantId, modalityId, true, true)))
                 .isInstanceOf(RegistrationNotOpenException.class);
     }
 
@@ -146,7 +146,7 @@ class RegisterParticipantUseCaseTest {
     void guardaModalityIdEnLaRegistration() {
         ArgumentCaptor<Registration> captor = ArgumentCaptor.forClass(Registration.class);
 
-        useCase.execute(new RegisterParticipantCommand(eventId, participantId, modalityId, true));
+        useCase.execute(new RegisterParticipantCommand(eventId, participantId, modalityId, true, true));
 
         verify(registrationRepository).save(captor.capture());
         assertThat(captor.getValue().getModalityId()).isEqualTo(modalityId);
@@ -154,7 +154,7 @@ class RegisterParticipantUseCaseTest {
 
     @Test
     void reservaEnModalidad_noEnCapacidadGlobal() {
-        useCase.execute(new RegisterParticipantCommand(eventId, participantId, modalityId, true));
+        useCase.execute(new RegisterParticipantCommand(eventId, participantId, modalityId, true, true));
 
         verify(eventModalityRepository).reserveIfAvailable(modalityId);
     }

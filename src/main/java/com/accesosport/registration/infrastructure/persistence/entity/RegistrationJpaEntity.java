@@ -68,4 +68,7 @@ public class RegistrationJpaEntity {
 
     @Column(name = "waiver_text", columnDefinition = "TEXT")
     private String waiverText;
+
+    @Column(name = "wants_shirt", nullable = false, columnDefinition = "boolean default true")
+    private boolean wantsShirt = true;
 }

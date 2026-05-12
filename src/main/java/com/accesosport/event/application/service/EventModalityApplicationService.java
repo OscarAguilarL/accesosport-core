@@ -39,6 +39,7 @@ public class EventModalityApplicationService {
                 request.distance(),
                 request.distanceUnit(),
                 request.price(),
+                request.priceWithoutShirt(),
                 request.capacity()
         );
 

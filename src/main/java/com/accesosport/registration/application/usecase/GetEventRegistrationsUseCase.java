@@ -68,7 +68,8 @@ public class GetEventRegistrationsUseCase extends UseCase<GetEventRegistrationsC
                 r.getBibNumber(),
                 r.isKitPickedUp(),
                 r.getKitPickedUpAt(),
-                r.getRegisteredAt()
+                r.getRegisteredAt(),
+                r.isWantsShirt()
         );
     }
 

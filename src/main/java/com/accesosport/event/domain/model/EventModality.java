@@ -14,12 +14,17 @@ public class EventModality {
     private BigDecimal distance;
     private DistanceUnit distanceUnit;
     private BigDecimal price;
+    private BigDecimal priceWithoutShirt;
     private int capacity;
     private int registeredCount;
 
     private EventModality() {}
 
     public static EventModality create(UUID eventId, String name, BigDecimal distance, DistanceUnit distanceUnit, BigDecimal price, int capacity) {
+        return create(eventId, name, distance, distanceUnit, price, null, capacity);
+    }
+
+    public static EventModality create(UUID eventId, String name, BigDecimal distance, DistanceUnit distanceUnit, BigDecimal price, BigDecimal priceWithoutShirt, int capacity) {
         validate(name, distance, distanceUnit, price, capacity);
         EventModality m = new EventModality();
         m.id = UUID.randomUUID();
@@ -28,12 +33,13 @@ public class EventModality {
         m.distance = distance;
         m.distanceUnit = distanceUnit;
         m.price = price;
+        m.priceWithoutShirt = priceWithoutShirt;
         m.capacity = capacity;
         m.registeredCount = 0;
         return m;
     }
 
-    public static EventModality reconstitute(UUID id, UUID eventId, String name, BigDecimal distance, DistanceUnit distanceUnit, BigDecimal price, int capacity, int registeredCount) {
+    public static EventModality reconstitute(UUID id, UUID eventId, String name, BigDecimal distance, DistanceUnit distanceUnit, BigDecimal price, BigDecimal priceWithoutShirt, int capacity, int registeredCount) {
         EventModality m = new EventModality();
         m.id = id;
         m.eventId = eventId;
@@ -41,6 +47,7 @@ public class EventModality {
         m.distance = distance;
         m.distanceUnit = distanceUnit;
         m.price = price;
+        m.priceWithoutShirt = priceWithoutShirt;
         m.capacity = capacity;
         m.registeredCount = registeredCount;
         return m;

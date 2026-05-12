@@ -12,6 +12,7 @@ public record ModalityResponse(
         BigDecimal distance,
         String distanceUnit,
         BigDecimal price,
+        BigDecimal priceWithoutShirt,
         int capacity,
         int registeredCount,
         int availableSpots
@@ -24,6 +25,7 @@ public record ModalityResponse(
                 modality.getDistance(),
                 modality.getDistanceUnit().name(),
                 modality.getPrice(),
+                modality.getPriceWithoutShirt(),
                 modality.getCapacity(),
                 modality.getRegisteredCount(),
                 modality.getAvailableSpots()

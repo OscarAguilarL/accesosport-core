@@ -54,10 +54,10 @@ public class EventModalityRepositoryAdapter implements EventModalityRepository {
     }
 
     private EventModality toDomain(EventModalityJpaEntity e) {
-        return EventModality.reconstitute(e.getId(), e.getEventId(), e.getName(), e.getDistance(), e.getDistanceUnit(), e.getPrice(), e.getCapacity(), e.getRegisteredCount());
+        return EventModality.reconstitute(e.getId(), e.getEventId(), e.getName(), e.getDistance(), e.getDistanceUnit(), e.getPrice(), e.getPriceWithoutShirt(), e.getCapacity(), e.getRegisteredCount());
     }
 
     private EventModalityJpaEntity toEntity(EventModality m) {
-        return new EventModalityJpaEntity(m.getId(), m.getEventId(), m.getName(), m.getDistance(), m.getDistanceUnit(), m.getPrice(), m.getCapacity(), m.getRegisteredCount());
+        return new EventModalityJpaEntity(m.getId(), m.getEventId(), m.getName(), m.getDistance(), m.getDistanceUnit(), m.getPrice(), m.getPriceWithoutShirt(), m.getCapacity(), m.getRegisteredCount());
     }
 }

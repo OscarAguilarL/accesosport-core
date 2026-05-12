@@ -150,6 +150,6 @@ class GenerateTicketPdfUseCaseTest {
         return Registration.reconstitute(
                 registrationId, eventId, participantId, null,
                 status, "ACSP-TEST", 42, null, false, null,
-                LocalDateTime.now(), null, null, null);
+                LocalDateTime.now(), null, null, null, true);
     }
 }

@@ -69,7 +69,8 @@ public class GetRegistrationByTicketCodeUseCase extends UseCase<GetRegistrationB
                 r.getBibNumber(),
                 r.isKitPickedUp(),
                 r.getKitPickedUpAt(),
-                r.getRegisteredAt()
+                r.getRegisteredAt(),
+                r.isWantsShirt()
         );
     }
 

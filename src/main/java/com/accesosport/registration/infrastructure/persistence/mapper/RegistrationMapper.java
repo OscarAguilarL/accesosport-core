@@ -30,7 +30,8 @@ public class RegistrationMapper {
                 entity.getRegisteredAt(),
                 entity.getCancelledAt(),
                 entity.getWaiverAcceptedAt(),
-                entity.getWaiverText()
+                entity.getWaiverText(),
+                entity.isWantsShirt()
         );
     }
 
@@ -52,6 +53,7 @@ public class RegistrationMapper {
         entity.setCancelledAt(domain.getCancelledAt());
         entity.setWaiverAcceptedAt(domain.getWaiverAcceptedAt());
         entity.setWaiverText(domain.getWaiverText());
+        entity.setWantsShirt(domain.isWantsShirt());
         return entity;
     }
 }

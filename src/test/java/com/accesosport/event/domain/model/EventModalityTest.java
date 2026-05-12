@@ -161,7 +161,7 @@ class EventModalityTest {
     private EventModality reconstitute(int registeredCount, int capacity) {
         return EventModality.reconstitute(
                 UUID.randomUUID(), EVENT_ID, "10K", new BigDecimal("10"),
-                DistanceUnit.KM, new BigDecimal("100"), capacity, registeredCount
+                DistanceUnit.KM, new BigDecimal("100"), null, capacity, registeredCount
         );
     }
 }

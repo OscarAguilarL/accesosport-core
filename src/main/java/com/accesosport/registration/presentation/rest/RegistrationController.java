@@ -47,7 +47,8 @@ public class RegistrationController {
         UUID participantId = userDetails.getUserId();
         UUID modalityId = body != null ? body.modalityId() : null;
         boolean waiverAccepted = body != null && body.waiverAccepted();
-        RegistrationResponse response = registrationApplicationService.registerParticipant(eventId, participantId, modalityId, waiverAccepted);
+        boolean wantsShirt = body == null || body.wantsShirt();
+        RegistrationResponse response = registrationApplicationService.registerParticipant(eventId, participantId, modalityId, waiverAccepted, wantsShirt);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

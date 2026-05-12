@@ -18,5 +18,6 @@ public record ParticipantInEventResponse(
         Integer bibNumber,
         boolean kitPickedUp,
         LocalDateTime kitPickedUpAt,
-        LocalDateTime registeredAt
+        LocalDateTime registeredAt,
+        boolean wantsShirt
 ) {}

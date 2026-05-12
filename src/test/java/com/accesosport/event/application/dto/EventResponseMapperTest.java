@@ -38,7 +38,7 @@ class EventResponseMapperTest {
 
     private EventModality modalityWith(int capacity, int registered) {
         return EventModality.reconstitute(UUID.randomUUID(), eventId, "10K",
-                new BigDecimal("10"), DistanceUnit.KM, new BigDecimal("150"), capacity, registered);
+                new BigDecimal("10"), DistanceUnit.KM, new BigDecimal("150"), null, capacity, registered);
     }
 
     @BeforeEach
@@ -130,9 +130,9 @@ class EventResponseMapperTest {
         when(event.getRegistrationPeriod()).thenReturn(openPeriod);
 
         EventModality cheap = EventModality.reconstitute(UUID.randomUUID(), eventId, "5K",
-                new BigDecimal("5"), DistanceUnit.KM, new BigDecimal("100"), 300, 50);
+                new BigDecimal("5"), DistanceUnit.KM, new BigDecimal("100"), null, 300, 50);
         EventModality expensive = EventModality.reconstitute(UUID.randomUUID(), eventId, "21K",
-                new BigDecimal("21.097"), DistanceUnit.KM, new BigDecimal("350"), 200, 30);
+                new BigDecimal("21.097"), DistanceUnit.KM, new BigDecimal("350"), null, 200, 30);
 
         EventSummaryResponse summary = EventResponseMapper.toEventSummaryResponse(event, List.of(cheap, expensive));
 
