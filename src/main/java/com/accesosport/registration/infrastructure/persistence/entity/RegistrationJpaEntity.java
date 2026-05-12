@@ -62,4 +62,10 @@ public class RegistrationJpaEntity {
 
     @Column(name = "cancelled_at")
     private LocalDateTime cancelledAt;
+
+    @Column(name = "waiver_accepted_at")
+    private LocalDateTime waiverAcceptedAt;
+
+    @Column(name = "waiver_text", columnDefinition = "TEXT")
+    private String waiverText;
 }

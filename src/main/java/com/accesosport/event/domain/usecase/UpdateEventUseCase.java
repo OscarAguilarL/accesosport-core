@@ -44,7 +44,7 @@ public class UpdateEventUseCase extends UseCase<UpdateEventUseCase.UpdateEventCo
         LocalDateTime mergedRegEnd   = command.registrationEnd()   != null ? command.registrationEnd()   : currentPeriod.end();
         RegistrationPeriod mergedPeriod = RegistrationPeriod.of(mergedRegStart, mergedRegEnd);
 
-        event.update(mergedName, mergedDescription, mergedEventDate, mergedLocation, mergedPeriod);
+        event.update(mergedName, mergedDescription, mergedEventDate, mergedLocation, mergedPeriod, command.waiverTemplate());
 
         return new UpdateEventResult(eventRepository.save(event));
     }
@@ -61,7 +61,8 @@ public class UpdateEventUseCase extends UseCase<UpdateEventUseCase.UpdateEventCo
             Double latitude,
             Double longitude,
             LocalDateTime registrationStart,
-            LocalDateTime registrationEnd
+            LocalDateTime registrationEnd,
+            String waiverTemplate
     ) {}
 
     public record UpdateEventResult(Event event) {}

@@ -66,6 +66,9 @@ public class EventJpaEntity {
     @Column(name = "reminder_sent_at")
     private LocalDateTime reminderSentAt;
 
+    @Column(name = "waiver_template", columnDefinition = "TEXT")
+    private String waiverTemplate;
+
     @PrePersist
     protected void onCreate() {
         if (this.createdOn == null) {

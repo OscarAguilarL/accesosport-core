@@ -42,11 +42,11 @@ public class RegistrationApplicationService {
     private final TicketPdfGenerator ticketPdfGenerator;
 
     @Transactional
-    public RegistrationResponse registerParticipant(UUID eventId, UUID participantId, UUID modalityId) {
+    public RegistrationResponse registerParticipant(UUID eventId, UUID participantId, UUID modalityId, boolean waiverAccepted) {
         RegisterParticipantUseCase useCase = new RegisterParticipantUseCase(
-                registrationRepository, eventRepository, domainEventPublisher, eventModalityRepository
+                registrationRepository, eventRepository, domainEventPublisher, eventModalityRepository, userRepository
         );
-        return useCase.execute(new RegisterParticipantCommand(eventId, participantId, modalityId));
+        return useCase.execute(new RegisterParticipantCommand(eventId, participantId, modalityId, waiverAccepted));
     }
 
     @Transactional

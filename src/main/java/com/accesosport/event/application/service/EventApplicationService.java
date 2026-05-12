@@ -86,7 +86,8 @@ public class EventApplicationService {
                 request.latitude(),
                 request.longitude(),
                 request.registrationStartDate(),
-                request.registrationEndDate()
+                request.registrationEndDate(),
+                request.waiverTemplate()
         );
 
         UpdateEventUseCase useCase = new UpdateEventUseCase(eventRepository);

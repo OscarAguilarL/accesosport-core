@@ -15,9 +15,13 @@ import com.accesosport.registration.domain.model.RegistrationStatus;
 import com.accesosport.registration.domain.repository.RegistrationRepository;
 import com.accesosport.shared.domain.events.DomainEventPublisher;
 import com.accesosport.shared.domain.usecase.UseCase;
+import com.accesosport.user.domain.model.User;
+import com.accesosport.user.domain.repository.UserRepository;
 import lombok.AllArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,9 +32,17 @@ public class RegisterParticipantUseCase extends UseCase<RegisterParticipantComma
     private final EventRepository eventRepository;
     private final DomainEventPublisher domainEventPublisher;
     private final EventModalityRepository eventModalityRepository;
+    private final UserRepository userRepository;
+
+    private static final DateTimeFormatter WAIVER_DATE_FORMATTER =
+            DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
     @Override
     protected RegistrationResponse internalExecute(RegisterParticipantCommand command) {
+        if (!command.waiverAccepted()) {
+            throw new IllegalArgumentException("Debes aceptar el deslinde de responsabilidad para inscribirte.");
+        }
+
         if (registrationRepository.existsByEventIdAndParticipantId(command.eventId(), command.participantId())) {
             throw new DuplicateRegistrationException(command.eventId(), command.participantId());
         }
@@ -56,11 +68,15 @@ public class RegisterParticipantUseCase extends UseCase<RegisterParticipantComma
             throw new NoCapacityException(command.eventId());
         }
 
+        LocalDateTime waiverAcceptedAt = LocalDateTime.now();
+        String waiverText = interpolateWaiver(event, command.participantId(), waiverAcceptedAt);
+
         BigDecimal price = modality.getPrice();
         Registration registration;
 
         if (price.compareTo(BigDecimal.ZERO) == 0) {
-            registration = Registration.create(command.eventId(), command.participantId(), modality.getId(), RegistrationStatus.CONFIRMED);
+            registration = Registration.create(command.eventId(), command.participantId(), modality.getId(),
+                    RegistrationStatus.CONFIRMED, waiverAcceptedAt, waiverText);
             registrationRepository.save(registration);
             domainEventPublisher.publish(new RegistrationConfirmedEvent(
                     registration.getId(),
@@ -70,10 +86,38 @@ public class RegisterParticipantUseCase extends UseCase<RegisterParticipantComma
                     null
             ));
         } else {
-            registration = Registration.create(command.eventId(), command.participantId(), modality.getId(), RegistrationStatus.PENDING_PAYMENT);
+            registration = Registration.create(command.eventId(), command.participantId(), modality.getId(),
+                    RegistrationStatus.PENDING_PAYMENT, waiverAcceptedAt, waiverText);
             registrationRepository.save(registration);
         }
 
         return RegistrationResponse.from(registration);
+    }
+
+    private String interpolateWaiver(Event event, UUID participantId, LocalDateTime acceptedAt) {
+        String template = event.getWaiverTemplate();
+        if (template == null || template.isBlank()) {
+            template = com.accesosport.event.domain.model.Event.DEFAULT_WAIVER_TEMPLATE;
+        }
+
+        String participantFullName = userRepository.findById(participantId)
+                .map(u -> {
+                    var pd = u.getPersonalData();
+                    if (pd == null) return u.getEmail();
+                    String name = pd.getFirstName() != null ? pd.getFirstName() : "";
+                    String lastName = pd.getLastName() != null ? pd.getLastName() : "";
+                    return (name + " " + lastName).trim();
+                })
+                .orElse("Participante");
+
+        String eventName = event.getName() != null ? event.getName() : "";
+        String eventDate = event.getEventDate() != null
+                ? event.getEventDate().format(WAIVER_DATE_FORMATTER) : "";
+
+        return template
+                .replace("{participantFullName}", participantFullName)
+                .replace("{eventName}", eventName)
+                .replace("{eventDate}", eventDate)
+                .replace("{waiverAcceptedAt}", acceptedAt.format(WAIVER_DATE_FORMATTER));
     }
 }

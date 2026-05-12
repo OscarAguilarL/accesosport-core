@@ -37,7 +37,8 @@ public class EventResponseMapper {
                 mapOrganizer(event),
                 event.getCoverImageUrl(),
                 galleryImages,
-                event.getCreatedOn()
+                event.getCreatedOn(),
+                event.getWaiverTemplate()
         );
     }
 

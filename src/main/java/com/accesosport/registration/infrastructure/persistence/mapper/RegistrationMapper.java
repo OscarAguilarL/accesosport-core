@@ -28,7 +28,9 @@ public class RegistrationMapper {
                 entity.isKitPickedUp(),
                 entity.getKitPickedUpAt(),
                 entity.getRegisteredAt(),
-                entity.getCancelledAt()
+                entity.getCancelledAt(),
+                entity.getWaiverAcceptedAt(),
+                entity.getWaiverText()
         );
     }
 
@@ -48,6 +50,8 @@ public class RegistrationMapper {
         entity.setKitPickedUpAt(domain.getKitPickedUpAt());
         entity.setRegisteredAt(domain.getRegisteredAt());
         entity.setCancelledAt(domain.getCancelledAt());
+        entity.setWaiverAcceptedAt(domain.getWaiverAcceptedAt());
+        entity.setWaiverText(domain.getWaiverText());
         return entity;
     }
 }

@@ -12,6 +12,33 @@ import java.util.UUID;
 @Getter
 public class Event {
 
+    public static final String DEFAULT_WAIVER_TEMPLATE =
+            "DESLINDE DE RESPONSABILIDAD Y CARTA DE CONSENTIMIENTO\n\n" +
+            "Yo, {participantFullName}, declaro libremente y bajo mi propio consentimiento lo siguiente:\n\n" +
+            "1. PARTICIPACIÓN VOLUNTARIA\n" +
+            "   Reconozco que mi participación en el evento \"{eventName}\", a celebrarse el {eventDate}, es completamente voluntaria. " +
+            "Entiendo la naturaleza física de la actividad y los riesgos que conlleva, incluyendo pero no limitándose a: caídas, lesiones " +
+            "musculares, problemas cardiorrespiratorios, condiciones climáticas adversas, irregularidades del terreno y contacto con otros participantes.\n\n" +
+            "2. ESTADO DE SALUD\n" +
+            "   Declaro encontrarme en condiciones físicas y de salud aptas para participar en este evento. En caso de tener alguna condición " +
+            "médica relevante, afirmo haber consultado a un médico y contar con su aprobación para participar. Asumo plena responsabilidad " +
+            "por cualquier consecuencia derivada de mi estado de salud.\n\n" +
+            "3. DESLINDE DE RESPONSABILIDAD\n" +
+            "   Libero de toda responsabilidad civil, legal y económica a los organizadores del evento, a AccesoSport y a sus colaboradores, " +
+            "por cualquier lesión, accidente, daño a mi persona o a mis pertenencias que pudiera ocurrir antes, durante o después del evento, " +
+            "salvo en casos de negligencia grave comprobada imputable directamente a los organizadores.\n\n" +
+            "4. MAYORÍA DE EDAD\n" +
+            "   Declaro ser mayor de 18 años o, en caso de ser menor de edad, que cuento con la autorización expresa de mi padre, madre o " +
+            "tutor legal para participar, quien asume conjuntamente las responsabilidades descritas en este documento.\n\n" +
+            "5. USO DE IMAGEN\n" +
+            "   Autorizo a los organizadores del evento y a AccesoSport a capturar fotografías y video durante el evento y a utilizarlos con " +
+            "fines de difusión, promoción y redes sociales, sin que esto genere derecho a remuneración alguna a mi favor.\n\n" +
+            "6. DATOS PERSONALES\n" +
+            "   Consiento el tratamiento de mis datos personales por parte de AccesoSport y los organizadores del evento, únicamente para los " +
+            "fines relacionados con mi inscripción y participación, de conformidad con la Ley Federal de Protección de Datos Personales en " +
+            "Posesión de los Particulares (LFPDPPP).\n\n" +
+            "Fecha y hora de aceptación: {waiverAcceptedAt}";
+
     @Setter
     private UUID id;
     @Setter
@@ -34,6 +61,8 @@ public class Event {
     private String coverImagePublicId;
     @Setter
     private LocalDateTime reminderSentAt;
+    @Setter
+    private String waiverTemplate;
 
     private Event() {
     }
@@ -52,7 +81,8 @@ public class Event {
             LocalDateTime updatedOn,
             String coverImageUrl,
             String coverImagePublicId,
-            LocalDateTime reminderSentAt
+            LocalDateTime reminderSentAt,
+            String waiverTemplate
     ) {
         Event event = new Event();
         event.id = id;
@@ -69,6 +99,7 @@ public class Event {
         event.coverImageUrl = coverImageUrl;
         event.coverImagePublicId = coverImagePublicId;
         event.reminderSentAt = reminderSentAt;
+        event.waiverTemplate = waiverTemplate;
         return event;
     }
 
@@ -91,6 +122,7 @@ public class Event {
         event.createdBy = createdBy;
         event.createdOn = LocalDateTime.now();
         event.updatedOn = LocalDateTime.now();
+        event.waiverTemplate = DEFAULT_WAIVER_TEMPLATE;
 
         event.validate();
 
@@ -101,7 +133,8 @@ public class Event {
                        String description,
                        LocalDateTime eventDate,
                        Location location,
-                       RegistrationPeriod registrationPeriod) {
+                       RegistrationPeriod registrationPeriod,
+                       String waiverTemplate) {
         if (status != EventStatus.DRAFT) {
             throw new EventInvalidStatusException(MessageKeys.Events.EVENT_UPDATE_ONLY_DRAFT, status);
         }
@@ -110,6 +143,9 @@ public class Event {
         this.eventDate = eventDate;
         this.location = location;
         this.registrationPeriod = registrationPeriod;
+        if (waiverTemplate != null) {
+            this.waiverTemplate = waiverTemplate;
+        }
 
         validate();
         this.updatedOn = LocalDateTime.now();

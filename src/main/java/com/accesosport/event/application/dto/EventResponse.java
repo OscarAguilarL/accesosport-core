@@ -19,6 +19,7 @@ public record EventResponse(
         OrganizerDto organizer,
         String coverImageUrl,
         List<EventImageResponse> galleryImages,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        String waiverTemplate
 ) {
 }

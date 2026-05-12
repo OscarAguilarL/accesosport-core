@@ -36,7 +36,8 @@ public class EventMapper {
                 entity.getUpdatedOn(),
                 entity.getCoverImageUrl(),
                 entity.getCoverImagePublicId(),
-                entity.getReminderSentAt()
+                entity.getReminderSentAt(),
+                entity.getWaiverTemplate()
         );
     }
 
@@ -58,6 +59,7 @@ public class EventMapper {
         entity.setCoverImageUrl(domain.getCoverImageUrl());
         entity.setCoverImagePublicId(domain.getCoverImagePublicId());
         entity.setReminderSentAt(domain.getReminderSentAt());
+        entity.setWaiverTemplate(domain.getWaiverTemplate());
         entity.setCreatedBy(UserMapper.toEntity(domain.getCreatedBy()));
 
         return entity;

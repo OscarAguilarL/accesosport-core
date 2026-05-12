@@ -32,7 +32,9 @@ public record UpdateEventRequest(
         LocalDateTime registrationStartDate,
 
         @Future(message = MessageKeys.Events.EVENT_VALIDATION_REGISTRATION_END_FUTURE)
-        LocalDateTime registrationEndDate
+        LocalDateTime registrationEndDate,
+
+        String waiverTemplate
 
 ) {
     public UpdateEventRequest {

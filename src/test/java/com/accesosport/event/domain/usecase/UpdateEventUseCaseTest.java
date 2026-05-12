@@ -63,7 +63,7 @@ class UpdateEventUseCaseTest {
         when(event.getName()).thenReturn("Nombre original");
 
         UpdateEventUseCase.UpdateEventCommand command = new UpdateEventUseCase.UpdateEventCommand(
-                eventId, null, null, null, null, null, null, null, null, null, null, null
+                eventId, null, null, null, null, null, null, null, null, null, null, null, null
         );
 
         ArgumentCaptor<String> nameCaptor = ArgumentCaptor.forClass(String.class);
@@ -86,7 +86,8 @@ class UpdateEventUseCaseTest {
                 19.4326,
                 -99.1332,
                 LocalDateTime.now().plusMonths(1),
-                LocalDateTime.now().plusMonths(3)
+                LocalDateTime.now().plusMonths(3),
+                null
         );
     }
 }

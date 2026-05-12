@@ -20,11 +20,14 @@ public class Registration {
     private LocalDateTime kitPickedUpAt;
     private LocalDateTime registeredAt;
     private LocalDateTime cancelledAt;
+    private LocalDateTime waiverAcceptedAt;
+    private String waiverText;
 
     private Registration() {
     }
 
-    public static Registration create(UUID eventId, UUID participantId, UUID modalityId, RegistrationStatus status) {
+    public static Registration create(UUID eventId, UUID participantId, UUID modalityId, RegistrationStatus status,
+                                      LocalDateTime waiverAcceptedAt, String waiverText) {
         Registration registration = new Registration();
         registration.id = UUID.randomUUID();
         registration.eventId = eventId;
@@ -38,6 +41,8 @@ public class Registration {
         registration.kitPickedUpAt = null;
         registration.registeredAt = LocalDateTime.now();
         registration.cancelledAt = null;
+        registration.waiverAcceptedAt = waiverAcceptedAt;
+        registration.waiverText = waiverText;
         return registration;
     }
 
@@ -53,7 +58,9 @@ public class Registration {
             boolean kitPickedUp,
             LocalDateTime kitPickedUpAt,
             LocalDateTime registeredAt,
-            LocalDateTime cancelledAt
+            LocalDateTime cancelledAt,
+            LocalDateTime waiverAcceptedAt,
+            String waiverText
     ) {
         Registration registration = new Registration();
         registration.id = id;
@@ -68,6 +75,8 @@ public class Registration {
         registration.kitPickedUpAt = kitPickedUpAt;
         registration.registeredAt = registeredAt;
         registration.cancelledAt = cancelledAt;
+        registration.waiverAcceptedAt = waiverAcceptedAt;
+        registration.waiverText = waiverText;
         return registration;
     }
 
