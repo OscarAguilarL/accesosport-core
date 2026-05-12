@@ -12,8 +12,7 @@ import java.math.BigDecimal;
  * Represents an embeddable value object for storing location-related data.
  * <p>
  * This class is designed to be embedded within an entity to persist
- * information about a specific place, including its name, city, country,
- * and geographical coordinates (latitude and longitude).
+ * information about a specific place, including its name, city and country
  * </p>
  */
 @Embeddable
@@ -30,10 +29,4 @@ public class LocationEmbeddable {
 
     @Column(length = 100)
     String country;
-
-    @Column(precision = 10, scale = 7)
-    BigDecimal latitude;
-
-    @Column(precision = 10, scale = 7)
-    BigDecimal longitude;
 }

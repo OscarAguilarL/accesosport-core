@@ -58,8 +58,6 @@ public class EventApplicationService {
                 request.place(),
                 request.city(),
                 request.country(),
-                request.latitude(),
-                request.longitude(),
                 request.registrationStartDate(),
                 request.registrationEndDate(),
                 modalityData,
@@ -83,8 +81,6 @@ public class EventApplicationService {
                 request.place(),
                 request.city(),
                 request.country(),
-                request.latitude(),
-                request.longitude(),
                 request.registrationStartDate(),
                 request.registrationEndDate(),
                 request.waiverTemplate()

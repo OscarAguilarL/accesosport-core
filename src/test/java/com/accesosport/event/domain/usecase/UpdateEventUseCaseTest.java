@@ -17,7 +17,6 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -30,7 +29,7 @@ class UpdateEventUseCaseTest {
     @Mock private Event event;
 
     private UUID eventId;
-    private final Location location = Location.of("Chapultepec", "CDMX", "México", null, null);
+    private final Location location = Location.of("Chapultepec", "CDMX", "México");
     private final RegistrationPeriod period = RegistrationPeriod.of(
             LocalDateTime.now().plusMonths(1),
             LocalDateTime.now().plusMonths(3)
@@ -63,7 +62,7 @@ class UpdateEventUseCaseTest {
         when(event.getName()).thenReturn("Nombre original");
 
         UpdateEventUseCase.UpdateEventCommand command = new UpdateEventUseCase.UpdateEventCommand(
-                eventId, null, null, null, null, null, null, null, null, null, null, null, null
+                eventId, null, null, null, null, null, null, null, null, null, null
         );
 
         ArgumentCaptor<String> nameCaptor = ArgumentCaptor.forClass(String.class);
@@ -83,8 +82,6 @@ class UpdateEventUseCaseTest {
                 "Bosque de Chapultepec",
                 "CDMX",
                 "México",
-                19.4326,
-                -99.1332,
                 LocalDateTime.now().plusMonths(1),
                 LocalDateTime.now().plusMonths(3),
                 null

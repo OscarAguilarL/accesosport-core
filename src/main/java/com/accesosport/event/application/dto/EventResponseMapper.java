@@ -74,8 +74,6 @@ public class EventResponseMapper {
                 location.place(),
                 location.city(),
                 location.country(),
-                location.latitude(),
-                location.longitude(),
                 location.getFullAddress()
         );
     }

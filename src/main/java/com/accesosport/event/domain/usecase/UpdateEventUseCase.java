@@ -35,9 +35,7 @@ public class UpdateEventUseCase extends UseCase<UpdateEventUseCase.UpdateEventCo
         String mergedPlace    = command.place()     != null ? command.place()     : currentLoc.place();
         String mergedCity     = command.city()      != null ? command.city()      : currentLoc.city();
         String mergedCountry  = command.country()   != null ? command.country()   : currentLoc.country();
-        Double mergedLat      = command.latitude()  != null ? command.latitude()  : currentLoc.latitude();
-        Double mergedLon      = command.longitude() != null ? command.longitude() : currentLoc.longitude();
-        Location mergedLocation = Location.of(mergedPlace, mergedCity, mergedCountry, mergedLat, mergedLon);
+        Location mergedLocation = Location.of(mergedPlace, mergedCity, mergedCountry);
 
         RegistrationPeriod currentPeriod = event.getRegistrationPeriod();
         LocalDateTime mergedRegStart = command.registrationStart() != null ? command.registrationStart() : currentPeriod.start();
@@ -58,8 +56,6 @@ public class UpdateEventUseCase extends UseCase<UpdateEventUseCase.UpdateEventCo
             String place,
             String city,
             String country,
-            Double latitude,
-            Double longitude,
             LocalDateTime registrationStart,
             LocalDateTime registrationEnd,
             String waiverTemplate

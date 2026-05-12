@@ -25,14 +25,6 @@ public record CreateEventRequest(
         String city,
         String country,
 
-        @DecimalMin(value = "-90", message = MessageKeys.Events.EVENT_VALIDATION_LATITUDE_INVALID)
-        @DecimalMax(value = "90", message = MessageKeys.Events.EVENT_VALIDATION_LATITUDE_INVALID)
-        Double latitude,
-
-        @DecimalMin(value = "-180", message = MessageKeys.Events.EVENT_VALIDATION_LONGITUDE_INVALID)
-        @DecimalMax(value = "180", message = MessageKeys.Events.EVENT_VALIDATION_LONGITUDE_INVALID)
-        Double longitude,
-
         @NotNull(message = MessageKeys.Events.EVENT_VALIDATION_REGISTRATION_REQUIRED)
         @Future(message = MessageKeys.Events.EVENT_VALIDATION_REGISTRATION_START_FUTURE)
         LocalDateTime registrationStartDate,

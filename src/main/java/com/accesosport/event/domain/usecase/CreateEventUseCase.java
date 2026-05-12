@@ -36,8 +36,7 @@ public class CreateEventUseCase extends UseCase<CreateEventUseCase.CreateEventCo
         }
 
         Location location = Location.of(
-                command.place(), command.city(), command.country(),
-                command.latitude(), command.longitude()
+                command.place(), command.city(), command.country()
         );
         RegistrationPeriod registrationPeriod = RegistrationPeriod.of(
                 command.registrationStart(), command.registrationEnd()
@@ -84,8 +83,6 @@ public class CreateEventUseCase extends UseCase<CreateEventUseCase.CreateEventCo
             String place,
             String city,
             String country,
-            Double latitude,
-            Double longitude,
             LocalDateTime registrationStart,
             LocalDateTime registrationEnd,
             List<ModalityData> modalities,

@@ -87,8 +87,6 @@ class CreateEventUseCaseTest {
                 "Bosque de Chapultepec",
                 "CDMX",
                 "México",
-                null,
-                null,
                 LocalDateTime.now().plusMonths(1),
                 LocalDateTime.now().plusMonths(3),
                 modalities,

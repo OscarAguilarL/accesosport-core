@@ -26,7 +26,7 @@ class EventResponseMapperTest {
     @Mock private User organizer;
 
     private final UUID eventId = UUID.randomUUID();
-    private final Location location = Location.of("Bosque de Chapultepec", "CDMX", "México", null, null);
+    private final Location location = Location.of("Bosque de Chapultepec", "CDMX", "México");
     private final RegistrationPeriod openPeriod = RegistrationPeriod.of(
             LocalDateTime.now().minusDays(1),
             LocalDateTime.now().plusDays(30)

@@ -2,22 +2,24 @@ package com.accesosport.event.domain.model;
 
 import com.accesosport.shared.domain.i18n.MessageKeys;
 
-public record Location(String place, String city, String country, Double latitude, Double longitude) {
+public record Location(
+		String place,
+		String city,
+		String country
+		) {
 
-    public static Location of(String place, String city, String country, Double latitude, Double longitude) {
-        validate(place, city, country, latitude, longitude);
-        return new Location(place, city, country, latitude, longitude);
+    public static Location of(
+    		String place,
+    		String city,
+    		String country
+    		) {
+        validate(place, city, country);
+        return new Location(place, city, country);
     }
 
-    private static void validate(String place, String city, String country, Double latitude, Double longitude) {
+    private static void validate(String place, String city, String country) {
         if (place == null || place.isBlank()) {
             throw new IllegalArgumentException(MessageKeys.Events.EVENT_VALIDATION_PLACE_REQUIRED);
-        }
-        if (latitude != null && (latitude < -90 || latitude > 90)) {
-            throw new IllegalArgumentException(MessageKeys.Events.EVENT_VALIDATION_LATITUDE_INVALID);
-        }
-        if (longitude != null && (longitude < -180 || longitude > 180)) {
-            throw new IllegalArgumentException(MessageKeys.Events.EVENT_VALIDATION_LONGITUDE_INVALID);
         }
     }
 

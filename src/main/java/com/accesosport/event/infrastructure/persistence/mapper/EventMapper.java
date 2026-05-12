@@ -70,9 +70,7 @@ public class EventMapper {
         return Location.of(
                 loc.getPlace(),
                 loc.getCity(),
-                loc.getCountry(),
-                loc.getLatitude() != null ? loc.getLatitude().doubleValue() : null,
-                loc.getLongitude() != null ? loc.getLongitude().doubleValue() : null
+                loc.getCountry()
         );
     }
 
@@ -81,9 +79,7 @@ public class EventMapper {
         return new LocationEmbeddable(
                 location.place(),
                 location.city(),
-                location.country(),
-                location.latitude() != null ? BigDecimal.valueOf(location.latitude()) : null,
-                location.longitude() != null ? BigDecimal.valueOf(location.longitude()) : null
+                location.country()
         );
     }
 }

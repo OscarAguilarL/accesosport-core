@@ -97,8 +97,6 @@ public class MessageKeys {
 		public static final String EVENT_PROBLEM_DETAIL_VALIDATION_ERROR = "event.problem.detail.validation-error";
 		public static final String EVENT_PROBLEM_DETAIL_ACCESS_DENIED = "event.problem.detail.access-denied";
 		public static final String EVENT_VALIDATION_PLACE_REQUIRED = "event.validation.place.required";
-		public static final String EVENT_VALIDATION_LATITUDE_INVALID = "event.validation.latitude.invalid";
-		public static final String EVENT_VALIDATION_LONGITUDE_INVALID = "event.validation.longitude.invalid";
 		public static final String EVENT_VALIDATION_REGISTRATION_PERIOD_START_NOT_NULL = "event.validation.registration-period.start.not-null";
 		public static final String EVENT_VALIDATION_REGISTRATION_PERIOD_END_BEFORE_START = "event.validation.registration-period.end-before-start";
 		public static final String EVENT_VALIDATION_ORGANIZER_NOT_FOUND = "event.validation.organizer.not-found";
