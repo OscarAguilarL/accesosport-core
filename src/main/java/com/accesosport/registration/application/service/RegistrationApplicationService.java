@@ -14,10 +14,12 @@ import com.accesosport.registration.application.usecase.GetEventRegistrationsUse
 import com.accesosport.registration.application.usecase.GetMyRegistrationsUseCase;
 import com.accesosport.registration.application.usecase.GetRegistrationByTicketCodeUseCase;
 import com.accesosport.registration.application.usecase.RegisterParticipantUseCase;
+import com.accesosport.registration.application.usecase.ResendTicketEmailUseCase;
 import com.accesosport.registration.domain.exception.RegistrationNotFoundException;
 import com.accesosport.registration.domain.model.Registration;
 import com.accesosport.registration.domain.repository.RegistrationRepository;
 import com.accesosport.shared.domain.events.DomainEventPublisher;
+import com.accesosport.shared.domain.port.EmailService;
 import com.accesosport.user.domain.repository.ParticipantProfileRepository;
 import com.accesosport.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +42,7 @@ public class RegistrationApplicationService {
     private final ParticipantProfileRepository participantProfileRepository;
     private final UserRepository userRepository;
     private final TicketPdfGenerator ticketPdfGenerator;
+    private final EmailService emailService;
 
     @Transactional
     public RegistrationResponse registerParticipant(UUID eventId, UUID participantId, UUID modalityId, boolean waiverAccepted) {
@@ -95,5 +98,14 @@ public class RegistrationApplicationService {
                 registrationRepository, eventRepository, userRepository, eventModalityRepository, ticketPdfGenerator
         );
         return useCase.execute(new GenerateTicketPdfUseCase.Command(registrationId, requesterId));
+    }
+
+    @Transactional(readOnly = true)
+    public void resendTicketEmail(UUID registrationId, UUID requesterId) {
+        ResendTicketEmailUseCase useCase = new ResendTicketEmailUseCase(
+                registrationRepository, eventRepository, userRepository, eventModalityRepository,
+                ticketPdfGenerator, emailService
+        );
+        useCase.execute(new ResendTicketEmailUseCase.Command(registrationId, requesterId));
     }
 }

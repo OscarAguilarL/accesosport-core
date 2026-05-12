@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
@@ -40,5 +41,29 @@ public class ResendEmailAdapter implements EmailService {
                 .toBodilessEntity();
 
         log.info("[Email] Sent '{}' to {}", message.subject(), message.to());
+    }
+
+    @Override
+    public void sendWithAttachment(String to, String subject, String htmlBody, String filename, byte[] content) {
+        Map<String, Object> attachment = Map.of(
+                "filename", filename,
+                "content", Base64.getEncoder().encodeToString(content)
+        );
+
+        Map<String, Object> body = Map.of(
+                "from", emailConfig.getFromEmail(),
+                "to", List.of(to),
+                "subject", subject,
+                "html", htmlBody,
+                "attachments", List.of(attachment)
+        );
+
+        resendRestClient.post()
+                .header("Authorization", "Bearer " + emailConfig.getApiKey())
+                .body(body)
+                .retrieve()
+                .toBodilessEntity();
+
+        log.info("[Email] Sent '{}' with attachment '{}' to {}", subject, filename, to);
     }
 }

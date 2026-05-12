@@ -137,6 +137,16 @@ public class RegistrationController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/api/v1/user/registrations/{registrationId}/resend-ticket")
+    @PreAuthorize("hasAuthority('ROLE_PARTICIPANT')")
+    public ResponseEntity<Void> resendTicket(
+            @PathVariable UUID registrationId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        registrationApplicationService.resendTicketEmail(registrationId, userDetails.getUserId());
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/api/v1/user/registrations/{registrationId}/ticket")
     @PreAuthorize("hasAuthority('ROLE_PARTICIPANT')")
     public ResponseEntity<byte[]> downloadTicket(

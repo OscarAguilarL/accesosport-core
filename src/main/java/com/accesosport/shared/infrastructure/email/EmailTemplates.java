@@ -27,8 +27,12 @@ public final class EmailTemplates {
                     <tr><td style="padding: 8px; border: 1px solid #e5e7eb;"><strong>Location</strong></td>
                         <td style="padding: 8px; border: 1px solid #e5e7eb;">%s</td></tr>
                   </table>
-                  <p style="margin-top: 24px;">See you at the race!</p>
-                  <p style="color: #6b7280; font-size: 12px;">AccesoSport — Your race, your moment.</p>
+                  <div style="margin-top: 24px; padding: 16px; background: #f0fdf4; border-left: 4px solid #16a34a; border-radius: 4px;">
+                    <p style="margin: 0; font-weight: bold; color: #15803d;">📎 Tu boleto está adjunto a este correo en formato PDF.</p>
+                    <p style="margin: 8px 0 0; color: #166534; font-size: 13px;">Imprímelo o muéstralo en tu teléfono el día de la recogida de kits (el día previo al evento, 8:00 AM – 8:00 PM).</p>
+                  </div>
+                  <p style="margin-top: 24px;">¡Nos vemos en la carrera!</p>
+                  <p style="color: #6b7280; font-size: 12px;">AccesoSport — Tu carrera, tu momento.</p>
                 </body></html>
                 """.formatted(eventName, participantFirstName, eventName, ticketCode, bibNumber, eventDate, eventLocation);
     }
