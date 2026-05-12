@@ -1,6 +1,8 @@
 package com.accesosport.event.presentation.rest;
 
 import com.accesosport.auth.infrastructure.security.CustomUserDetails;
+import com.accesosport.event.application.dto.CategoryResponse;
+import com.accesosport.event.application.dto.CreateCategoryRequest;
 import com.accesosport.event.application.dto.CreateEventRequest;
 import com.accesosport.event.application.dto.CreateModalityRequest;
 import com.accesosport.event.application.dto.EventResponse;
@@ -8,6 +10,7 @@ import com.accesosport.event.application.dto.EventSummaryResponse;
 import com.accesosport.event.application.dto.ModalityResponse;
 import com.accesosport.event.application.dto.UpdateEventRequest;
 import com.accesosport.event.application.service.EventApplicationService;
+import com.accesosport.event.application.service.EventCategoryApplicationService;
 import com.accesosport.event.application.service.EventModalityApplicationService;
 import com.accesosport.event.domain.model.EventStatus;
 import jakarta.validation.Valid;
@@ -45,6 +48,7 @@ public class EventController {
 
     private final EventApplicationService eventApplicationService;
     private final EventModalityApplicationService eventModalityApplicationService;
+    private final EventCategoryApplicationService eventCategoryApplicationService;
 
     /**
      * Creates a new event based on the provided request data.
@@ -232,6 +236,35 @@ public class EventController {
     ) {
         UUID requesterId = isAdmin(userDetails) ? null : userDetails.getUserId();
         eventModalityApplicationService.deleteModality(eventId, modalityId, requesterId, isAdmin(userDetails));
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{eventId}/categories")
+    @PreAuthorize("hasAnyAuthority('ROLE_ORGANIZER', 'ROLE_ADMIN')")
+    public ResponseEntity<CategoryResponse> addCategory(
+            @PathVariable UUID eventId,
+            @Valid @RequestBody CreateCategoryRequest request,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        UUID requesterId = isAdmin(userDetails) ? null : userDetails.getUserId();
+        CategoryResponse response = eventCategoryApplicationService.addCategory(eventId, requesterId, isAdmin(userDetails), request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @GetMapping("/{eventId}/categories")
+    public ResponseEntity<List<CategoryResponse>> listCategories(@PathVariable UUID eventId) {
+        return ResponseEntity.ok(eventCategoryApplicationService.listCategories(eventId));
+    }
+
+    @DeleteMapping("/{eventId}/categories/{categoryId}")
+    @PreAuthorize("hasAnyAuthority('ROLE_ORGANIZER', 'ROLE_ADMIN')")
+    public ResponseEntity<Void> deleteCategory(
+            @PathVariable UUID eventId,
+            @PathVariable UUID categoryId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        UUID requesterId = isAdmin(userDetails) ? null : userDetails.getUserId();
+        eventCategoryApplicationService.deleteCategory(eventId, categoryId, requesterId, isAdmin(userDetails));
         return ResponseEntity.noContent().build();
     }
 

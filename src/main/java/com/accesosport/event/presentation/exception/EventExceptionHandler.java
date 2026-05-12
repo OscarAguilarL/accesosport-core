@@ -1,5 +1,6 @@
 package com.accesosport.event.presentation.exception;
 
+import com.accesosport.event.domain.exception.CategoryNotFoundException;
 import com.accesosport.event.domain.exception.EventAccessDeniedException;
 import com.accesosport.event.domain.exception.EventInvalidStatusException;
 import com.accesosport.event.domain.exception.EventNotFoundException;
@@ -241,6 +242,16 @@ public class EventExceptionHandler {
      * @param ex the {@link IllegalArgumentException} that is thrown when an invalid argument is supplied
      * @return a {@link ProblemDetail} instance containing the error details, including status, title, type, and timestamp
      */
+    @ExceptionHandler(CategoryNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ProblemDetail handleCategoryNotFound(CategoryNotFoundException ex) {
+        log.error("Category not found: {}", ex.getMessage());
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+        pd.setTitle("Category Not Found");
+        pd.setProperty("timestamp", Instant.now());
+        return pd;
+    }
+
     @ExceptionHandler(ModalityNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ProblemDetail handleModalityNotFound(ModalityNotFoundException ex) {

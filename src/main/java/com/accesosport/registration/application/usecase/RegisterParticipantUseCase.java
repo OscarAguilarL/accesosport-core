@@ -1,7 +1,9 @@
 package com.accesosport.registration.application.usecase;
 
 import com.accesosport.event.domain.model.Event;
+import com.accesosport.event.domain.model.EventCategory;
 import com.accesosport.event.domain.model.EventModality;
+import com.accesosport.event.domain.repository.EventCategoryRepository;
 import com.accesosport.event.domain.repository.EventModalityRepository;
 import com.accesosport.event.domain.repository.EventRepository;
 import com.accesosport.registration.application.dto.RegisterParticipantCommand;
@@ -32,6 +34,7 @@ public class RegisterParticipantUseCase extends UseCase<RegisterParticipantComma
     private final EventRepository eventRepository;
     private final DomainEventPublisher domainEventPublisher;
     private final EventModalityRepository eventModalityRepository;
+    private final EventCategoryRepository eventCategoryRepository;
     private final UserRepository userRepository;
 
     private static final DateTimeFormatter WAIVER_DATE_FORMATTER =
@@ -68,6 +71,16 @@ public class RegisterParticipantUseCase extends UseCase<RegisterParticipantComma
             throw new NoCapacityException(command.eventId());
         }
 
+        UUID categoryId = null;
+        if (command.categoryId() != null) {
+            List<EventCategory> categories = eventCategoryRepository.findByEventId(command.eventId());
+            EventCategory category = categories.stream()
+                    .filter(c -> c.getId().equals(command.categoryId()))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("Categoría no encontrada para este evento"));
+            categoryId = category.getId();
+        }
+
         LocalDateTime waiverAcceptedAt = LocalDateTime.now();
         String waiverText = interpolateWaiver(event, command.participantId(), waiverAcceptedAt);
 
@@ -78,7 +91,7 @@ public class RegisterParticipantUseCase extends UseCase<RegisterParticipantComma
         Registration registration;
 
         if (price.compareTo(BigDecimal.ZERO) == 0) {
-            registration = Registration.create(command.eventId(), command.participantId(), modality.getId(),
+            registration = Registration.create(command.eventId(), command.participantId(), modality.getId(), categoryId,
                     RegistrationStatus.CONFIRMED, waiverAcceptedAt, waiverText, wantsShirt);
             registrationRepository.save(registration);
             domainEventPublisher.publish(new RegistrationConfirmedEvent(
@@ -89,7 +102,7 @@ public class RegisterParticipantUseCase extends UseCase<RegisterParticipantComma
                     null
             ));
         } else {
-            registration = Registration.create(command.eventId(), command.participantId(), modality.getId(),
+            registration = Registration.create(command.eventId(), command.participantId(), modality.getId(), categoryId,
                     RegistrationStatus.PENDING_PAYMENT, waiverAcceptedAt, waiverText, wantsShirt);
             registrationRepository.save(registration);
         }

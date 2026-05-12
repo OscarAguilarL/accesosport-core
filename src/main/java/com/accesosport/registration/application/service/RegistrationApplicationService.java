@@ -1,6 +1,7 @@
 package com.accesosport.registration.application.service;
 
 import com.accesosport.event.domain.model.Event;
+import com.accesosport.event.domain.repository.EventCategoryRepository;
 import com.accesosport.event.domain.repository.EventModalityRepository;
 import com.accesosport.event.domain.repository.EventRepository;
 import com.accesosport.registration.application.dto.CancelRegistrationCommand;
@@ -46,6 +47,7 @@ public class RegistrationApplicationService {
     private final RegistrationRepository registrationRepository;
     private final EventRepository eventRepository;
     private final EventModalityRepository eventModalityRepository;
+    private final EventCategoryRepository eventCategoryRepository;
     private final DomainEventPublisher domainEventPublisher;
     private final ParticipantProfileRepository participantProfileRepository;
     private final UserRepository userRepository;
@@ -57,11 +59,11 @@ public class RegistrationApplicationService {
     private int checkinTokenValidHours;
 
     @Transactional
-    public RegistrationResponse registerParticipant(UUID eventId, UUID participantId, UUID modalityId, boolean waiverAccepted, boolean wantsShirt) {
+    public RegistrationResponse registerParticipant(UUID eventId, UUID participantId, UUID modalityId, UUID categoryId, boolean waiverAccepted, boolean wantsShirt) {
         RegisterParticipantUseCase useCase = new RegisterParticipantUseCase(
-                registrationRepository, eventRepository, domainEventPublisher, eventModalityRepository, userRepository
+                registrationRepository, eventRepository, domainEventPublisher, eventModalityRepository, eventCategoryRepository, userRepository
         );
-        return useCase.execute(new RegisterParticipantCommand(eventId, participantId, modalityId, waiverAccepted, wantsShirt));
+        return useCase.execute(new RegisterParticipantCommand(eventId, participantId, modalityId, categoryId, waiverAccepted, wantsShirt));
     }
 
     @Transactional

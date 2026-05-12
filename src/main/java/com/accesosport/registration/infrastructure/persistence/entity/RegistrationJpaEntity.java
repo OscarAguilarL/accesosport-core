@@ -39,6 +39,9 @@ public class RegistrationJpaEntity {
     @Column(name = "modality_id")
     private UUID modalityId;
 
+    @Column(name = "category_id")
+    private UUID categoryId;
+
     @Column(name = "status", nullable = false)
     private String status;
 

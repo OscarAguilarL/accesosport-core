@@ -65,7 +65,7 @@ class TicketEmailEventHandlerTest {
         participantId = UUID.randomUUID();
 
         registration = Registration.reconstitute(
-                registrationId, eventId, participantId, null,
+                registrationId, eventId, participantId, null, null,
                 RegistrationStatus.CONFIRMED, "ACSP-TEST", null, null,
                 false, null, null, null, null, null, true
         );

@@ -64,7 +64,7 @@ class TicketPdfGeneratorTest {
     @Test
     void generate_withNullBibNumber_shouldNotThrow() throws Exception {
         Registration reg = Registration.reconstitute(
-                UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), null,
+                UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), null, null,
                 RegistrationStatus.CONFIRMED, "ACSP-TEST", null, null,
                 false, null, LocalDateTime.now(), null, null, null, true);
 
@@ -96,7 +96,7 @@ class TicketPdfGeneratorTest {
 
     private Registration testRegistration(Integer bibNumber) {
         return Registration.reconstitute(
-                UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), null,
+                UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), null, null,
                 RegistrationStatus.CONFIRMED, "ACSP-4X7K", bibNumber, null,
                 false, null, LocalDateTime.now(), null, null, null, true);
     }
