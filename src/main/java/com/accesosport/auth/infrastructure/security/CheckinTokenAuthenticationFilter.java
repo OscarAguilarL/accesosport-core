@@ -46,7 +46,7 @@ public class CheckinTokenAuthenticationFilter extends OncePerRequestFilter {
                     CheckinToken ct = checkinToken.get();
 
                     UUID pathEventId = extractEventIdFromPath(request.getRequestURI());
-                    if (pathEventId == null || pathEventId.equals(ct.getEventId())) {
+                    if (pathEventId != null && pathEventId.equals(ct.getEventId())) {
                         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                                 "checkin-agent",
                                 null,
