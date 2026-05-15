@@ -1,7 +1,9 @@
 package com.accesosport.registration.application.usecase;
 
 import com.accesosport.event.domain.model.Event;
+import com.accesosport.event.domain.model.EventCategory;
 import com.accesosport.event.domain.model.EventModality;
+import com.accesosport.event.domain.repository.EventCategoryRepository;
 import com.accesosport.event.domain.repository.EventModalityRepository;
 import com.accesosport.event.domain.repository.EventRepository;
 import com.accesosport.registration.application.service.TicketPdfGenerator;
@@ -28,6 +30,7 @@ public class GenerateTicketPdfUseCase extends UseCase<GenerateTicketPdfUseCase.C
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final EventModalityRepository eventModalityRepository;
+    private final EventCategoryRepository eventCategoryRepository;
     private final TicketPdfGenerator ticketPdfGenerator;
 
     @Override
@@ -55,9 +58,16 @@ public class GenerateTicketPdfUseCase extends UseCase<GenerateTicketPdfUseCase.C
                     .map(m -> m.getDistance().stripTrailingZeros().toPlainString() + " " + m.getDistanceUnit().getSymbol())
                     .orElse(null);
         }
+        
+        String category = null;
+        if (registration.getCategoryId() != null) {
+        	category = eventCategoryRepository.findById(registration.getCategoryId())
+        			.map(EventCategory::getName)
+        			.orElse(null);
+        }
 
         try {
-            return ticketPdfGenerator.generate(registration, event, participant, distanceLabel);
+            return ticketPdfGenerator.generate(registration, event, participant, distanceLabel, category, registration.isWantsShirt());
         } catch (IOException e) {
             throw new RuntimeException("Error al generar el boleto PDF", e);
         }

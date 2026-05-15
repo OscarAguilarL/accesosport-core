@@ -49,14 +49,14 @@ class TicketPdfGeneratorTest {
 
     @Test
     void generate_shouldReturnNonEmptyBytes() throws Exception {
-        byte[] result = generator.generate(testRegistration(42), event, testUser(), "42.195 km");
+        byte[] result = generator.generate(testRegistration(42), event, testUser(), "42.195 km", "Master Varonil", true);
 
         assertThat(result).isNotNull().isNotEmpty();
     }
 
     @Test
     void generate_shouldReturnValidPdfBytes() throws Exception {
-        byte[] result = generator.generate(testRegistration(42), event, testUser(), "42.195 km");
+        byte[] result = generator.generate(testRegistration(42), event, testUser(), "42.195 km" ,"Master Varonil", true);
 
         assertThat(result).startsWith(PDF_MAGIC);
     }
@@ -68,7 +68,7 @@ class TicketPdfGeneratorTest {
                 RegistrationStatus.CONFIRMED, "ACSP-TEST", null, null,
                 false, null, LocalDateTime.now(), null, null, null, true);
 
-        byte[] result = generator.generate(reg, event, testUser(), null);
+        byte[] result = generator.generate(reg, event, testUser(), null, null, false);
 
         assertThat(result).isNotEmpty().startsWith(PDF_MAGIC);
     }
@@ -80,7 +80,7 @@ class TicketPdfGeneratorTest {
                 .email("sin-nombre@test.com")
                 .build();
 
-        byte[] result = generator.generate(testRegistration(10), event, userWithoutPersonalData, "10 km");
+        byte[] result = generator.generate(testRegistration(10), event, userWithoutPersonalData, "10 km", "Master Varonil", true);
 
         assertThat(result).isNotEmpty().startsWith(PDF_MAGIC);
     }
@@ -89,7 +89,7 @@ class TicketPdfGeneratorTest {
     void generate_withNullLocation_shouldNotThrow() throws Exception {
         when(event.getLocation()).thenReturn(null);
 
-        byte[] result = generator.generate(testRegistration(5), event, testUser(), "5 km");
+        byte[] result = generator.generate(testRegistration(5), event, testUser(), "5 km","Master Varonil", true);
 
         assertThat(result).isNotEmpty().startsWith(PDF_MAGIC);
     }

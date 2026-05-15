@@ -2,6 +2,7 @@ package com.accesosport.registration.application.usecase;
 
 import com.accesosport.event.domain.model.Event;
 import com.accesosport.event.domain.model.Location;
+import com.accesosport.event.domain.repository.EventCategoryRepository;
 import com.accesosport.event.domain.repository.EventModalityRepository;
 import com.accesosport.event.domain.repository.EventRepository;
 import com.accesosport.registration.application.service.TicketPdfGenerator;
@@ -42,6 +43,7 @@ class ResendTicketEmailUseCaseTest {
     @Mock private EventRepository eventRepository;
     @Mock private UserRepository userRepository;
     @Mock private EventModalityRepository eventModalityRepository;
+    @Mock private EventCategoryRepository eventCategoryRepository;
     @Mock private TicketPdfGenerator ticketPdfGenerator;
     @Mock private EmailService emailService;
     @Mock private Event event;
@@ -57,7 +59,7 @@ class ResendTicketEmailUseCaseTest {
     void setUp() throws IOException {
         useCase = new ResendTicketEmailUseCase(
                 registrationRepository, eventRepository, userRepository,
-                eventModalityRepository, ticketPdfGenerator, emailService
+                eventModalityRepository, eventCategoryRepository, ticketPdfGenerator, emailService
         );
 
         registrationId = UUID.randomUUID();
@@ -78,7 +80,7 @@ class ResendTicketEmailUseCaseTest {
                 .build();
         when(userRepository.findById(participantId)).thenReturn(Optional.of(participant));
 
-        when(ticketPdfGenerator.generate(any(), any(), any(), any())).thenReturn(new byte[]{1, 2, 3});
+        when(ticketPdfGenerator.generate(any(), any(), any(), any(), any(), anyBoolean())).thenReturn(new byte[]{1, 2, 3});
     }
 
     @Test

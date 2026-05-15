@@ -109,7 +109,7 @@ public class RegistrationApplicationService {
     @Transactional(readOnly = true)
     public byte[] generateTicketPdf(UUID registrationId, UUID requesterId) {
         GenerateTicketPdfUseCase useCase = new GenerateTicketPdfUseCase(
-                registrationRepository, eventRepository, userRepository, eventModalityRepository, ticketPdfGenerator
+                registrationRepository, eventRepository, userRepository, eventModalityRepository, eventCategoryRepository, ticketPdfGenerator
         );
         return useCase.execute(new GenerateTicketPdfUseCase.Command(registrationId, requesterId));
     }
@@ -117,7 +117,7 @@ public class RegistrationApplicationService {
     @Transactional(readOnly = true)
     public void resendTicketEmail(UUID registrationId, UUID requesterId) {
         ResendTicketEmailUseCase useCase = new ResendTicketEmailUseCase(
-                registrationRepository, eventRepository, userRepository, eventModalityRepository,
+                registrationRepository, eventRepository, userRepository, eventModalityRepository, eventCategoryRepository,
                 ticketPdfGenerator, emailService
         );
         useCase.execute(new ResendTicketEmailUseCase.Command(registrationId, requesterId));

@@ -2,6 +2,7 @@ package com.accesosport.registration.infrastructure.listeners;
 
 import com.accesosport.event.domain.model.Event;
 import com.accesosport.event.domain.model.Location;
+import com.accesosport.event.domain.repository.EventCategoryRepository;
 import com.accesosport.event.domain.repository.EventModalityRepository;
 import com.accesosport.event.domain.repository.EventRepository;
 import com.accesosport.registration.application.service.TicketPdfGenerator;
@@ -42,6 +43,7 @@ class TicketEmailEventHandlerTest {
     @Mock private EventRepository eventRepository;
     @Mock private RegistrationRepository registrationRepository;
     @Mock private EventModalityRepository eventModalityRepository;
+    @Mock private EventCategoryRepository eventCategoryRepository;
     @Mock private Event event;
     @Mock private Location location;
     @Mock private User user;
@@ -57,7 +59,7 @@ class TicketEmailEventHandlerTest {
     void setUp() throws IOException {
         handler = new TicketEmailEventHandler(
                 ticketPdfGenerator, emailService, userRepository,
-                eventRepository, registrationRepository, eventModalityRepository
+                eventRepository, registrationRepository, eventModalityRepository, eventCategoryRepository
         );
 
         registrationId = UUID.randomUUID();
@@ -82,7 +84,7 @@ class TicketEmailEventHandlerTest {
         when(location.place()).thenReturn("Chapultepec");
         when(location.city()).thenReturn("CDMX");
 
-        when(ticketPdfGenerator.generate(any(), any(), any(), any())).thenReturn(new byte[]{1, 2, 3});
+        when(ticketPdfGenerator.generate(any(), any(), any(), any(), any(), anyBoolean())).thenReturn(new byte[]{1, 2, 3});
     }
 
     @Test
@@ -123,7 +125,7 @@ class TicketEmailEventHandlerTest {
 
     @Test
     void handle_whenTicketPdfGeneratorThrows_shouldNotPropagateException() throws IOException {
-        when(ticketPdfGenerator.generate(any(), any(), any(), any()))
+        when(ticketPdfGenerator.generate(any(), any(), any(), any(), any(), anyBoolean()))
                 .thenThrow(new IOException("PDF generation failed"));
 
         RegistrationConfirmedEvent domainEvent = new RegistrationConfirmedEvent(

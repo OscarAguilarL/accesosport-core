@@ -36,9 +36,9 @@ public class TicketPdfGenerator {
     private static final float HEADER_HEIGHT = 90f;
     private static final float LOGO_WIDTH = 400f;
     private static final float LOGO_HEIGHT = HEADER_HEIGHT;
-    private static final float QR_SIZE = 150f;
-    private static final float DATA_CARD_Y = PAGE_HEIGHT - 410f;
-    private static final float DATA_CARD_HEIGHT = 220f;
+    private static final float QR_SIZE = 130f;
+    private static final float DATA_CARD_Y = PAGE_HEIGHT - 550f;
+    private static final float DATA_CARD_HEIGHT = 360f;
     private static final float DATA_CARD_PADDING = 20f;
     private static final Color BRAND_COLOR = new Color(3, 55, 102);
     private static final Color LIGHT_GRAY = new Color(245, 245, 245);
@@ -47,7 +47,14 @@ public class TicketPdfGenerator {
     private static final Color DIVIDER_GRAY = new Color(200, 200, 200);
     private static final Color MUTED_GRAY = new Color(160, 160, 160);
 
-    public byte[] generate(Registration registration, Event event, User participant, String distanceLabel) throws IOException {
+    public byte[] generate(
+    		Registration registration,
+    		Event event,
+    		User participant,
+    		String distanceLabel,
+    		String category,
+    		boolean wantsShirt
+    		) throws IOException {
         try (PDDocument doc = new PDDocument()) {
             PDPage page = new PDPage(PDRectangle.A4);
             doc.addPage(page);
@@ -65,7 +72,7 @@ public class TicketPdfGenerator {
                 drawBackground(cs);
                 drawHeader(cs, bold, regular, logoImage);
                 drawEventSection(cs, event, bold, regular);
-                drawParticipantSection(cs, registration, distanceLabel, participant, bold, regular);
+                drawParticipantSection(cs, registration, distanceLabel, category, wantsShirt, participant, bold, regular);
                 drawQrCode(cs, qrImage, registration, bold);
                 drawFooter(cs, bold, regular);
             }
@@ -166,24 +173,33 @@ public class TicketPdfGenerator {
     }
 
     private void drawParticipantSection(PDPageContentStream cs, Registration registration,
-                                        String distanceLabel, User participant,
-                                        PDType1Font bold, PDType1Font regular) throws IOException {
+                                        String distanceLabel, String categoryName, boolean wantsShirt,
+                                        User participant, PDType1Font bold, PDType1Font regular) throws IOException {
         float startY = PAGE_HEIGHT - 212f;
         float leftCol = MARGIN + DATA_CARD_PADDING;
+        float rightCol = MARGIN + (PAGE_WIDTH - MARGIN * 2) / 2f;
 
+        // Row 1: PARTICIPANT | BIB NUMBER
         drawLabel(cs, bold, leftCol, startY, "PARTICIPANTE");
-        drawValue(cs, bold, 13, leftCol, startY - 17f, truncate(getParticipantName(participant), 35));
+        drawValue(cs, bold, 13, leftCol, startY - 17f, truncate(getParticipantName(participant), 28));
 
-        drawLabel(cs, bold, leftCol, startY - 47f, "DORSAL");
+        drawLabel(cs, bold, rightCol, startY, "DORSAL");
         String bibText = registration.getBibNumber() != null ? "# " + registration.getBibNumber() : "Sin asignar";
-        drawValue(cs, bold, 20, leftCol, startY - 67f, bibText);
+        drawValue(cs, bold, 20, rightCol, startY - 20f, bibText);
 
-        drawLabel(cs, bold, leftCol, startY - 105f, "DISTANCIA");
-        drawValue(cs, bold, 13, leftCol, startY - 121f,
-                distanceLabel != null ? distanceLabel : "-");
+        // ROW 2: DISTANCE | SHIRT SIZE
+        drawLabel(cs, bold, leftCol, startY - 60f, "DISTANCIA");
+        drawValue(cs, bold, 13, leftCol, startY - 77f, distanceLabel != null ? distanceLabel : "-");
+        
+        drawLabel(cs, bold, rightCol, startY - 60f, "PLAYERA");
+        drawValue(cs, bold, 13, rightCol, startY - 77f, wantsShirt ? "Sí" : "No");
 
-        drawLabel(cs, bold, leftCol, startY - 151f, "FOLIO");
-        drawValue(cs, bold, 13, leftCol, startY - 167f, registration.getTicketCode());
+        // ROW 2: CATEGORY | TICKET CODE
+        drawLabel(cs, bold, leftCol, startY - 120f, "CATEGORÍA");
+        drawValue(cs, bold, 13, leftCol, startY - 137f, truncate(categoryName != null ? categoryName : "-", 28));
+
+        drawLabel(cs, bold, rightCol, startY - 120f, "FOLIO");
+        drawValue(cs, bold, 13, rightCol, startY - 137f, registration.getTicketCode());
     }
 
     private void drawLabel(PDPageContentStream cs, PDType1Font bold,
@@ -208,8 +224,8 @@ public class TicketPdfGenerator {
 
     private void drawQrCode(PDPageContentStream cs, PDImageXObject qrImage,
                             Registration registration, PDType1Font bold) throws IOException {
-        float qrX = PAGE_WIDTH - MARGIN - QR_SIZE - DATA_CARD_PADDING;
-        float qrY = PAGE_HEIGHT - 367f;
+    	float qrX = (PAGE_WIDTH - QR_SIZE) / 2f;
+    	float qrY = PAGE_HEIGHT - 510f;
 
         cs.drawImage(qrImage, qrX, qrY, QR_SIZE, QR_SIZE);
 

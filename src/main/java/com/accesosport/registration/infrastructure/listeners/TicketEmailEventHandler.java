@@ -1,6 +1,8 @@
 package com.accesosport.registration.infrastructure.listeners;
 
 import com.accesosport.event.domain.model.Event;
+import com.accesosport.event.domain.model.EventCategory;
+import com.accesosport.event.domain.repository.EventCategoryRepository;
 import com.accesosport.event.domain.repository.EventModalityRepository;
 import com.accesosport.event.domain.repository.EventRepository;
 import com.accesosport.registration.domain.events.RegistrationConfirmedEvent;
@@ -36,6 +38,7 @@ public class TicketEmailEventHandler {
     private final EventRepository eventRepository;
     private final RegistrationRepository registrationRepository;
     private final EventModalityRepository eventModalityRepository;
+    private final EventCategoryRepository eventCategoryRepository;
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Async("domainEventExecutor")
@@ -55,7 +58,14 @@ public class TicketEmailEventHandler {
 
             String distanceLabel = resolveDistanceLabel(registration);
 
-            byte[] pdfBytes = ticketPdfGenerator.generate(registration, evt, participant, distanceLabel);
+            String category = null;
+            if (registration.getCategoryId() != null) {
+            	category = eventCategoryRepository.findById(registration.getCategoryId())
+            			.map(EventCategory::getName)
+            			.orElse(null);
+            }
+            
+            byte[] pdfBytes = ticketPdfGenerator.generate(registration, evt, participant, distanceLabel, category, registration.isWantsShirt());
 
             String firstName = participant.getPersonalData() != null
                     ? participant.getPersonalData().getFirstName()
