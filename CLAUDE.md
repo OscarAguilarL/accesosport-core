@@ -99,7 +99,17 @@ All user-facing messages are externalized to `src/main/resources/i18n/messages_e
 
 ### Database
 
-PostgreSQL 15.3 via Docker. `spring.jpa.hibernate.ddl-auto=update` — schema is auto-updated on startup. No migration tool (Flyway/Liquibase) is in use.
+PostgreSQL 15.3 via Docker. El esquema se gestiona con **Flyway** — `ddl-auto=validate` (Hibernate solo verifica, no modifica).
+
+Scripts en `src/main/resources/db/migration/`:
+- `V1__init.sql` — estado inicial del esquema
+- `V2__cleanup_orphan_schema.sql` — elimina columnas y tablas huérfanas del diseño anterior
+- Scripts futuros: `V3__descripcion.sql`, `V4__descripcion.sql`, etc.
+
+**Reglas:**
+- Nunca modifiques un script `V` ya commiteado — Flyway guarda su checksum y fallará al detectar cambios
+- Un script = un cambio lógico; no acumules varios cambios en un solo archivo
+- Para entornos con BD existente: `baseline-on-migrate=true` marca el estado actual como versión 1 y aplica desde `V2` en adelante
 
 API versioning prefix: `/api/v1/`
 
