@@ -70,11 +70,6 @@ public class ImageController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/api/v1/events/{eventId}/images")
-    public ResponseEntity<List<EventImageResponse>> getEventGallery(@PathVariable UUID eventId) {
-        return ResponseEntity.ok(imageApplicationService.getEventGallery(eventId));
-    }
-
     @PutMapping("/api/v1/user/profile/organizer/logo")
     public ResponseEntity<OrganizerProfileResponse> uploadOrganizerLogo(
             @RequestParam("file") MultipartFile file,

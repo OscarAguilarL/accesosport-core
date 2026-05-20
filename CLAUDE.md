@@ -90,6 +90,13 @@ All use cases extend `UseCase<C extends Command, R>` from the shared module and 
 
 - JWT stateless auth (24h expiration)
 - Public endpoints: `/auth/**`, `/api/v1/public/**`
+  - `GET /api/v1/public/events` — eventos publicados (disponibles para registro)
+  - `GET /api/v1/public/events/available` — eventos con inscripciones abiertas
+  - `GET /api/v1/public/events/published` — eventos publicados
+  - `GET /api/v1/public/events/{id}` — detalle de un evento
+  - `GET /api/v1/public/events/{id}/modalities` — modalidades del evento
+  - `GET /api/v1/public/events/{id}/categories` — categorías del evento
+  - `GET /api/v1/public/events/{id}/images` — galería de imágenes del evento
 - All other endpoints require a valid JWT Bearer token
 - CORS enabled for `localhost` origins
 

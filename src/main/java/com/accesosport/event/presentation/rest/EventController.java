@@ -74,18 +74,6 @@ public class EventController {
     }
 
     /**
-     * Retrieves the details of an event specified by its unique identifier.
-     *
-     * @param eventId the unique identifier of the event to retrieve
-     * @return a ResponseEntity containing the event details wrapped in an EventResponse object
-     */
-    @GetMapping("/{eventId}")
-    public ResponseEntity<EventResponse> getEvent(@PathVariable UUID eventId) {
-        EventResponse eventResponse = eventApplicationService.getEvent(eventId);
-        return ResponseEntity.ok(eventResponse);
-    }
-
-    /**
      * Retrieves a list of events filtered by their status or a list of upcoming events if no status is specified.
      *
      * @param eventStatus the status of the events to filter; if null, this method returns upcoming events
@@ -97,19 +85,6 @@ public class EventController {
         List<EventSummaryResponse> eventSummaryResponses = eventStatus != null
                 ? eventApplicationService.ListEventsByStatus(eventStatus)
                 : eventApplicationService.listUpcomingEvents();
-
-        return ResponseEntity.ok(eventSummaryResponses);
-    }
-
-    /**
-     * Retrieves a list of events that are currently available for registration.
-     *
-     * @return a ResponseEntity containing a list of {@code EventSummaryResponse} objects
-     * representing the currently available events
-     */
-    @GetMapping("/available")
-    public ResponseEntity<List<EventSummaryResponse>> listAvailableEvents() {
-        List<EventSummaryResponse> eventSummaryResponses = eventApplicationService.listAvailableEvents();
 
         return ResponseEntity.ok(eventSummaryResponses);
     }
@@ -184,7 +159,6 @@ public class EventController {
      * Only users with the "ROLE_ORGANIZER" or "ROLE_ADMIN" authority are authorized to perform this operation.
      *
      * @param eventId the unique identifier of the event to be canceled
-     * @param reason  the reason for canceling the event; if not provided, defaults to "Cancelled by organizer"
      * @return a ResponseEntity containing the details of the canceled event wrapped in an EventResponse object
      */
     @PutMapping("/{eventId}/complete")
@@ -222,11 +196,6 @@ public class EventController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @GetMapping("/{eventId}/modalities")
-    public ResponseEntity<List<ModalityResponse>> listModalities(@PathVariable UUID eventId) {
-        return ResponseEntity.ok(eventModalityApplicationService.listModalities(eventId));
-    }
-
     @DeleteMapping("/{eventId}/modalities/{modalityId}")
     @PreAuthorize("hasAnyAuthority('ROLE_ORGANIZER', 'ROLE_ADMIN')")
     public ResponseEntity<Void> deleteModality(
@@ -249,11 +218,6 @@ public class EventController {
         UUID requesterId = isAdmin(userDetails) ? null : userDetails.getUserId();
         CategoryResponse response = eventCategoryApplicationService.addCategory(eventId, requesterId, isAdmin(userDetails), request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
-
-    @GetMapping("/{eventId}/categories")
-    public ResponseEntity<List<CategoryResponse>> listCategories(@PathVariable UUID eventId) {
-        return ResponseEntity.ok(eventCategoryApplicationService.listCategories(eventId));
     }
 
     @DeleteMapping("/{eventId}/categories/{categoryId}")
