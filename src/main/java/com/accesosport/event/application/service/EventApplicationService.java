@@ -166,6 +166,11 @@ public class EventApplicationService {
         return toSummaryResponses(eventRepository.findUpcomingEvents(now, now.plusMonths(3)));
     }
 
+    @Transactional(readOnly = true)
+    public List<EventSummaryResponse> listPublishedEvents() {
+        return toSummaryResponses(eventRepository.findByStatus(EventStatus.PUBLISHED));
+    }
+
     private List<EventSummaryResponse> toSummaryResponses(List<Event> events) {
         if (events.isEmpty()) return List.of();
 
