@@ -12,6 +12,7 @@ public record EventSummaryResponse(
         BigDecimal minPrice,
         int totalAvailableSpots,
         String status,
-        boolean canRegister
+        boolean canRegister,
+        String coverImageUrl
 ) {
 }

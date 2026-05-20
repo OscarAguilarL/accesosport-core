@@ -64,7 +64,8 @@ public class EventResponseMapper {
                 minPrice,
                 totalAvailableSpots,
                 event.getStatus().name(),
-                canRegister
+                canRegister,
+                event.getCoverImageUrl()
         );
     }
 
