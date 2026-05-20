@@ -115,13 +115,15 @@ API versioning prefix: `/api/v1/`
 
 ## Decisiones de negocio ✅
 
-### Pasarela de pagos — Mercado Pago Marketplace
-- Métodos aceptados: tarjeta (débito/crédito), OXXO, SPEI
-- Modelo: AccesoSport cobra 3% de `marketplace_fee` por inscripción automáticamente
-- Organizador recibe el 97% restante en T+2 días hábiles
-- El dinero del participante va directo al organizador — no pasa por el RFC de AccesoSport
+### Pasarela de pagos — Stripe Connect
+- Métodos aceptados: tarjeta de débito, tarjeta de crédito, OXXO
+- Fee de Stripe: 3.6% + $3 MXN por transacción (IVA incluido)
+- Modelo: AccesoSport cobra un **cargo por servicio** al participante: `Math.max(20, precio * 0.08)` — el mayor entre $20 MXN fijo o 8% del precio de inscripción; punto de quiebre en $250 MXN
+- El organizador recibe el **100% del precio base** de inscripción sin descuentos ni deducciones
+- AccesoSport absorbe el fee de Stripe de su propio cargo por servicio
+- Split del pago vía Stripe Connect: participante paga (inscripción + cargo por servicio) en un solo checkout; Stripe transfiere el precio base al organizador; AccesoSport retiene el cargo por servicio (neto del fee de Stripe)
 - Retención hasta el evento: aplazada a fase 2 (cuando AccesoSport se constituya como empresa)
-- Operación legal: como PFAE — Mercado Pago maneja la regulación financiera
+- Operación legal: como PFAE — Stripe maneja la regulación financiera
 
 ### Proveedor de email — Resend
 - API moderna, integración simple, acepta adjuntos vía base64
@@ -134,25 +136,25 @@ API versioning prefix: `/api/v1/`
 
 ### Cancelación de evento con inscritos
 - Al cancelar un evento: todas las inscripciones `CONFIRMED` pasan a `CANCELLED`
-- Si hubo pago: AccesoSport emite el reembolso vía Mercado Pago API automáticamente
-- AccesoSport devuelve también su 3% de comisión al reembolsar
+- Si hubo pago: AccesoSport emite el reembolso vía Stripe API automáticamente (precio base + cargo por servicio)
+- AccesoSport devuelve el cargo por servicio completo al reembolsar
 - Los participantes reciben email de aviso con confirmación del reembolso
 
 ### Cancelación de inscripción por el participante
-- Reembolso total siempre, sin importar la anticipación
-- AccesoSport absorbe el fee de MP (no se lo cobra al participante)
-- Con tarjeta: reembolso en 1-2 días. Con OXXO/SPEI: 3-5 días hábiles (limitación de MP)
+- Reembolso total siempre, sin importar la anticipación (precio base + cargo por servicio)
+- AccesoSport absorbe el fee de Stripe (no se lo cobra al participante)
+- Con tarjeta: reembolso en 5-10 días hábiles (tiempo estándar de Stripe). Con OXXO: no hay reembolso automático — se gestiona manualmente por transferencia
 
-### Fee de Mercado Pago en reembolsos
-- MP cobra ~3.6% + $4 MXN por transacción procesada — ese fee no se devuelve en reembolsos
-- El participante recibe el monto pagado menos el fee de MP
+### Fee de Stripe en reembolsos
+- Stripe no devuelve su fee de procesamiento (~3.6% + $3 MXN) en reembolsos
+- AccesoSport absorbe ese costo — el participante recibe el monto total que pagó
 - Se informa claramente en el checkout al momento de inscribirse
 
 ### Verificación de organizadores para eventos de pago
 - Organizadores no verificados pueden crear y publicar eventos **gratuitos** libremente
-- Para eventos con precio > 0: requieren `verificationStatus = VERIFIED` Y cuenta de MP vinculada
+- Para eventos con precio > 0: requieren `verificationStatus = VERIFIED` Y cuenta de Stripe Connect vinculada
 - La verificación es manual por un admin de AccesoSport
-- La vinculación de cuenta MP se solicita durante el **onboarding inicial** del organizador (siempre, aunque no tenga eventos de pago todavía)
+- La vinculación de cuenta Stripe Connect se solicita durante el **onboarding inicial** del organizador (siempre, aunque no tenga eventos de pago todavía)
 
 ### Protección al participante
 - Derecho a contracargo con su banco/tarjeta
