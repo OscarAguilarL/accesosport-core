@@ -2,7 +2,7 @@ package com.accesosport.shared.presentation.rest;
 
 import com.accesosport.shared.domain.model.EmailMessage;
 import com.accesosport.shared.domain.port.EmailService;
-import com.accesosport.shared.infrastructure.email.EmailTemplates;
+import com.accesosport.shared.infrastructure.email.EmailTemplateService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -22,6 +22,7 @@ public class ContactController {
     private static final String CONTACT_INBOX = "contacto@accesosport.com";
 
     private final EmailService emailService;
+    private final EmailTemplateService emailTemplateService;
 
     public record ContactRequest(
             @NotBlank @Size(max = 100) String name,
@@ -34,7 +35,7 @@ public class ContactController {
         emailService.send(EmailMessage.of(
                 CONTACT_INBOX,
                 "Nuevo mensaje de contacto — " + request.name(),
-                EmailTemplates.contactForm(request.name(), request.email(), request.message())
+                emailTemplateService.contactForm(request.name(), request.email(), request.message())
         ));
         return ResponseEntity.ok().build();
     }

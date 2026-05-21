@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<body style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; color: #111827;">
+
+  <h2 style="color: #dc2626;">Evento cancelado — <span th:text="${eventName}"></span></h2>
+  <p>Hola <span th:text="${participantFirstName}"></span>,</p>
+  <p>
+    Lamentamos informarte que <strong th:text="${eventName}"></strong>
+    programado para el <strong th:text="${eventDate}"></strong> ha sido cancelado.
+  </p>
+  <p><strong>Motivo:</strong> <span th:text="${cancellationReason}"></span></p>
+  <p>Si realizaste un pago, el reembolso se procesará automáticamente en un plazo de 3 a 5 días hábiles.</p>
+  <p style="color: #6b7280; font-size: 12px;">AccesoSport — Lamentamos los inconvenientes ocasionados.</p>
+
+</body>
+</html>

@@ -11,6 +11,7 @@ import com.accesosport.registration.domain.model.Registration;
 import com.accesosport.registration.domain.model.RegistrationStatus;
 import com.accesosport.registration.domain.repository.RegistrationRepository;
 import com.accesosport.shared.domain.port.EmailService;
+import com.accesosport.shared.infrastructure.email.EmailTemplateService;
 import com.accesosport.user.domain.model.PersonalData;
 import com.accesosport.user.domain.model.User;
 import com.accesosport.user.domain.repository.UserRepository;
@@ -39,6 +40,7 @@ class TicketEmailEventHandlerTest {
 
     @Mock private TicketPdfGenerator ticketPdfGenerator;
     @Mock private EmailService emailService;
+    @Mock private EmailTemplateService emailTemplateService;
     @Mock private UserRepository userRepository;
     @Mock private EventRepository eventRepository;
     @Mock private RegistrationRepository registrationRepository;
@@ -58,7 +60,7 @@ class TicketEmailEventHandlerTest {
     @BeforeEach
     void setUp() throws IOException {
         handler = new TicketEmailEventHandler(
-                ticketPdfGenerator, emailService, userRepository,
+                ticketPdfGenerator, emailService, emailTemplateService, userRepository,
                 eventRepository, registrationRepository, eventModalityRepository, eventCategoryRepository
         );
 
@@ -85,6 +87,7 @@ class TicketEmailEventHandlerTest {
         when(location.city()).thenReturn("CDMX");
 
         when(ticketPdfGenerator.generate(any(), any(), any(), any(), any(), anyBoolean())).thenReturn(new byte[]{1, 2, 3});
+        when(emailTemplateService.registrationConfirmation(any(), any(), any(), any(), any(), any())).thenReturn("<html>stub</html>");
     }
 
     @Test

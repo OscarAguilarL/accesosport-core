@@ -7,6 +7,7 @@ import com.accesosport.registration.domain.model.Registration;
 import com.accesosport.registration.domain.repository.RegistrationRepository;
 import com.accesosport.shared.domain.model.EmailMessage;
 import com.accesosport.shared.domain.port.EmailService;
+import com.accesosport.shared.infrastructure.email.EmailTemplateService;
 import com.accesosport.user.domain.model.PersonalData;
 import com.accesosport.user.domain.model.User;
 import com.accesosport.user.domain.repository.UserRepository;
@@ -37,6 +38,7 @@ class EmailReminderServiceTest {
     @Mock private RegistrationRepository registrationRepository;
     @Mock private UserRepository userRepository;
     @Mock private EmailService emailService;
+    @Mock private EmailTemplateService emailTemplateService;
 
     @Mock private Event event;
     @Mock private Location location;
@@ -49,7 +51,7 @@ class EmailReminderServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new EmailReminderService(eventRepository, registrationRepository, userRepository, emailService);
+        service = new EmailReminderService(eventRepository, registrationRepository, userRepository, emailService, emailTemplateService);
         eventId = UUID.randomUUID();
         participantId = UUID.randomUUID();
 
@@ -69,6 +71,7 @@ class EmailReminderServiceTest {
         when(userRepository.findById(participantId)).thenReturn(Optional.of(user));
 
         when(eventRepository.save(any(Event.class))).thenReturn(event);
+        when(emailTemplateService.eventReminder(any(), any(), any(), any(), any(), any())).thenReturn("<html>stub</html>");
     }
 
     @Test

@@ -4,7 +4,7 @@ import com.accesosport.event.domain.events.EventCancelledEvent;
 import com.accesosport.registration.domain.repository.RegistrationRepository;
 import com.accesosport.shared.domain.model.EmailMessage;
 import com.accesosport.shared.domain.port.EmailService;
-import com.accesosport.shared.infrastructure.email.EmailTemplates;
+import com.accesosport.shared.infrastructure.email.EmailTemplateService;
 import com.accesosport.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,9 +22,10 @@ import java.util.UUID;
 public class EventCancellationEmailHandler {
 
     private static final DateTimeFormatter DATE_FORMATTER =
-            DateTimeFormatter.ofPattern("MMMM d, yyyy 'at' h:mm a");
+            DateTimeFormatter.ofPattern("d 'de' MMMM 'de' yyyy, h:mm a").withLocale(java.util.Locale.forLanguageTag("es-MX"));
 
     private final EmailService emailService;
+    private final EmailTemplateService emailTemplateService;
     private final RegistrationRepository registrationRepository;
     private final UserRepository userRepository;
 
@@ -41,9 +42,9 @@ public class EventCancellationEmailHandler {
                             userRepository.findById(reg.getParticipantId()).ifPresent(user -> {
                                 String firstName = user.getPersonalData() != null
                                         ? user.getPersonalData().getFirstName()
-                                        : "Participant";
+                                        : "Participante";
 
-                                String html = EmailTemplates.eventCancellation(
+                                String html = emailTemplateService.eventCancellation(
                                         firstName,
                                         event.getEventName(),
                                         event.getEventDate().format(DATE_FORMATTER),
@@ -52,7 +53,7 @@ public class EventCancellationEmailHandler {
 
                                 emailService.send(EmailMessage.of(
                                         user.getEmail(),
-                                        "Important: " + event.getEventName() + " has been cancelled",
+                                        "Importante: " + event.getEventName() + " ha sido cancelado",
                                         html
                                 ));
                                 log.info("[Email] Cancellation notice sent to {} for event {}",

@@ -14,7 +14,7 @@ import com.accesosport.registration.domain.model.RegistrationStatus;
 import com.accesosport.registration.domain.repository.RegistrationRepository;
 import com.accesosport.shared.domain.port.EmailService;
 import com.accesosport.shared.domain.usecase.UseCase;
-import com.accesosport.shared.infrastructure.email.EmailTemplates;
+import com.accesosport.shared.infrastructure.email.EmailTemplateService;
 import com.accesosport.user.domain.model.User;
 import com.accesosport.user.domain.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -27,7 +27,7 @@ import java.util.UUID;
 public class ResendTicketEmailUseCase extends UseCase<ResendTicketEmailUseCase.Command, Void> {
 
     private static final DateTimeFormatter DATE_FORMATTER =
-            DateTimeFormatter.ofPattern("MMMM d, yyyy 'at' h:mm a");
+            DateTimeFormatter.ofPattern("d 'de' MMMM 'de' yyyy, h:mm a").withLocale(java.util.Locale.forLanguageTag("es-MX"));
 
     public record Command(UUID registrationId, UUID requesterId) {}
 
@@ -38,6 +38,7 @@ public class ResendTicketEmailUseCase extends UseCase<ResendTicketEmailUseCase.C
     private final EventCategoryRepository eventCategoryRepository;
     private final TicketPdfGenerator ticketPdfGenerator;
     private final EmailService emailService;
+    private final EmailTemplateService emailTemplateService;
 
     @Override
     protected Void internalExecute(Command command) {
@@ -87,7 +88,7 @@ public class ResendTicketEmailUseCase extends UseCase<ResendTicketEmailUseCase.C
                 ? event.getLocation().place() + ", " + event.getLocation().city()
                 : "-";
 
-        String html = EmailTemplates.registrationConfirmation(
+        String html = emailTemplateService.registrationConfirmation(
                 firstName,
                 event.getName(),
                 registration.getTicketCode(),

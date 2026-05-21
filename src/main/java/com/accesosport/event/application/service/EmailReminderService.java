@@ -6,7 +6,7 @@ import com.accesosport.registration.domain.model.Registration;
 import com.accesosport.registration.domain.repository.RegistrationRepository;
 import com.accesosport.shared.domain.model.EmailMessage;
 import com.accesosport.shared.domain.port.EmailService;
-import com.accesosport.shared.infrastructure.email.EmailTemplates;
+import com.accesosport.shared.infrastructure.email.EmailTemplateService;
 import com.accesosport.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,12 +23,13 @@ import java.util.List;
 public class EmailReminderService {
 
     private static final DateTimeFormatter DATE_FORMATTER =
-            DateTimeFormatter.ofPattern("MMMM d, yyyy 'at' h:mm a");
+            DateTimeFormatter.ofPattern("d 'de' MMMM 'de' yyyy, h:mm a").withLocale(java.util.Locale.forLanguageTag("es-MX"));
 
     private final EventRepository eventRepository;
     private final RegistrationRepository registrationRepository;
     private final UserRepository userRepository;
     private final EmailService emailService;
+    private final EmailTemplateService emailTemplateService;
 
     @Transactional
     public void sendEventReminders() {
@@ -50,18 +51,18 @@ public class EmailReminderService {
                         userRepository.findById(reg.getParticipantId()).ifPresent(user -> {
                             String firstName = user.getPersonalData() != null
                                     ? user.getPersonalData().getFirstName()
-                                    : "Participant";
-                            String html = EmailTemplates.eventReminder(
+                                    : "Participante";
+                            String html = emailTemplateService.eventReminder(
                                     firstName,
                                     event.getName(),
                                     event.getEventDate().format(DATE_FORMATTER),
                                     event.getLocation().place() + ", " + event.getLocation().city(),
                                     reg.getTicketCode(),
-                                    reg.getBibNumber() != null ? String.valueOf(reg.getBibNumber()) : "Pending"
+                                    reg.getBibNumber() != null ? String.valueOf(reg.getBibNumber()) : "Sin asignar"
                             );
                             emailService.send(EmailMessage.of(
                                     user.getEmail(),
-                                    "Race Day Tomorrow: " + event.getName(),
+                                    "Mañana es la carrera: " + event.getName(),
                                     html
                             ));
                         });

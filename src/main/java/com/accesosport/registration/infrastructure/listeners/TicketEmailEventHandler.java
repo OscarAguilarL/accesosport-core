@@ -10,7 +10,7 @@ import com.accesosport.registration.domain.model.Registration;
 import com.accesosport.registration.domain.repository.RegistrationRepository;
 import com.accesosport.registration.application.service.TicketPdfGenerator;
 import com.accesosport.shared.domain.port.EmailService;
-import com.accesosport.shared.infrastructure.email.EmailTemplates;
+import com.accesosport.shared.infrastructure.email.EmailTemplateService;
 import com.accesosport.user.domain.model.User;
 import com.accesosport.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,10 +30,11 @@ import java.util.Locale;
 public class TicketEmailEventHandler {
 
     private static final DateTimeFormatter DATE_FORMATTER =
-            DateTimeFormatter.ofPattern("MMMM d, yyyy 'at' h:mm a");
+            DateTimeFormatter.ofPattern("d 'de' MMMM 'de' yyyy, h:mm a").withLocale(java.util.Locale.forLanguageTag("es-MX"));
 
     private final TicketPdfGenerator ticketPdfGenerator;
     private final EmailService emailService;
+    private final EmailTemplateService emailTemplateService;
     private final UserRepository userRepository;
     private final EventRepository eventRepository;
     private final RegistrationRepository registrationRepository;
@@ -80,7 +81,7 @@ public class TicketEmailEventHandler {
                     ? evt.getLocation().place() + ", " + evt.getLocation().city()
                     : "-";
 
-            String html = EmailTemplates.registrationConfirmation(
+            String html = emailTemplateService.registrationConfirmation(
                     firstName,
                     evt.getName(),
                     event.getTicketCode(),
