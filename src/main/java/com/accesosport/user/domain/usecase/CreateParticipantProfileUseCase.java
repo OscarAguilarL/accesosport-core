@@ -58,7 +58,7 @@ public class CreateParticipantProfileUseCase extends UseCase<CreateParticipantPr
         user.addRole(Role.of(RoleEnumeration.ROLE_PARTICIPANT));
         userRepository.save(user);
 
-        return new Result(participantProfileRepository.save(profile));
+        return new Result(participantProfileRepository.save(profile), user);
     }
 
     /**
@@ -88,6 +88,6 @@ public class CreateParticipantProfileUseCase extends UseCase<CreateParticipantPr
      *
      * @param profile The ParticipantProfileResult object
      */
-    public record Result(UserParticipantProfile profile) {
+    public record Result(UserParticipantProfile profile, User user) {
     }
 }

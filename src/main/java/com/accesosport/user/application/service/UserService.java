@@ -8,6 +8,7 @@ import com.accesosport.user.application.dto.CreateParticipantProfileRequest;
 import com.accesosport.user.application.dto.OrganizerProfileResponse;
 import com.accesosport.user.application.dto.OrganizerProfileWithTokenResponse;
 import com.accesosport.user.application.dto.ParticipantProfileResponse;
+import com.accesosport.user.application.dto.ParticipantProfileWithTokenResponse;
 import com.accesosport.user.application.dto.SavePersonalDataRequest;
 import com.accesosport.user.application.dto.SaveUserAddressRequest;
 import com.accesosport.user.application.dto.UserInformationDto;
@@ -77,7 +78,7 @@ public class UserService {
      * @return a {@code ParticipantProfileResponse} containing the details of the newly created participant profile
      */
     @Transactional
-    public ParticipantProfileResponse createParticipantProfile(UUID userId, CreateParticipantProfileRequest request) {
+    public ParticipantProfileWithTokenResponse createParticipantProfile(UUID userId, CreateParticipantProfileRequest request) {
         var command = new CreateParticipantProfileUseCase.Command(
                 request.shirtSize(),
                 request.emergencyContactName(),
@@ -90,7 +91,8 @@ public class UserService {
         );
         CreateParticipantProfileUseCase useCase = new CreateParticipantProfileUseCase(participantProfileRepository, userRepository, roleRepository);
         var result = useCase.execute(command);
-        return ParticipantProfileResponse.fromDomain(result.profile());
+        String newToken = tokenProvider.generateToken(result.user());
+        return new ParticipantProfileWithTokenResponse(newToken, ParticipantProfileResponse.fromDomain(result.profile()));
     }
 
     @Transactional

@@ -6,6 +6,7 @@ import com.accesosport.user.application.dto.CreateParticipantProfileRequest;
 import com.accesosport.user.application.dto.OrganizerProfileResponse;
 import com.accesosport.user.application.dto.OrganizerProfileWithTokenResponse;
 import com.accesosport.user.application.dto.ParticipantProfileResponse;
+import com.accesosport.user.application.dto.ParticipantProfileWithTokenResponse;
 import com.accesosport.user.application.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -81,12 +82,12 @@ public class ProfileController {
      * if the profile is successfully created.
      */
     @PostMapping("/participant")
-    public ResponseEntity<ParticipantProfileResponse> createParticipantProfile(
+    public ResponseEntity<ParticipantProfileWithTokenResponse> createParticipantProfile(
             @Valid @RequestBody CreateParticipantProfileRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         UUID participantId = userDetails.getUserId();
-        ParticipantProfileResponse response = userService.createParticipantProfile(participantId, request);
+        ParticipantProfileWithTokenResponse response = userService.createParticipantProfile(participantId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
