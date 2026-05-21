@@ -55,6 +55,24 @@ public final class EmailTemplates {
                 """.formatted(eventName, participantFirstName, eventName, eventDate, cancellationReason);
     }
 
+    public static String contactForm(String name, String replyTo, String message) {
+        return """
+                <html><body style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; color: #111827;">
+                  <h2 style="color: #023765;">Nuevo mensaje de contacto</h2>
+                  <table style="border-collapse: collapse; width: 100%%;">
+                    <tr><td style="padding: 8px; border: 1px solid #e5e7eb; white-space: nowrap;"><strong>Nombre</strong></td>
+                        <td style="padding: 8px; border: 1px solid #e5e7eb;">%s</td></tr>
+                    <tr><td style="padding: 8px; border: 1px solid #e5e7eb; white-space: nowrap;"><strong>Correo</strong></td>
+                        <td style="padding: 8px; border: 1px solid #e5e7eb;"><a href="mailto:%s">%s</a></td></tr>
+                  </table>
+                  <div style="margin-top: 16px; padding: 16px; background: #f9fafb; border-left: 4px solid #fb5d02; border-radius: 4px;">
+                    <p style="margin: 0; white-space: pre-wrap;">%s</p>
+                  </div>
+                  <p style="margin-top: 24px; color: #6b7280; font-size: 12px;">AccesoSport — formulario de contacto</p>
+                </body></html>
+                """.formatted(name, replyTo, replyTo, message);
+    }
+
     public static String eventReminder(
             String participantFirstName,
             String eventName,
