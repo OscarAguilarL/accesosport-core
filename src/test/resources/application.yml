@@ -1,0 +1,7 @@
+app:
+  cloudinary:
+    cloud-name: test-cloud
+    api-key: test-key
+    api-secret: test-secret
+  resend:
+    api-key: test-resend-key

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<body style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; color: #111827;">
+
+  <h2 style="color: #16a34a;">Mañana es la carrera — <span th:text="${eventName}"></span></h2>
+  <p>Hola <span th:text="${participantFirstName}"></span>,</p>
+  <p>¡Tu carrera empieza mañana! Aquí están tus detalles:</p>
+
+  <table style="border-collapse: collapse; width: 100%;">
+    <tr>
+      <td style="padding: 8px; border: 1px solid #e5e7eb;"><strong>Evento</strong></td>
+      <td style="padding: 8px; border: 1px solid #e5e7eb;" th:text="${eventName}"></td>
+    </tr>
+    <tr>
+      <td style="padding: 8px; border: 1px solid #e5e7eb;"><strong>Fecha y hora</strong></td>
+      <td style="padding: 8px; border: 1px solid #e5e7eb;" th:text="${eventDate}"></td>
+    </tr>
+    <tr>
+      <td style="padding: 8px; border: 1px solid #e5e7eb;"><strong>Lugar</strong></td>
+      <td style="padding: 8px; border: 1px solid #e5e7eb;" th:text="${eventLocation}"></td>
+    </tr>
+    <tr>
+      <td style="padding: 8px; border: 1px solid #e5e7eb;"><strong>Código de boleto</strong></td>
+      <td style="padding: 8px; border: 1px solid #e5e7eb;" th:text="${ticketCode}"></td>
+    </tr>
+    <tr>
+      <td style="padding: 8px; border: 1px solid #e5e7eb;"><strong>Número de dorsal</strong></td>
+      <td style="padding: 8px; border: 1px solid #e5e7eb;" th:text="${bibNumber}"></td>
+    </tr>
+  </table>
+
+  <p style="margin-top: 24px;">¡Buena suerte y que tengas una excelente carrera!</p>
+  <p style="color: #6b7280; font-size: 12px;">AccesoSport — Tu carrera, tu momento.</p>
+
+</body>
+</html>

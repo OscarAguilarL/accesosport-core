@@ -1,19 +1,25 @@
 spring:
   application:
-    name: athletix-api
+    name: accesosport-api
+  profiles:
+    active: local
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/carreras_db
-    username: postgres
-    password: password
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/carreras_db}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
     hikari:
       initialization-fail-timeout: 60000
       connection-timeout: 30000
 
+  flyway:
+    baseline-on-migrate: true
+    baseline-version: 1
+
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     show-sql: false
     properties:
       hibernate:
@@ -29,12 +35,22 @@ spring:
     filter:
       order: 10
 
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
+
 app:
+  checkin:
+    token:
+      valid-hours: ${APP_CHECKIN_TOKEN_VALID_HOURS:12}
   security:
     jwt:
-      secret: 4nh3819hn1v38dj184nd1m49xn19vn492n58bpqwbcs8m2iqwoxm4
-      expiration: 86400000  # 24 horas en milisegundos
-      refreshExpiration: 604800000  # 7 días en milisegundos
+      secret: ${APP_JWT_SECRET}          # Sin default — requerido en todos los entornos
+      expiration: ${APP_JWT_EXPIRATION:86400000}
+      refreshExpiration: ${APP_JWT_REFRESH_EXPIRATION:604800000}
+  cors:
+    allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:3000}
   bootstrap:
     enabled: true
     fail-on-error: false
@@ -43,16 +59,33 @@ app:
       enabled: true
 
     default-admin:
-      enabled: true  # Solo en desarrollo
-      email: admin@accesosport.com
-      password: password123
+      enabled: ${APP_ADMIN_ENABLED:true}
+      email: ${APP_ADMIN_EMAIL:admin@accesosport.com}
+      password: ${APP_ADMIN_PASSWORD:password123}
+
+  cloudinary:
+    cloud-name: ${CLOUDINARY_CLOUD_NAME}
+    api-key: ${CLOUDINARY_API_KEY}
+    api-secret: ${CLOUDINARY_API_SECRET}
+    environment: ${APP_ENV:local}
+
+  scheduler:
+    event-lifecycle:
+      fixed-delay-ms: ${APP_SCHEDULER_LIFECYCLE_DELAY_MS:60000}
+      complete-after-hours: ${APP_SCHEDULER_COMPLETE_AFTER_HOURS:12}
+    reminder:
+      fixed-delay-ms: ${APP_SCHEDULER_REMINDER_DELAY_MS:3600000}
+
+resend:
+  api-key: ${RESEND_API_KEY}
+  from-email: ${RESEND_FROM_EMAIL:noreply@accesosport.com}
 
 
 # Logging
 logging:
   level:
     root: INFO
-    com.grupocaos.products.athletix: DEBUG
+    com.accesosport: DEBUG
     org.springframework.security: DEBUG
     org.hibernate.SQL: off
   pattern:
@@ -60,7 +93,7 @@ logging:
 
 # Server
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
   error:
     include-message: always
     include-binding-errors: always

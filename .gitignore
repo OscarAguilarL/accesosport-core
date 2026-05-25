@@ -1,5 +1,6 @@
 HELP.md
 target/
+src/main/resources/application-local.yml
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
@@ -33,3 +34,7 @@ build/
 .vscode/
 
 postgres/
+
+### Environment ###
+.env
+*-local.yml
