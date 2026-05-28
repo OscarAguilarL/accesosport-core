@@ -13,8 +13,8 @@ import com.accesosport.registration.domain.model.Registration;
 import com.accesosport.registration.domain.model.RegistrationStatus;
 import com.accesosport.registration.domain.repository.RegistrationRepository;
 import com.accesosport.shared.domain.port.EmailService;
+import com.accesosport.shared.domain.port.EmailTemplatePort;
 import com.accesosport.shared.domain.usecase.UseCase;
-import com.accesosport.shared.infrastructure.email.EmailTemplateService;
 import com.accesosport.user.domain.model.User;
 import com.accesosport.user.domain.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -38,7 +38,7 @@ public class ResendTicketEmailUseCase extends UseCase<ResendTicketEmailUseCase.C
     private final EventCategoryRepository eventCategoryRepository;
     private final TicketPdfGenerator ticketPdfGenerator;
     private final EmailService emailService;
-    private final EmailTemplateService emailTemplateService;
+    private final EmailTemplatePort emailTemplatePort;
 
     @Override
     protected Void internalExecute(Command command) {
@@ -88,7 +88,7 @@ public class ResendTicketEmailUseCase extends UseCase<ResendTicketEmailUseCase.C
                 ? event.getLocation().place() + ", " + event.getLocation().city()
                 : "-";
 
-        String html = emailTemplateService.registrationConfirmation(
+        String html = emailTemplatePort.registrationConfirmation(
                 firstName,
                 event.getName(),
                 registration.getTicketCode(),

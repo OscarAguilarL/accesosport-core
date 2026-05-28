@@ -7,7 +7,7 @@ import com.accesosport.registration.domain.model.Registration;
 import com.accesosport.registration.domain.repository.RegistrationRepository;
 import com.accesosport.shared.domain.model.EmailMessage;
 import com.accesosport.shared.domain.port.EmailService;
-import com.accesosport.shared.infrastructure.email.EmailTemplateService;
+import com.accesosport.shared.domain.port.EmailTemplatePort;
 import com.accesosport.user.domain.model.PersonalData;
 import com.accesosport.user.domain.model.User;
 import com.accesosport.user.domain.repository.UserRepository;
@@ -27,7 +27,6 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -38,7 +37,7 @@ class EmailReminderServiceTest {
     @Mock private RegistrationRepository registrationRepository;
     @Mock private UserRepository userRepository;
     @Mock private EmailService emailService;
-    @Mock private EmailTemplateService emailTemplateService;
+    @Mock private EmailTemplatePort emailTemplateService;
 
     @Mock private Event event;
     @Mock private Location location;

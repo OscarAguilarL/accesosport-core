@@ -5,12 +5,12 @@ import com.accesosport.event.domain.model.EventCategory;
 import com.accesosport.event.domain.repository.EventCategoryRepository;
 import com.accesosport.event.domain.repository.EventModalityRepository;
 import com.accesosport.event.domain.repository.EventRepository;
+import com.accesosport.registration.application.service.TicketPdfGenerator;
 import com.accesosport.registration.domain.events.RegistrationConfirmedEvent;
 import com.accesosport.registration.domain.model.Registration;
 import com.accesosport.registration.domain.repository.RegistrationRepository;
-import com.accesosport.registration.application.service.TicketPdfGenerator;
 import com.accesosport.shared.domain.port.EmailService;
-import com.accesosport.shared.infrastructure.email.EmailTemplateService;
+import com.accesosport.shared.domain.port.EmailTemplatePort;
 import com.accesosport.user.domain.model.User;
 import com.accesosport.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,8 +21,6 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.time.format.DateTimeFormatter;
-import java.time.format.TextStyle;
-import java.util.Locale;
 
 @Component
 @RequiredArgsConstructor
@@ -34,7 +32,7 @@ public class TicketEmailEventHandler {
 
     private final TicketPdfGenerator ticketPdfGenerator;
     private final EmailService emailService;
-    private final EmailTemplateService emailTemplateService;
+    private final EmailTemplatePort emailTemplatePort;
     private final UserRepository userRepository;
     private final EventRepository eventRepository;
     private final RegistrationRepository registrationRepository;
@@ -81,7 +79,7 @@ public class TicketEmailEventHandler {
                     ? evt.getLocation().place() + ", " + evt.getLocation().city()
                     : "-";
 
-            String html = emailTemplateService.registrationConfirmation(
+            String html = emailTemplatePort.registrationConfirmation(
                     firstName,
                     evt.getName(),
                     event.getTicketCode(),

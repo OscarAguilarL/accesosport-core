@@ -1,5 +1,6 @@
 package com.accesosport.shared.infrastructure.email;
 
+import com.accesosport.shared.domain.port.EmailTemplatePort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
@@ -7,7 +8,7 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 
 @Service
 @RequiredArgsConstructor
-public class EmailTemplateService {
+public class EmailTemplateService implements EmailTemplatePort {
 
     private final SpringTemplateEngine templateEngine;
 

@@ -13,7 +13,7 @@ import com.accesosport.registration.domain.model.Registration;
 import com.accesosport.registration.domain.model.RegistrationStatus;
 import com.accesosport.registration.domain.repository.RegistrationRepository;
 import com.accesosport.shared.domain.port.EmailService;
-import com.accesosport.shared.infrastructure.email.EmailTemplateService;
+import com.accesosport.shared.domain.port.EmailTemplatePort;
 import com.accesosport.user.domain.model.PersonalData;
 import com.accesosport.user.domain.model.User;
 import com.accesosport.user.domain.repository.UserRepository;
@@ -31,8 +31,8 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -47,7 +47,7 @@ class ResendTicketEmailUseCaseTest {
     @Mock private EventCategoryRepository eventCategoryRepository;
     @Mock private TicketPdfGenerator ticketPdfGenerator;
     @Mock private EmailService emailService;
-    @Mock private EmailTemplateService emailTemplateService;
+    @Mock private EmailTemplatePort emailTemplateService;
     @Mock private Event event;
     @Mock private Location location;
 

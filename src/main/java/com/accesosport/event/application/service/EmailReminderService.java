@@ -6,7 +6,7 @@ import com.accesosport.registration.domain.model.Registration;
 import com.accesosport.registration.domain.repository.RegistrationRepository;
 import com.accesosport.shared.domain.model.EmailMessage;
 import com.accesosport.shared.domain.port.EmailService;
-import com.accesosport.shared.infrastructure.email.EmailTemplateService;
+import com.accesosport.shared.domain.port.EmailTemplatePort;
 import com.accesosport.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +29,7 @@ public class EmailReminderService {
     private final RegistrationRepository registrationRepository;
     private final UserRepository userRepository;
     private final EmailService emailService;
-    private final EmailTemplateService emailTemplateService;
+    private final EmailTemplatePort emailTemplatePort;
 
     @Transactional
     public void sendEventReminders() {
@@ -52,7 +52,7 @@ public class EmailReminderService {
                             String firstName = user.getPersonalData() != null
                                     ? user.getPersonalData().getFirstName()
                                     : "Participante";
-                            String html = emailTemplateService.eventReminder(
+                            String html = emailTemplatePort.eventReminder(
                                     firstName,
                                     event.getName(),
                                     event.getEventDate().format(DATE_FORMATTER),

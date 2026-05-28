@@ -26,7 +26,7 @@ import com.accesosport.registration.domain.repository.CheckinTokenRepository;
 import com.accesosport.registration.domain.repository.RegistrationRepository;
 import com.accesosport.shared.domain.events.DomainEventPublisher;
 import com.accesosport.shared.domain.port.EmailService;
-import com.accesosport.shared.infrastructure.email.EmailTemplateService;
+import com.accesosport.shared.domain.port.EmailTemplatePort;
 import com.accesosport.user.domain.repository.ParticipantProfileRepository;
 import com.accesosport.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -54,7 +54,7 @@ public class RegistrationApplicationService {
     private final UserRepository userRepository;
     private final TicketPdfGenerator ticketPdfGenerator;
     private final EmailService emailService;
-    private final EmailTemplateService emailTemplateService;
+    private final EmailTemplatePort emailTemplatePort;
     private final CheckinTokenRepository checkinTokenRepository;
 
     @Value("${app.checkin.token.valid-hours:12}")
@@ -120,7 +120,7 @@ public class RegistrationApplicationService {
     public void resendTicketEmail(UUID registrationId, UUID requesterId) {
         ResendTicketEmailUseCase useCase = new ResendTicketEmailUseCase(
                 registrationRepository, eventRepository, userRepository, eventModalityRepository, eventCategoryRepository,
-                ticketPdfGenerator, emailService, emailTemplateService
+                ticketPdfGenerator, emailService, emailTemplatePort
         );
         useCase.execute(new ResendTicketEmailUseCase.Command(registrationId, requesterId));
     }
