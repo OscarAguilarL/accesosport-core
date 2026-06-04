@@ -61,15 +61,17 @@ public class RegistrationApplicationService {
     private int checkinTokenValidHours;
 
     @Transactional
-    public RegistrationResponse registerParticipant(UUID eventId, UUID participantId, UUID modalityId, UUID categoryId, boolean waiverAccepted, boolean wantsShirt) {
+    public RegistrationResponse registerParticipant(UUID eventId, UUID participantId, UUID modalityId, UUID categoryId, boolean waiverAccepted, Boolean wantsShirt) {
+        boolean effectiveWantsShirt = wantsShirt == null || wantsShirt;
         RegisterParticipantUseCase useCase = new RegisterParticipantUseCase(
                 registrationRepository, eventRepository, domainEventPublisher, eventModalityRepository, eventCategoryRepository, userRepository
         );
-        return useCase.execute(new RegisterParticipantCommand(eventId, participantId, modalityId, categoryId, waiverAccepted, wantsShirt));
+        return useCase.execute(new RegisterParticipantCommand(eventId, participantId, modalityId, categoryId, waiverAccepted, effectiveWantsShirt));
     }
 
     @Transactional
-    public RegistrationResponse cancelRegistration(UUID registrationId, UUID requesterId, boolean isAdmin) {
+    public RegistrationResponse cancelRegistration(UUID registrationId, UUID userId, boolean isAdmin) {
+        UUID requesterId = isAdmin ? null : userId;
         CancelRegistrationUseCase useCase = new CancelRegistrationUseCase(
                 registrationRepository, eventModalityRepository, domainEventPublisher
         );

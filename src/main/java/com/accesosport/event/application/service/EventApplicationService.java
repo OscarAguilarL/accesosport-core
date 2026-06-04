@@ -71,7 +71,8 @@ public class EventApplicationService {
     }
 
     @Transactional
-    public EventResponse updateEvent(UUID eventId, UpdateEventRequest request, UUID requesterId) {
+    public EventResponse updateEvent(UUID eventId, UpdateEventRequest request, UUID userId, boolean isAdmin) {
+        UUID requesterId = isAdmin ? null : userId;
         UpdateEventUseCase.UpdateEventCommand command = new UpdateEventUseCase.UpdateEventCommand(
                 eventId,
                 requesterId,
@@ -94,7 +95,8 @@ public class EventApplicationService {
     }
 
     @Transactional
-    public EventResponse publishEvent(UUID eventId, UUID requesterId) {
+    public EventResponse publishEvent(UUID eventId, UUID userId, boolean isAdmin) {
+        UUID requesterId = isAdmin ? null : userId;
         PublishEventUseCase useCase = new PublishEventUseCase(eventRepository, eventModalityRepository);
         PublishEventUseCase.PublishEventResult result = useCase.execute(
                 new PublishEventUseCase.PublishEventCommand(eventId, requesterId));
@@ -104,7 +106,8 @@ public class EventApplicationService {
     }
 
     @Transactional
-    public EventResponse openRegistration(UUID eventId, UUID requesterId) {
+    public EventResponse openRegistration(UUID eventId, UUID userId, boolean isAdmin) {
+        UUID requesterId = isAdmin ? null : userId;
         OpenRegistrationUseCase useCase = new OpenRegistrationUseCase(eventRepository);
         OpenRegistrationUseCase.OpenRegistrationResult result = useCase.execute(
                 new OpenRegistrationUseCase.OpenRegistrationCommand(eventId, requesterId));
@@ -114,7 +117,8 @@ public class EventApplicationService {
     }
 
     @Transactional
-    public EventResponse cancelEvent(UUID eventId, String reason, UUID requesterId) {
+    public EventResponse cancelEvent(UUID eventId, String reason, UUID userId, boolean isAdmin) {
+        UUID requesterId = isAdmin ? null : userId;
         CancelEventUseCase useCase = new CancelEventUseCase(eventRepository, registrationRepository, domainEventPublisher);
         CancelEventUseCase.CancelEventResult result = useCase.execute(
                 new CancelEventUseCase.CancelEventCommand(eventId, reason, requesterId));
@@ -124,7 +128,8 @@ public class EventApplicationService {
     }
 
     @Transactional
-    public EventResponse completeEvent(UUID eventId, UUID requesterId) {
+    public EventResponse completeEvent(UUID eventId, UUID userId, boolean isAdmin) {
+        UUID requesterId = isAdmin ? null : userId;
         CompleteEventUseCase useCase = new CompleteEventUseCase(eventRepository);
         CompleteEventUseCase.CompleteEventResult result = useCase.execute(
                 new CompleteEventUseCase.CompleteEventCommand(eventId, requesterId));
@@ -147,8 +152,15 @@ public class EventApplicationService {
         return toSummaryResponses(useCase.execute().events());
     }
 
+    public List<EventSummaryResponse> listEvents(EventStatus status) {
+        if (status != null) {
+            return listEventsByStatus(status);
+        }
+        return listUpcomingEvents();
+    }
+
     @Transactional(readOnly = true)
-    public List<EventSummaryResponse> ListEventsByStatus(EventStatus status) {
+    public List<EventSummaryResponse> listEventsByStatus(EventStatus status) {
         return toSummaryResponses(eventRepository.findByStatus(status));
     }
 

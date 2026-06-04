@@ -51,7 +51,7 @@ public class RegistrationController {
         UUID modalityId = body != null ? body.modalityId() : null;
         UUID categoryId = body != null ? body.categoryId() : null;
         boolean waiverAccepted = body != null && body.waiverAccepted();
-        boolean wantsShirt = body == null || body.wantsShirt();
+        Boolean wantsShirt = body != null ? body.wantsShirt() : null;
         RegistrationResponse response = registrationApplicationService.registerParticipant(eventId, participantId, modalityId, categoryId, waiverAccepted, wantsShirt);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -72,9 +72,7 @@ public class RegistrationController {
             @PathVariable UUID registrationId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        boolean isAdmin = isAdminOrOrganizer(userDetails);
-        UUID requesterId = isAdmin ? null : userDetails.getUserId();
-        RegistrationResponse response = registrationApplicationService.cancelRegistration(registrationId, requesterId, isAdmin);
+        RegistrationResponse response = registrationApplicationService.cancelRegistration(registrationId, userDetails.getUserId(), isAdminOrOrganizer(userDetails));
         return ResponseEntity.ok(response);
     }
 

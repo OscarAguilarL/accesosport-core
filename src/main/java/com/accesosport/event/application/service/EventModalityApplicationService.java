@@ -25,7 +25,8 @@ public class EventModalityApplicationService {
     private final EventModalityRepository modalityRepository;
 
     @Transactional
-    public ModalityResponse addModality(UUID eventId, UUID requesterId, boolean isAdmin, CreateModalityRequest request) {
+    public ModalityResponse addModality(UUID eventId, UUID userId, boolean isAdmin, CreateModalityRequest request) {
+        UUID requesterId = isAdmin ? null : userId;
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EventNotFoundException(eventId));
 
@@ -54,7 +55,8 @@ public class EventModalityApplicationService {
     }
 
     @Transactional
-    public void deleteModality(UUID eventId, UUID modalityId, UUID requesterId, boolean isAdmin) {
+    public void deleteModality(UUID eventId, UUID modalityId, UUID userId, boolean isAdmin) {
+        UUID requesterId = isAdmin ? null : userId;
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EventNotFoundException(eventId));
 
