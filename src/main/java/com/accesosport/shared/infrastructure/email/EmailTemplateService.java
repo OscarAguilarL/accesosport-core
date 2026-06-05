@@ -52,6 +52,12 @@ public class EmailTemplateService implements EmailTemplatePort {
         return templateEngine.process("email/contact-form", ctx);
     }
 
+    public String buildPasswordResetEmail(String resetLink) {
+        Context ctx = new Context();
+        ctx.setVariable("resetLink", resetLink);
+        return templateEngine.process("email/password-reset", ctx);
+    }
+
     public String eventReminder(
             String participantFirstName,
             String eventName,

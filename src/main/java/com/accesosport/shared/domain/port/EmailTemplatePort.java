@@ -27,4 +27,6 @@ public interface EmailTemplatePort {
             String ticketCode,
             String bibNumber
     );
+
+    String buildPasswordResetEmail(String resetLink);
 }

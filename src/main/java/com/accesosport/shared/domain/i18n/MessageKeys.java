@@ -151,4 +151,13 @@ public class MessageKeys {
 		public static final String PROBLEM_UPLOAD_FAILED = "image.problem.upload-failed";
 		public static final String PROBLEM_NOT_FOUND = "image.problem.not-found";
 	}
+
+	public static class PasswordReset {
+		public static final String INVALID_TOKEN = "auth.password-reset.errors.invalid-token";
+		public static final String TOKEN_ALREADY_USED = "auth.password-reset.errors.token-already-used";
+		public static final String TOKEN_EXPIRED = "auth.password-reset.errors.token-expired";
+		public static final String PROBLEM_INVALID_TOKEN = "auth.password-reset.problem.invalid-token";
+		public static final String PROBLEM_TOKEN_ALREADY_USED = "auth.password-reset.problem.token-already-used";
+		public static final String PROBLEM_TOKEN_EXPIRED = "auth.password-reset.problem.token-expired";
+	}
 }

@@ -2,6 +2,9 @@ package com.accesosport.auth.presentation.exception;
 
 import com.accesosport.auth.domain.exception.AuthenticationException;
 import com.accesosport.auth.domain.exception.InvalidCredentialsException;
+import com.accesosport.auth.domain.exception.InvalidTokenException;
+import com.accesosport.auth.domain.exception.TokenAlreadyUsedException;
+import com.accesosport.auth.domain.exception.TokenExpiredException;
 import com.accesosport.shared.domain.i18n.MessageKeys;
 import com.accesosport.shared.domain.i18n.MessageTranslator;
 import com.accesosport.user.domain.exception.InvalidPasswordException;
@@ -145,6 +148,48 @@ public class GlobalExceptionHandler {
         problemDetail.setProperty("timestamp", Instant.now());
 
         return problemDetail;
+    }
+
+    @ExceptionHandler(InvalidTokenException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ProblemDetail handleInvalidToken(InvalidTokenException ex) {
+        log.warn("Invalid password reset token: {}", ex.getMessage());
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                messageTranslator.translate(ex.getMessage())
+        );
+        pd.setTitle(messageTranslator.translate(MessageKeys.PasswordReset.PROBLEM_INVALID_TOKEN));
+        pd.setType(URI.create("https://api.accesosport.com/errors/invalid-token"));
+        pd.setProperty("timestamp", Instant.now());
+        return pd;
+    }
+
+    @ExceptionHandler(TokenAlreadyUsedException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ProblemDetail handleTokenAlreadyUsed(TokenAlreadyUsedException ex) {
+        log.warn("Password reset token already used: {}", ex.getMessage());
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                messageTranslator.translate(ex.getMessage())
+        );
+        pd.setTitle(messageTranslator.translate(MessageKeys.PasswordReset.PROBLEM_TOKEN_ALREADY_USED));
+        pd.setType(URI.create("https://api.accesosport.com/errors/token-already-used"));
+        pd.setProperty("timestamp", Instant.now());
+        return pd;
+    }
+
+    @ExceptionHandler(TokenExpiredException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ProblemDetail handleTokenExpired(TokenExpiredException ex) {
+        log.warn("Password reset token expired: {}", ex.getMessage());
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                messageTranslator.translate(ex.getMessage())
+        );
+        pd.setTitle(messageTranslator.translate(MessageKeys.PasswordReset.PROBLEM_TOKEN_EXPIRED));
+        pd.setType(URI.create("https://api.accesosport.com/errors/token-expired"));
+        pd.setProperty("timestamp", Instant.now());
+        return pd;
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
