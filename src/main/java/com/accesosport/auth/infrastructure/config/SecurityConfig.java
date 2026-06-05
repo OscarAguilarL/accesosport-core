@@ -3,6 +3,7 @@ package com.accesosport.auth.infrastructure.config;
 import com.accesosport.auth.infrastructure.security.CheckinTokenAuthenticationFilter;
 import com.accesosport.auth.infrastructure.security.CustomUserDetailsService;
 import com.accesosport.auth.infrastructure.security.JwtAuthenticationFilter;
+import com.accesosport.auth.infrastructure.security.UnauthorizedEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -35,6 +36,7 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CheckinTokenAuthenticationFilter checkinTokenAuthenticationFilter;
     private final CustomUserDetailsService customUserDetailsService;
+    private final UnauthorizedEntryPoint unauthorizedEntryPoint;
 
     @Value("${app.cors.allowed-origins:http://localhost:*}")
     private String corsAllowedOrigins;
@@ -55,7 +57,10 @@ public class SecurityConfig {
                 )
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(checkinTokenAuthenticationFilter, JwtAuthenticationFilter.class);
+                .addFilterBefore(checkinTokenAuthenticationFilter, JwtAuthenticationFilter.class)
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(unauthorizedEntryPoint)
+                );
 
         return http.build();
     }
