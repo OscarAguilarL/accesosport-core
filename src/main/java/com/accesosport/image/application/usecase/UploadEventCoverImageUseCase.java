@@ -1,12 +1,11 @@
-package com.accesosport.image.domain.usecase;
+package com.accesosport.image.application.usecase;
 
 import com.accesosport.event.domain.exception.EventNotFoundException;
+import com.accesosport.event.domain.model.Event;
 import com.accesosport.event.domain.repository.EventRepository;
 import com.accesosport.image.domain.exception.InvalidImageException;
-import com.accesosport.image.domain.model.EventImage;
 import com.accesosport.image.domain.port.ImageStoragePort;
 import com.accesosport.image.domain.port.UploadResult;
-import com.accesosport.image.domain.repository.EventImageRepository;
 import com.accesosport.shared.domain.i18n.MessageKeys;
 import com.accesosport.shared.domain.usecase.UseCase;
 import lombok.AllArgsConstructor;
@@ -15,18 +14,17 @@ import java.util.Set;
 import java.util.UUID;
 
 @AllArgsConstructor
-public class AddEventGalleryImageUseCase
-        extends UseCase<AddEventGalleryImageUseCase.AddEventGalleryImageCommand, AddEventGalleryImageUseCase.AddEventGalleryImageResult> {
+public class UploadEventCoverImageUseCase
+        extends UseCase<UploadEventCoverImageUseCase.UploadEventCoverImageCommand, UploadEventCoverImageUseCase.UploadEventCoverImageResult> {
 
     private static final Set<String> ALLOWED_TYPES = Set.of("image/jpeg", "image/png", "image/webp");
     private static final long MAX_SIZE_BYTES = 5_242_880L;
 
     private final EventRepository eventRepository;
-    private final EventImageRepository eventImageRepository;
     private final ImageStoragePort storagePort;
 
     @Override
-    protected AddEventGalleryImageResult internalExecute(AddEventGalleryImageCommand command) {
+    protected UploadEventCoverImageResult internalExecute(UploadEventCoverImageCommand command) {
         if (!ALLOWED_TYPES.contains(command.contentType())) {
             throw new InvalidImageException(MessageKeys.Images.INVALID_IMAGE_TYPE);
         }
@@ -34,26 +32,30 @@ public class AddEventGalleryImageUseCase
             throw new InvalidImageException(MessageKeys.Images.INVALID_IMAGE_SIZE);
         }
 
-        eventRepository.findById(command.eventId())
+        Event event = eventRepository.findById(command.eventId())
                 .orElseThrow(() -> new EventNotFoundException(command.eventId()));
 
-        int order = (int) (eventImageRepository.countByEventId(command.eventId()) + 1);
+        if (event.getCoverImagePublicId() != null) {
+            storagePort.delete(event.getCoverImagePublicId());
+        }
 
         UploadResult result = storagePort.upload(
                 command.bytes(),
                 command.contentType(),
-                "events/" + command.eventId() + "/gallery",
-                UUID.randomUUID()
+                "events/" + command.eventId() + "/cover",
+                command.eventId()
         );
 
-        EventImage image = EventImage.create(command.eventId(), result.url(), result.publicId(), order);
-        EventImage saved = eventImageRepository.save(image);
-        return new AddEventGalleryImageResult(saved);
+        event.setCoverImageUrl(result.url());
+        event.setCoverImagePublicId(result.publicId());
+
+        Event saved = eventRepository.save(event);
+        return new UploadEventCoverImageResult(saved);
     }
 
-    public record AddEventGalleryImageCommand(UUID eventId, byte[] bytes, String contentType, long sizeBytes) {
+    public record UploadEventCoverImageCommand(UUID eventId, byte[] bytes, String contentType, long sizeBytes) {
     }
 
-    public record AddEventGalleryImageResult(EventImage image) {
+    public record UploadEventCoverImageResult(Event event) {
     }
 }

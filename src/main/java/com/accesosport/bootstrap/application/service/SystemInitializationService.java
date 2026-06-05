@@ -1,6 +1,6 @@
 package com.accesosport.bootstrap.application.service;
 
-import com.accesosport.bootstrap.domain.ExecuteSystemInitializersUseCase;
+import com.accesosport.bootstrap.application.usecase.ExecuteSystemInitializersUseCase;
 import com.accesosport.bootstrap.domain.SystemInitializer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

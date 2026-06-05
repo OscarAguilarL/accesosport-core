@@ -1,4 +1,4 @@
-package com.accesosport.auth.domain.usecase;
+package com.accesosport.auth.application.usecase;
 
 import com.accesosport.auth.domain.exception.InvalidCredentialsException;
 import com.accesosport.auth.domain.service.AuthenticationService;

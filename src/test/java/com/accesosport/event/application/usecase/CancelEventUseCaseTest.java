@@ -1,4 +1,4 @@
-package com.accesosport.event.domain.usecase;
+package com.accesosport.event.application.usecase;
 
 import com.accesosport.event.domain.events.EventCancelledEvent;
 import com.accesosport.event.domain.exception.EventAccessDeniedException;

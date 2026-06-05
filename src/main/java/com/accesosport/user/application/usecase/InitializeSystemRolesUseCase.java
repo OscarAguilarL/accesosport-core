@@ -1,4 +1,4 @@
-package com.accesosport.user.domain.usecase;
+package com.accesosport.user.application.usecase;
 
 import com.accesosport.shared.domain.usecase.UseCase;
 import com.accesosport.user.domain.model.Role;

@@ -1,4 +1,4 @@
-package com.accesosport.image.domain.usecase;
+package com.accesosport.image.application.usecase;
 
 import com.accesosport.image.domain.exception.InvalidImageException;
 import com.accesosport.image.domain.port.ImageStoragePort;

@@ -1,9 +1,10 @@
-package com.accesosport.bootstrap.domain;
+package com.accesosport.bootstrap.application.usecase;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import com.accesosport.bootstrap.domain.SystemInitializer;
 import com.accesosport.shared.domain.usecase.UseCase;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;

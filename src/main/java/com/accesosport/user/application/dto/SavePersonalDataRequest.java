@@ -1,6 +1,6 @@
 package com.accesosport.user.application.dto;
 
-import com.accesosport.user.domain.usecase.SaveUserPersonalInfoUseCase;
+import com.accesosport.user.application.usecase.SaveUserPersonalInfoUseCase;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
