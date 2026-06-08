@@ -4,6 +4,7 @@ import com.accesosport.auth.application.dto.AuthResponse;
 import com.accesosport.auth.application.dto.AuthResponseMapper;
 import com.accesosport.auth.application.dto.LoginRequest;
 import com.accesosport.auth.application.dto.RegisterRequest;
+import com.accesosport.auth.application.usecase.ChangePasswordUseCase;
 import com.accesosport.auth.application.usecase.RequestPasswordResetUseCase;
 import com.accesosport.auth.application.usecase.ResetPasswordUseCase;
 import com.accesosport.auth.domain.repository.PasswordResetTokenRepository;
@@ -16,6 +17,8 @@ import com.accesosport.shared.domain.port.EmailService;
 import com.accesosport.shared.domain.port.EmailTemplatePort;
 import com.accesosport.user.domain.repository.RoleRepository;
 import com.accesosport.user.domain.repository.UserRepository;
+import java.util.UUID;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -90,5 +93,11 @@ public class AuthApplicationService {
                 userRepository,
                 passwordEncoder
         ).execute(token, newPassword);
+    }
+
+    @Transactional
+    public void changePassword(UUID userId, String currentPassword, String newPassword) {
+        new ChangePasswordUseCase(userRepository, passwordEncoder)
+                .execute(new ChangePasswordUseCase.Command(userId, currentPassword, newPassword));
     }
 }

@@ -30,6 +30,8 @@ public class MessageKeys {
 		public static final String PROBLEM_ROLE_NOT_FOUND = "auth.problem.role.not-found";
 		public static final String PROBLEM_VALIDATION_ERROR = "auth.problem.validation.error";
 		public static final String PROBLEM_VALIDATION_FAILED = "auth.problem.validation.failed";
+		public static final String INVALID_CURRENT_PASSWORD = "auth.errors.invalid-current-password";
+		public static final String PROBLEM_INVALID_CURRENT_PASSWORD = "auth.problem.invalid-current-password";
 	}
 
 	public static class Users {

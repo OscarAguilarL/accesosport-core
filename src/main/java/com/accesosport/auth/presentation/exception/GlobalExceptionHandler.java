@@ -2,6 +2,7 @@ package com.accesosport.auth.presentation.exception;
 
 import com.accesosport.auth.domain.exception.AuthenticationException;
 import com.accesosport.auth.domain.exception.InvalidCredentialsException;
+import com.accesosport.auth.domain.exception.InvalidCurrentPasswordException;
 import com.accesosport.auth.domain.exception.InvalidTokenException;
 import com.accesosport.auth.domain.exception.TokenAlreadyUsedException;
 import com.accesosport.auth.domain.exception.TokenExpiredException;
@@ -148,6 +149,20 @@ public class GlobalExceptionHandler {
         problemDetail.setProperty("timestamp", Instant.now());
 
         return problemDetail;
+    }
+
+    @ExceptionHandler(InvalidCurrentPasswordException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ProblemDetail handleInvalidCurrentPassword(InvalidCurrentPasswordException ex) {
+        log.warn("Invalid current password attempt");
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                messageTranslator.translate(ex.getMessage())
+        );
+        pd.setTitle(messageTranslator.translate(MessageKeys.AuthMessages.PROBLEM_INVALID_CURRENT_PASSWORD));
+        pd.setType(URI.create("https://api.accesosport.com/errors/invalid-current-password"));
+        pd.setProperty("timestamp", Instant.now());
+        return pd;
     }
 
     @ExceptionHandler(InvalidTokenException.class)
