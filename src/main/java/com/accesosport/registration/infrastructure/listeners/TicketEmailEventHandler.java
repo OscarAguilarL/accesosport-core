@@ -5,14 +5,13 @@ import com.accesosport.event.domain.model.EventCategory;
 import com.accesosport.event.domain.repository.EventCategoryRepository;
 import com.accesosport.event.domain.repository.EventModalityRepository;
 import com.accesosport.event.domain.repository.EventRepository;
+import com.accesosport.registration.application.service.ParticipantData;
 import com.accesosport.registration.application.service.TicketPdfGenerator;
 import com.accesosport.registration.domain.events.RegistrationConfirmedEvent;
 import com.accesosport.registration.domain.model.Registration;
 import com.accesosport.registration.domain.repository.RegistrationRepository;
 import com.accesosport.shared.domain.port.EmailService;
 import com.accesosport.shared.domain.port.EmailTemplatePort;
-import com.accesosport.user.domain.model.User;
-import com.accesosport.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
@@ -33,7 +32,6 @@ public class TicketEmailEventHandler {
     private final TicketPdfGenerator ticketPdfGenerator;
     private final EmailService emailService;
     private final EmailTemplatePort emailTemplatePort;
-    private final UserRepository userRepository;
     private final EventRepository eventRepository;
     private final RegistrationRepository registrationRepository;
     private final EventModalityRepository eventModalityRepository;
@@ -49,9 +47,11 @@ public class TicketEmailEventHandler {
             Event evt = eventRepository.findById(event.getEventId()).orElseThrow(
                     () -> new IllegalStateException("Event not found: " + event.getEventId())
             );
-            User participant = userRepository.findById(event.getParticipantId()).orElse(null);
-            if (participant == null) {
-                log.warn("[Email] Participant {} not found, skipping ticket email", event.getParticipantId());
+
+            ParticipantData participant = ParticipantData.from(registration);
+
+            if (participant.email() == null || participant.email().isBlank()) {
+                log.warn("[Email] No participant email for registration {}, skipping ticket email", event.getRegistrationId());
                 return;
             }
 
@@ -59,16 +59,14 @@ public class TicketEmailEventHandler {
 
             String category = null;
             if (registration.getCategoryId() != null) {
-            	category = eventCategoryRepository.findById(registration.getCategoryId())
-            			.map(EventCategory::getName)
-            			.orElse(null);
+                category = eventCategoryRepository.findById(registration.getCategoryId())
+                        .map(EventCategory::getName)
+                        .orElse(null);
             }
-            
+
             byte[] pdfBytes = ticketPdfGenerator.generate(registration, evt, participant, distanceLabel, category, registration.isWantsShirt());
 
-            String firstName = participant.getPersonalData() != null
-                    ? participant.getPersonalData().getFirstName()
-                    : "Participante";
+            String firstName = participant.firstName() != null ? participant.firstName() : "Participante";
             String bibDisplay = event.getBibNumber() != null
                     ? String.valueOf(event.getBibNumber())
                     : "Sin asignar";
@@ -89,14 +87,14 @@ public class TicketEmailEventHandler {
             );
 
             emailService.sendWithAttachment(
-                    participant.getEmail(),
+                    participant.email(),
                     "Inscripción confirmada — " + evt.getName(),
                     html,
                     "boleto-" + event.getTicketCode() + ".pdf",
                     pdfBytes
             );
 
-            log.info("[Email] Ticket email sent to {} for event {}", participant.getEmail(), event.getEventId());
+            log.info("[Email] Ticket email sent to {} for event {}", participant.email(), event.getEventId());
         } catch (Exception e) {
             log.error("[Email] Failed to send ticket email for registration {}", event.getRegistrationId(), e);
             // No relanzar — la inscripción ya está confirmada en BD

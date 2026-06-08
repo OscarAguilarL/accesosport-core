@@ -46,15 +46,38 @@ public class RegistrationController {
     @PreAuthorize("hasAuthority('ROLE_PARTICIPANT')")
     public ResponseEntity<RegistrationResponse> registerParticipant(
             @PathVariable UUID eventId,
-            @RequestBody(required = false) RegisterParticipantRequest body,
+            @RequestBody RegisterParticipantRequest body,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         UUID participantId = userDetails.getUserId();
-        UUID modalityId = body != null ? body.modalityId() : null;
-        UUID categoryId = body != null ? body.categoryId() : null;
-        boolean waiverAccepted = body != null && body.waiverAccepted();
-        Boolean wantsShirt = body != null ? body.wantsShirt() : null;
-        RegistrationResponse response = registrationApplicationService.registerParticipant(eventId, participantId, modalityId, categoryId, waiverAccepted, wantsShirt);
+        RegistrationResponse response = registrationApplicationService.registerParticipant(
+                eventId, participantId,
+                body.participantEmail(), body.participantFirstName(), body.participantLastName(), body.participantPhone(),
+                body.modalityId(), body.categoryId(), body.waiverAccepted(), body.wantsShirt(),
+                body.shirtSize(), body.bloodType(), body.emergencyContactName(), body.emergencyContactPhone(), body.medicalConditions()
+        );
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    /**
+     * Registers an anonymous (unauthenticated) participant in the specified event.
+     * No JWT required. Participant data must be provided in the request body.
+     *
+     * @param eventId the unique identifier of the event
+     * @param body    participant data and registration preferences
+     * @return 201 Created with the new registration details
+     */
+    @PostMapping("/api/v1/public/events/{eventId}/register")
+    public ResponseEntity<RegistrationResponse> registerPublic(
+            @PathVariable UUID eventId,
+            @RequestBody RegisterParticipantRequest body
+    ) {
+        RegistrationResponse response = registrationApplicationService.registerParticipant(
+                eventId, null,
+                body.participantEmail(), body.participantFirstName(), body.participantLastName(), body.participantPhone(),
+                body.modalityId(), body.categoryId(), body.waiverAccepted(), body.wantsShirt(),
+                body.shirtSize(), body.bloodType(), body.emergencyContactName(), body.emergencyContactPhone(), body.medicalConditions()
+        );
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

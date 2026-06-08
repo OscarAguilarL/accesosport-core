@@ -9,14 +9,10 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-/**
- * Represents a JPA entity for storing information about a race event registration.
- */
 @Entity
 @Table(
         name = "registrations",
         uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"event_id", "participant_id"}),
                 @UniqueConstraint(columnNames = {"ticket_code"})
         }
 )
@@ -33,7 +29,7 @@ public class RegistrationJpaEntity {
     @Column(name = "event_id", nullable = false)
     private UUID eventId;
 
-    @Column(name = "participant_id", nullable = false)
+    @Column(name = "participant_id")
     private UUID participantId;
 
     @Column(name = "modality_id")
@@ -74,4 +70,31 @@ public class RegistrationJpaEntity {
 
     @Column(name = "wants_shirt", nullable = false, columnDefinition = "boolean default true")
     private boolean wantsShirt = true;
+
+    @Column(name = "participant_email")
+    private String participantEmail;
+
+    @Column(name = "participant_first_name")
+    private String participantFirstName;
+
+    @Column(name = "participant_last_name")
+    private String participantLastName;
+
+    @Column(name = "participant_phone")
+    private String participantPhone;
+
+    @Column(name = "shirt_size")
+    private String shirtSize;
+
+    @Column(name = "blood_type")
+    private String bloodType;
+
+    @Column(name = "emergency_contact_name")
+    private String emergencyContactName;
+
+    @Column(name = "emergency_contact_phone")
+    private String emergencyContactPhone;
+
+    @Column(name = "medical_conditions", columnDefinition = "TEXT")
+    private String medicalConditions;
 }

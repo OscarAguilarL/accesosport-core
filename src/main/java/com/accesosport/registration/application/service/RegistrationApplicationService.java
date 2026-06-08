@@ -32,7 +32,6 @@ import com.accesosport.shared.domain.events.DomainEventPublisher;
 import com.accesosport.shared.domain.port.EmailService;
 import com.accesosport.shared.domain.port.EmailTemplatePort;
 import com.accesosport.user.domain.repository.ParticipantProfileRepository;
-import com.accesosport.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -56,7 +55,6 @@ public class RegistrationApplicationService {
     private final EventCategoryRepository eventCategoryRepository;
     private final DomainEventPublisher domainEventPublisher;
     private final ParticipantProfileRepository participantProfileRepository;
-    private final UserRepository userRepository;
     private final TicketPdfGenerator ticketPdfGenerator;
     private final EmailService emailService;
     private final EmailTemplatePort emailTemplatePort;
@@ -66,12 +64,21 @@ public class RegistrationApplicationService {
     private int checkinTokenValidHours;
 
     @Transactional
-    public RegistrationResponse registerParticipant(UUID eventId, UUID participantId, UUID modalityId, UUID categoryId, boolean waiverAccepted, Boolean wantsShirt) {
+    public RegistrationResponse registerParticipant(
+            UUID eventId, UUID participantId,
+            String participantEmail, String participantFirstName, String participantLastName, String participantPhone,
+            UUID modalityId, UUID categoryId, boolean waiverAccepted, Boolean wantsShirt,
+            String shirtSize, String bloodType, String emergencyContactName, String emergencyContactPhone, String medicalConditions) {
         boolean effectiveWantsShirt = wantsShirt == null || wantsShirt;
         RegisterParticipantUseCase useCase = new RegisterParticipantUseCase(
-                registrationRepository, eventRepository, domainEventPublisher, eventModalityRepository, eventCategoryRepository, userRepository, eventCapacityRepository
+                registrationRepository, eventRepository, domainEventPublisher, eventModalityRepository, eventCategoryRepository, eventCapacityRepository
         );
-        return useCase.execute(new RegisterParticipantCommand(eventId, participantId, modalityId, categoryId, waiverAccepted, effectiveWantsShirt));
+        return useCase.execute(new RegisterParticipantCommand(
+                eventId, participantId,
+                participantEmail, participantFirstName, participantLastName, participantPhone,
+                modalityId, categoryId, waiverAccepted, effectiveWantsShirt,
+                shirtSize, bloodType, emergencyContactName, emergencyContactPhone, medicalConditions
+        ));
     }
 
     @Transactional
@@ -118,7 +125,7 @@ public class RegistrationApplicationService {
     @Transactional(readOnly = true)
     public byte[] generateTicketPdf(UUID registrationId, UUID requesterId) {
         GenerateTicketPdfUseCase useCase = new GenerateTicketPdfUseCase(
-                registrationRepository, eventRepository, userRepository, eventModalityRepository, eventCategoryRepository, ticketPdfGenerator
+                registrationRepository, eventRepository, eventModalityRepository, eventCategoryRepository, ticketPdfGenerator
         );
         return useCase.execute(new GenerateTicketPdfUseCase.Command(registrationId, requesterId));
     }
@@ -126,7 +133,7 @@ public class RegistrationApplicationService {
     @Transactional(readOnly = true)
     public void resendTicketEmail(UUID registrationId, UUID requesterId) {
         ResendTicketEmailUseCase useCase = new ResendTicketEmailUseCase(
-                registrationRepository, eventRepository, userRepository, eventModalityRepository, eventCategoryRepository,
+                registrationRepository, eventRepository, eventModalityRepository, eventCategoryRepository,
                 ticketPdfGenerator, emailService, emailTemplatePort
         );
         useCase.execute(new ResendTicketEmailUseCase.Command(registrationId, requesterId));

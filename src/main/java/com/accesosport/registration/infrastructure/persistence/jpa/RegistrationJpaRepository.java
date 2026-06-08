@@ -51,6 +51,8 @@ public interface RegistrationJpaRepository extends JpaRepository<RegistrationJpa
      */
     boolean existsByEventIdAndParticipantId(UUID eventId, UUID participantId);
 
+    boolean existsByEventIdAndParticipantEmail(UUID eventId, String participantEmail);
+
     /**
      * Finds all CONFIRMED registrations for a given event, ordered by registration date ascending.
      *

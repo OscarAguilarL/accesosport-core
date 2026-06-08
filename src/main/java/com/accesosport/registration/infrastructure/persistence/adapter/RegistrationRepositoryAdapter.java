@@ -84,6 +84,11 @@ public class RegistrationRepositoryAdapter implements RegistrationRepository {
     }
 
     @Override
+    public boolean existsByEventIdAndParticipantEmail(UUID eventId, String participantEmail) {
+        return jpaRepository.existsByEventIdAndParticipantEmail(eventId, participantEmail);
+    }
+
+    @Override
     public List<Registration> findExpiredPendingPayments(LocalDateTime cardThreshold, LocalDateTime cashThreshold) {
         return jpaRepository.findExpiredPendingPayments(cardThreshold, cashThreshold).stream()
                 .map(RegistrationMapper::toDomain)

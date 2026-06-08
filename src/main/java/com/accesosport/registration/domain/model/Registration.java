@@ -25,12 +25,27 @@ public class Registration {
     private String waiverText;
     private boolean wantsShirt;
 
+    // Participant snapshot — populated at registration time regardless of auth status
+    private String participantEmail;
+    private String participantFirstName;
+    private String participantLastName;
+    private String participantPhone;
+    private String shirtSize;
+    private String bloodType;
+    private String emergencyContactName;
+    private String emergencyContactPhone;
+    private String medicalConditions;
+
     private Registration() {
     }
 
     public static Registration create(UUID eventId, UUID participantId, UUID modalityId, UUID categoryId,
                                       RegistrationStatus status,
-                                      LocalDateTime waiverAcceptedAt, String waiverText, boolean wantsShirt) {
+                                      LocalDateTime waiverAcceptedAt, String waiverText, boolean wantsShirt,
+                                      String participantEmail, String participantFirstName, String participantLastName,
+                                      String participantPhone, String shirtSize, String bloodType,
+                                      String emergencyContactName, String emergencyContactPhone,
+                                      String medicalConditions) {
         Registration registration = new Registration();
         registration.id = UUID.randomUUID();
         registration.eventId = eventId;
@@ -48,6 +63,15 @@ public class Registration {
         registration.waiverAcceptedAt = waiverAcceptedAt;
         registration.waiverText = waiverText;
         registration.wantsShirt = wantsShirt;
+        registration.participantEmail = participantEmail;
+        registration.participantFirstName = participantFirstName;
+        registration.participantLastName = participantLastName;
+        registration.participantPhone = participantPhone;
+        registration.shirtSize = shirtSize;
+        registration.bloodType = bloodType;
+        registration.emergencyContactName = emergencyContactName;
+        registration.emergencyContactPhone = emergencyContactPhone;
+        registration.medicalConditions = medicalConditions;
         return registration;
     }
 
@@ -67,7 +91,16 @@ public class Registration {
             LocalDateTime cancelledAt,
             LocalDateTime waiverAcceptedAt,
             String waiverText,
-            boolean wantsShirt
+            boolean wantsShirt,
+            String participantEmail,
+            String participantFirstName,
+            String participantLastName,
+            String participantPhone,
+            String shirtSize,
+            String bloodType,
+            String emergencyContactName,
+            String emergencyContactPhone,
+            String medicalConditions
     ) {
         Registration registration = new Registration();
         registration.id = id;
@@ -86,6 +119,15 @@ public class Registration {
         registration.waiverAcceptedAt = waiverAcceptedAt;
         registration.waiverText = waiverText;
         registration.wantsShirt = wantsShirt;
+        registration.participantEmail = participantEmail;
+        registration.participantFirstName = participantFirstName;
+        registration.participantLastName = participantLastName;
+        registration.participantPhone = participantPhone;
+        registration.shirtSize = shirtSize;
+        registration.bloodType = bloodType;
+        registration.emergencyContactName = emergencyContactName;
+        registration.emergencyContactPhone = emergencyContactPhone;
+        registration.medicalConditions = medicalConditions;
         return registration;
     }
 

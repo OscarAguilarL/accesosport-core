@@ -2,7 +2,6 @@ package com.accesosport.registration.application.service;
 
 import com.accesosport.event.domain.model.Event;
 import com.accesosport.registration.domain.model.Registration;
-import com.accesosport.user.domain.model.User;
 import com.google.zxing.WriterException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,13 +47,13 @@ public class TicketPdfGenerator {
     private static final Color MUTED_GRAY = new Color(160, 160, 160);
 
     public byte[] generate(
-    		Registration registration,
-    		Event event,
-    		User participant,
-    		String distanceLabel,
-    		String category,
-    		boolean wantsShirt
-    		) throws IOException {
+            Registration registration,
+            Event event,
+            ParticipantData participant,
+            String distanceLabel,
+            String category,
+            boolean wantsShirt
+    ) throws IOException {
         try (PDDocument doc = new PDDocument()) {
             PDPage page = new PDPage(PDRectangle.A4);
             doc.addPage(page);
@@ -174,14 +173,14 @@ public class TicketPdfGenerator {
 
     private void drawParticipantSection(PDPageContentStream cs, Registration registration,
                                         String distanceLabel, String categoryName, boolean wantsShirt,
-                                        User participant, PDType1Font bold, PDType1Font regular) throws IOException {
+                                        ParticipantData participant, PDType1Font bold, PDType1Font regular) throws IOException {
         float startY = PAGE_HEIGHT - 212f;
         float leftCol = MARGIN + DATA_CARD_PADDING;
         float rightCol = MARGIN + (PAGE_WIDTH - MARGIN * 2) / 2f;
 
         // Row 1: PARTICIPANT | BIB NUMBER
         drawLabel(cs, bold, leftCol, startY, "PARTICIPANTE");
-        drawValue(cs, bold, 13, leftCol, startY - 17f, truncate(getParticipantName(participant), 28));
+        drawValue(cs, bold, 13, leftCol, startY - 17f, truncate(participant.fullName(), 28));
 
         drawLabel(cs, bold, rightCol, startY, "DORSAL");
         String bibText = registration.getBibNumber() != null ? "# " + registration.getBibNumber() : "Sin asignar";
@@ -271,16 +270,6 @@ public class TicketPdfGenerator {
         String capitalized = Character.toUpperCase(dayOfWeek.charAt(0)) + dayOfWeek.substring(1);
         return capitalized + " " + event.getEventDate().getDayOfMonth()
                 + " de " + month + ", " + event.getEventDate().getYear() + " · " + time;
-    }
-
-    private String getParticipantName(User participant) {
-        if (participant.getPersonalData() == null) return participant.getEmail();
-        String first = participant.getPersonalData().getFirstName() != null
-                ? participant.getPersonalData().getFirstName() : "";
-        String last = participant.getPersonalData().getLastName() != null
-                ? participant.getPersonalData().getLastName() : "";
-        String full = (first + " " + last).trim();
-        return full.isEmpty() ? participant.getEmail() : full;
     }
 
     private String truncate(String text, int maxChars) {

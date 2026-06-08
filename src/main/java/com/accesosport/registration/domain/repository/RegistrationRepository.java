@@ -76,6 +76,15 @@ public interface RegistrationRepository {
     boolean existsByEventIdAndParticipantId(UUID eventId, UUID participantId);
 
     /**
+     * Checks whether an email is already registered for a given event.
+     *
+     * @param eventId the event identifier
+     * @param participantEmail the participant email address
+     * @return true if a registration with that email exists for the event
+     */
+    boolean existsByEventIdAndParticipantEmail(UUID eventId, String participantEmail);
+
+    /**
      * Finds registrations in PENDING_PAYMENT status whose payment window has expired.
      * Card payments use a shorter threshold; cash/OXXO payments use a longer one.
      *
