@@ -7,8 +7,10 @@ import com.accesosport.event.application.dto.EventSummaryResponse;
 import com.accesosport.event.application.dto.UpdateEventRequest;
 import com.accesosport.event.domain.exception.EventNotFoundException;
 import com.accesosport.event.domain.model.Event;
+import com.accesosport.event.domain.model.EventCapacity;
 import com.accesosport.event.domain.model.EventModality;
 import com.accesosport.event.domain.model.EventStatus;
+import com.accesosport.event.domain.repository.EventCapacityRepository;
 import com.accesosport.event.domain.repository.EventModalityRepository;
 import com.accesosport.event.domain.repository.EventRepository;
 import com.accesosport.event.application.usecase.CancelEventUseCase;
@@ -30,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -41,6 +44,7 @@ public class EventApplicationService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final EventModalityRepository eventModalityRepository;
+    private final EventCapacityRepository eventCapacityRepository;
     private final RegistrationRepository registrationRepository;
     private final DomainEventPublisher domainEventPublisher;
 
@@ -48,7 +52,7 @@ public class EventApplicationService {
     public EventResponse createEvent(CreateEventRequest request, UUID organizerId) {
         List<CreateEventUseCase.ModalityData> modalityData = request.modalities().stream()
                 .map(m -> new CreateEventUseCase.ModalityData(
-                        m.name(), m.distance(), m.distanceUnit(), m.price(), m.capacity()))
+                        m.name(), m.distance(), m.distanceUnit(), m.price()))
                 .toList();
 
         CreateEventUseCase.CreateEventCommand command = new CreateEventUseCase.CreateEventCommand(
@@ -60,14 +64,16 @@ public class EventApplicationService {
                 request.country(),
                 request.registrationStartDate(),
                 request.registrationEndDate(),
+                request.maxCapacity(),
                 modalityData,
                 organizerId
         );
 
-        CreateEventUseCase useCase = new CreateEventUseCase(eventRepository, userRepository, eventModalityRepository);
+        CreateEventUseCase useCase = new CreateEventUseCase(eventRepository, userRepository, eventModalityRepository, eventCapacityRepository);
         CreateEventUseCase.CreateEventResult result = useCase.execute(command);
 
-        return EventResponseMapper.toEventResponse(result.event(), result.modalities());
+        Optional<EventCapacity> capacity = eventCapacityRepository.findByEventId(result.event().getId());
+        return EventResponseMapper.toEventResponse(result.event(), result.modalities(), capacity);
     }
 
     @Transactional
@@ -91,7 +97,8 @@ public class EventApplicationService {
         UpdateEventUseCase.UpdateEventResult result = useCase.execute(command);
 
         List<EventModality> modalities = eventModalityRepository.findByEventId(eventId);
-        return EventResponseMapper.toEventResponse(result.event(), modalities);
+        Optional<EventCapacity> capacity = eventCapacityRepository.findByEventId(eventId);
+        return EventResponseMapper.toEventResponse(result.event(), modalities, capacity);
     }
 
     @Transactional
@@ -102,7 +109,8 @@ public class EventApplicationService {
                 new PublishEventUseCase.PublishEventCommand(eventId, requesterId));
 
         List<EventModality> modalities = eventModalityRepository.findByEventId(eventId);
-        return EventResponseMapper.toEventResponse(result.event(), modalities);
+        Optional<EventCapacity> capacity = eventCapacityRepository.findByEventId(eventId);
+        return EventResponseMapper.toEventResponse(result.event(), modalities, capacity);
     }
 
     @Transactional
@@ -113,7 +121,8 @@ public class EventApplicationService {
                 new OpenRegistrationUseCase.OpenRegistrationCommand(eventId, requesterId));
 
         List<EventModality> modalities = eventModalityRepository.findByEventId(eventId);
-        return EventResponseMapper.toEventResponse(result.event(), modalities);
+        Optional<EventCapacity> capacity = eventCapacityRepository.findByEventId(eventId);
+        return EventResponseMapper.toEventResponse(result.event(), modalities, capacity);
     }
 
     @Transactional
@@ -124,7 +133,8 @@ public class EventApplicationService {
                 new CancelEventUseCase.CancelEventCommand(eventId, reason, requesterId));
 
         List<EventModality> modalities = eventModalityRepository.findByEventId(eventId);
-        return EventResponseMapper.toEventResponse(result.canceledEvent(), modalities);
+        Optional<EventCapacity> capacity = eventCapacityRepository.findByEventId(eventId);
+        return EventResponseMapper.toEventResponse(result.canceledEvent(), modalities, capacity);
     }
 
     @Transactional
@@ -135,7 +145,8 @@ public class EventApplicationService {
                 new CompleteEventUseCase.CompleteEventCommand(eventId, requesterId));
 
         List<EventModality> modalities = eventModalityRepository.findByEventId(eventId);
-        return EventResponseMapper.toEventResponse(result.event(), modalities);
+        Optional<EventCapacity> capacity = eventCapacityRepository.findByEventId(eventId);
+        return EventResponseMapper.toEventResponse(result.event(), modalities, capacity);
     }
 
     @Transactional(readOnly = true)
@@ -143,7 +154,8 @@ public class EventApplicationService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EventNotFoundException(eventId));
         List<EventModality> modalities = eventModalityRepository.findByEventId(eventId);
-        return EventResponseMapper.toEventResponse(event, modalities);
+        Optional<EventCapacity> capacity = eventCapacityRepository.findByEventId(eventId);
+        return EventResponseMapper.toEventResponse(event, modalities, capacity);
     }
 
     @Transactional(readOnly = true)
@@ -187,13 +199,21 @@ public class EventApplicationService {
         if (events.isEmpty()) return List.of();
 
         List<UUID> eventIds = events.stream().map(Event::getId).toList();
+
         Map<UUID, List<EventModality>> modalitiesByEvent = eventModalityRepository
                 .findByEventIdIn(eventIds).stream()
                 .collect(Collectors.groupingBy(EventModality::getEventId));
 
+        Map<UUID, EventCapacity> capacityByEvent = eventCapacityRepository
+                .findByEventIdIn(eventIds).stream()
+                .collect(Collectors.toMap(EventCapacity::getEventId, c -> c));
+
         return events.stream()
                 .map(e -> EventResponseMapper.toEventSummaryResponse(
-                        e, modalitiesByEvent.getOrDefault(e.getId(), List.of())))
+                        e,
+                        modalitiesByEvent.getOrDefault(e.getId(), List.of()),
+                        Optional.ofNullable(capacityByEvent.get(e.getId()))
+                ))
                 .toList();
     }
 }

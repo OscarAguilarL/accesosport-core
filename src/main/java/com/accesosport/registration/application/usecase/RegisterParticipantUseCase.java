@@ -3,6 +3,7 @@ package com.accesosport.registration.application.usecase;
 import com.accesosport.event.domain.model.Event;
 import com.accesosport.event.domain.model.EventCategory;
 import com.accesosport.event.domain.model.EventModality;
+import com.accesosport.event.domain.repository.EventCapacityRepository;
 import com.accesosport.event.domain.repository.EventCategoryRepository;
 import com.accesosport.event.domain.repository.EventModalityRepository;
 import com.accesosport.event.domain.repository.EventRepository;
@@ -36,6 +37,7 @@ public class RegisterParticipantUseCase extends UseCase<RegisterParticipantComma
     private final EventModalityRepository eventModalityRepository;
     private final EventCategoryRepository eventCategoryRepository;
     private final UserRepository userRepository;
+    private final EventCapacityRepository eventCapacityRepository;
 
     private static final DateTimeFormatter WAIVER_DATE_FORMATTER =
             DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
@@ -63,13 +65,15 @@ public class RegisterParticipantUseCase extends UseCase<RegisterParticipantComma
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Modalidad no encontrada para este evento"));
 
-        int reserved = eventModalityRepository.reserveIfAvailable(modality.getId());
+        int reserved = eventCapacityRepository.reserveIfAvailable(command.eventId());
         if (reserved == 0) {
             if (!event.getStatus().acceptsRegistrations()) {
                 throw new RegistrationNotOpenException(command.eventId());
             }
             throw new NoCapacityException(command.eventId());
         }
+
+        eventModalityRepository.incrementRegisteredCount(modality.getId());
 
         UUID categoryId = null;
         if (command.categoryId() != null) {

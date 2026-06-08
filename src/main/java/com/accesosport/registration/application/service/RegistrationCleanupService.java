@@ -1,5 +1,6 @@
 package com.accesosport.registration.application.service;
 
+import com.accesosport.event.domain.repository.EventCapacityRepository;
 import com.accesosport.event.domain.repository.EventModalityRepository;
 import com.accesosport.registration.application.dto.CancelRegistrationCommand;
 import com.accesosport.registration.application.usecase.CancelRegistrationUseCase;
@@ -22,6 +23,7 @@ public class RegistrationCleanupService {
 
     private final RegistrationRepository registrationRepository;
     private final EventModalityRepository eventModalityRepository;
+    private final EventCapacityRepository eventCapacityRepository;
     private final DomainEventPublisher domainEventPublisher;
 
     @Value("${app.registration.cleanup.card-expiry-minutes:30}")
@@ -43,7 +45,7 @@ public class RegistrationCleanupService {
         log.info("[Cleanup] Found {} expired PENDING_PAYMENT registrations", expired.size());
 
         CancelRegistrationUseCase cancelRegistrationUseCase =
-                new CancelRegistrationUseCase(registrationRepository, eventModalityRepository, domainEventPublisher);
+                new CancelRegistrationUseCase(registrationRepository, eventModalityRepository, eventCapacityRepository, domainEventPublisher);
 
         expired.forEach(registration -> {
             try {

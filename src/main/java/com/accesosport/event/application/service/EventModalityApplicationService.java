@@ -40,8 +40,7 @@ public class EventModalityApplicationService {
                 request.distance(),
                 request.distanceUnit(),
                 request.price(),
-                request.priceWithoutShirt(),
-                request.capacity()
+                request.priceWithoutShirt()
         );
 
         return ModalityResponse.from(modalityRepository.save(modality));

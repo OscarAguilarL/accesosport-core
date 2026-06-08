@@ -1,9 +1,11 @@
 package com.accesosport.event.application.usecase;
 
 import com.accesosport.event.domain.model.Event;
+import com.accesosport.event.domain.model.EventCapacity;
 import com.accesosport.event.domain.model.EventModality;
 import com.accesosport.event.domain.model.Location;
 import com.accesosport.event.domain.model.RegistrationPeriod;
+import com.accesosport.event.domain.repository.EventCapacityRepository;
 import com.accesosport.event.domain.repository.EventModalityRepository;
 import com.accesosport.event.domain.repository.EventRepository;
 import com.accesosport.shared.domain.i18n.MessageKeys;
@@ -25,6 +27,7 @@ public class CreateEventUseCase extends UseCase<CreateEventUseCase.CreateEventCo
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final EventModalityRepository eventModalityRepository;
+    private final EventCapacityRepository eventCapacityRepository;
 
     @Override
     public CreateEventResult internalExecute(CreateEventCommand command) {
@@ -53,14 +56,16 @@ public class CreateEventUseCase extends UseCase<CreateEventUseCase.CreateEventCo
 
         Event savedEvent = eventRepository.save(event);
 
+        EventCapacity capacity = EventCapacity.create(savedEvent.getId(), command.maxCapacity());
+        eventCapacityRepository.save(capacity);
+
         List<EventModality> modalities = command.modalities().stream()
                 .map(m -> EventModality.create(
                         savedEvent.getId(),
                         m.name(),
                         m.distance(),
                         m.distanceUnit(),
-                        m.price(),
-                        m.capacity()
+                        m.price()
                 ))
                 .map(eventModalityRepository::save)
                 .toList();
@@ -72,8 +77,7 @@ public class CreateEventUseCase extends UseCase<CreateEventUseCase.CreateEventCo
             String name,
             BigDecimal distance,
             com.accesosport.event.domain.model.DistanceUnit distanceUnit,
-            BigDecimal price,
-            int capacity
+            BigDecimal price
     ) {}
 
     public record CreateEventCommand(
@@ -85,6 +89,7 @@ public class CreateEventUseCase extends UseCase<CreateEventUseCase.CreateEventCo
             String country,
             LocalDateTime registrationStart,
             LocalDateTime registrationEnd,
+            int maxCapacity,
             List<ModalityData> modalities,
             UUID createdByUserId
     ) {}

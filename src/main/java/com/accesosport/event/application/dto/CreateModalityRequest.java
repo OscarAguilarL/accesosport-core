@@ -13,6 +13,5 @@ public record CreateModalityRequest(
         @NotNull @Positive BigDecimal distance,
         @NotNull DistanceUnit distanceUnit,
         @NotNull @DecimalMin("0") BigDecimal price,
-        BigDecimal priceWithoutShirt,
-        @NotNull @Positive Integer capacity
+        BigDecimal priceWithoutShirt
 ) {}

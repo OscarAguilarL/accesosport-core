@@ -1,5 +1,6 @@
 package com.accesosport.registration.application.usecase;
 
+import com.accesosport.event.domain.repository.EventCapacityRepository;
 import com.accesosport.event.domain.repository.EventModalityRepository;
 import com.accesosport.registration.application.dto.CancelRegistrationCommand;
 import com.accesosport.registration.application.dto.RegistrationResponse;
@@ -31,6 +32,7 @@ class CancelRegistrationUseCaseTest {
 
     @Mock private RegistrationRepository registrationRepository;
     @Mock private EventModalityRepository eventModalityRepository;
+    @Mock private EventCapacityRepository eventCapacityRepository;
     @Mock private DomainEventPublisher domainEventPublisher;
     @Mock private Registration registration;
 
@@ -43,7 +45,7 @@ class CancelRegistrationUseCaseTest {
     @BeforeEach
     void setUp() {
         useCase = new CancelRegistrationUseCase(
-                registrationRepository, eventModalityRepository, domainEventPublisher
+                registrationRepository, eventModalityRepository, eventCapacityRepository, domainEventPublisher
         );
         registrationId = UUID.randomUUID();
         eventId = UUID.randomUUID();
@@ -61,7 +63,14 @@ class CancelRegistrationUseCaseTest {
     }
 
     @Test
-    void cancelacion_liberaCupoDeModalidad() {
+    void cancelacion_liberaCupoGlobalDelEvento() {
+        useCase.execute(new CancelRegistrationCommand(registrationId, participantId, false));
+
+        verify(eventCapacityRepository).release(eventId);
+    }
+
+    @Test
+    void cancelacion_decrementaConteoDeModalidad() {
         useCase.execute(new CancelRegistrationCommand(registrationId, participantId, false));
 
         verify(eventModalityRepository).release(modalityId);
@@ -94,16 +103,17 @@ class CancelRegistrationUseCaseTest {
 
         useCase.execute(new CancelRegistrationCommand(registrationId, adminId, true));
 
-        verify(eventModalityRepository).release(modalityId);
+        verify(eventCapacityRepository).release(eventId);
     }
 
     @Test
-    void sinModalityId_noLlamaRelease() {
+    void sinModalityId_noLlamaReleaseEnModalidad() {
         when(registration.getModalityId()).thenReturn(null);
 
         useCase.execute(new CancelRegistrationCommand(registrationId, participantId, false));
 
         verify(eventModalityRepository, never()).release(any());
+        verify(eventCapacityRepository).release(eventId);
     }
 
     @Test
@@ -114,7 +124,7 @@ class CancelRegistrationUseCaseTest {
                 useCase.execute(new CancelRegistrationCommand(registrationId, participantId, false)))
                 .isInstanceOf(RegistrationNotFoundException.class);
 
-        verify(eventModalityRepository, never()).release(any());
+        verify(eventCapacityRepository, never()).release(any());
     }
 
     @Test
@@ -125,7 +135,7 @@ class CancelRegistrationUseCaseTest {
                 useCase.execute(new CancelRegistrationCommand(registrationId, otherParticipant, false)))
                 .isInstanceOf(RegistrationAccessDeniedException.class);
 
-        verify(eventModalityRepository, never()).release(any());
+        verify(eventCapacityRepository, never()).release(any());
     }
 
     @Test

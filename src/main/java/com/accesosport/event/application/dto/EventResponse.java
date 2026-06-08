@@ -20,6 +20,9 @@ public record EventResponse(
         String coverImageUrl,
         List<EventImageResponse> galleryImages,
         LocalDateTime createdAt,
-        String waiverTemplate
+        String waiverTemplate,
+        int maxCapacity,
+        int registeredCount,
+        int availableSpots
 ) {
 }

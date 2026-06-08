@@ -1,5 +1,6 @@
 package com.accesosport.registration.application.usecase;
 
+import com.accesosport.event.domain.repository.EventCapacityRepository;
 import com.accesosport.event.domain.repository.EventModalityRepository;
 import com.accesosport.registration.application.dto.CancelRegistrationCommand;
 import com.accesosport.registration.application.dto.RegistrationResponse;
@@ -18,6 +19,7 @@ public class CancelRegistrationUseCase extends UseCase<CancelRegistrationCommand
 
     private final RegistrationRepository registrationRepository;
     private final EventModalityRepository eventModalityRepository;
+    private final EventCapacityRepository eventCapacityRepository;
     private final DomainEventPublisher domainEventPublisher;
 
     @Override
@@ -32,6 +34,8 @@ public class CancelRegistrationUseCase extends UseCase<CancelRegistrationCommand
 
         registration.cancel();
         registrationRepository.save(registration);
+
+        eventCapacityRepository.release(registration.getEventId());
 
         if (registration.getModalityId() != null) {
             eventModalityRepository.release(registration.getModalityId());

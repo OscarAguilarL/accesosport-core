@@ -44,8 +44,8 @@ public class EventModalityRepositoryAdapter implements EventModalityRepository {
     }
 
     @Override
-    public int reserveIfAvailable(UUID modalityId) {
-        return jpaRepository.reserveIfAvailable(modalityId);
+    public void incrementRegisteredCount(UUID modalityId) {
+        jpaRepository.incrementRegisteredCount(modalityId);
     }
 
     @Override
@@ -54,10 +54,10 @@ public class EventModalityRepositoryAdapter implements EventModalityRepository {
     }
 
     private EventModality toDomain(EventModalityJpaEntity e) {
-        return EventModality.reconstitute(e.getId(), e.getEventId(), e.getName(), e.getDistance(), e.getDistanceUnit(), e.getPrice(), e.getPriceWithoutShirt(), e.getCapacity(), e.getRegisteredCount());
+        return EventModality.reconstitute(e.getId(), e.getEventId(), e.getName(), e.getDistance(), e.getDistanceUnit(), e.getPrice(), e.getPriceWithoutShirt(), e.getRegisteredCount());
     }
 
     private EventModalityJpaEntity toEntity(EventModality m) {
-        return new EventModalityJpaEntity(m.getId(), m.getEventId(), m.getName(), m.getDistance(), m.getDistanceUnit(), m.getPrice(), m.getPriceWithoutShirt(), m.getCapacity(), m.getRegisteredCount());
+        return new EventModalityJpaEntity(m.getId(), m.getEventId(), m.getName(), m.getDistance(), m.getDistanceUnit(), m.getPrice(), m.getPriceWithoutShirt(), m.getRegisteredCount());
     }
 }

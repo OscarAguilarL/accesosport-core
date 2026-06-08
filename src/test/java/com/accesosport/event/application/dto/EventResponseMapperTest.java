@@ -13,6 +13,7 @@ import org.mockito.quality.Strictness;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,9 +37,13 @@ class EventResponseMapperTest {
             LocalDateTime.now().minusDays(1)
     );
 
-    private EventModality modalityWith(int capacity, int registered) {
+    private EventModality modality() {
         return EventModality.reconstitute(UUID.randomUUID(), eventId, "10K",
-                new BigDecimal("10"), DistanceUnit.KM, new BigDecimal("150"), null, capacity, registered);
+                new BigDecimal("10"), DistanceUnit.KM, new BigDecimal("150"), null, 5);
+    }
+
+    private Optional<EventCapacity> capacityWith(int reserved, int max) {
+        return Optional.of(EventCapacity.reconstitute(eventId, reserved, max));
     }
 
     @BeforeEach
@@ -57,12 +62,12 @@ class EventResponseMapperTest {
     }
 
     @Test
-    void canRegister_trueWhenOpenStatusAndOpenPeriodAndModalityHasSpots() {
+    void canRegister_trueWhenOpenStatusAndOpenPeriodAndCapacityAvailable() {
         when(event.getStatus()).thenReturn(EventStatus.REGISTRATION_OPEN);
         when(event.getRegistrationPeriod()).thenReturn(openPeriod);
 
         EventResponse response = EventResponseMapper.toEventResponse(
-                event, List.of(modalityWith(100, 5)), List.of());
+                event, List.of(modality()), capacityWith(5, 100));
 
         assertThat(response.canRegister()).isTrue();
     }
@@ -73,7 +78,7 @@ class EventResponseMapperTest {
         when(event.getRegistrationPeriod()).thenReturn(openPeriod);
 
         EventResponse response = EventResponseMapper.toEventResponse(
-                event, List.of(modalityWith(100, 0)), List.of());
+                event, List.of(modality()), capacityWith(0, 100));
 
         assertThat(response.canRegister()).isFalse();
     }
@@ -84,32 +89,31 @@ class EventResponseMapperTest {
         when(event.getRegistrationPeriod()).thenReturn(closedPeriod);
 
         EventResponse response = EventResponseMapper.toEventResponse(
-                event, List.of(modalityWith(100, 0)), List.of());
+                event, List.of(modality()), capacityWith(0, 100));
 
         assertThat(response.canRegister()).isFalse();
     }
 
     @Test
-    void canRegister_falseWhenAllModalitiesFull() {
+    void canRegister_falseWhenEventCapacityFull() {
         when(event.getStatus()).thenReturn(EventStatus.REGISTRATION_OPEN);
         when(event.getRegistrationPeriod()).thenReturn(openPeriod);
 
         EventResponse response = EventResponseMapper.toEventResponse(
-                event, List.of(modalityWith(100, 100)), List.of());
+                event, List.of(modality()), capacityWith(100, 100));
 
         assertThat(response.canRegister()).isFalse();
     }
 
     @Test
-    void canRegister_trueWhenAtLeastOneModalityHasSpots() {
+    void canRegister_falseWhenNoEventCapacity() {
         when(event.getStatus()).thenReturn(EventStatus.REGISTRATION_OPEN);
         when(event.getRegistrationPeriod()).thenReturn(openPeriod);
 
-        List<EventModality> modalities = List.of(modalityWith(50, 50), modalityWith(200, 100));
+        EventResponse response = EventResponseMapper.toEventResponse(
+                event, List.of(modality()), Optional.empty());
 
-        EventResponse response = EventResponseMapper.toEventResponse(event, modalities, List.of());
-
-        assertThat(response.canRegister()).isTrue();
+        assertThat(response.canRegister()).isFalse();
     }
 
     @Test
@@ -117,26 +121,40 @@ class EventResponseMapperTest {
         when(event.getStatus()).thenReturn(EventStatus.DRAFT);
         when(event.getRegistrationPeriod()).thenReturn(openPeriod);
 
-        List<EventModality> modalities = List.of(modalityWith(100, 10), modalityWith(200, 50));
+        List<EventModality> modalities = List.of(modality(), modality());
 
-        EventResponse response = EventResponseMapper.toEventResponse(event, modalities, List.of());
+        EventResponse response = EventResponseMapper.toEventResponse(event, modalities, capacityWith(10, 200));
 
         assertThat(response.modalities()).hasSize(2);
     }
 
     @Test
-    void summaryResponse_computesMinPriceAndTotalAvailableSpots() {
+    void response_includesCapacityFields() {
+        when(event.getStatus()).thenReturn(EventStatus.REGISTRATION_OPEN);
+        when(event.getRegistrationPeriod()).thenReturn(openPeriod);
+
+        EventResponse response = EventResponseMapper.toEventResponse(
+                event, List.of(modality()), capacityWith(30, 500));
+
+        assertThat(response.maxCapacity()).isEqualTo(500);
+        assertThat(response.registeredCount()).isEqualTo(30);
+        assertThat(response.availableSpots()).isEqualTo(470);
+    }
+
+    @Test
+    void summaryResponse_computesMinPriceAndAvailableSpots() {
         when(event.getStatus()).thenReturn(EventStatus.REGISTRATION_OPEN);
         when(event.getRegistrationPeriod()).thenReturn(openPeriod);
 
         EventModality cheap = EventModality.reconstitute(UUID.randomUUID(), eventId, "5K",
-                new BigDecimal("5"), DistanceUnit.KM, new BigDecimal("100"), null, 300, 50);
+                new BigDecimal("5"), DistanceUnit.KM, new BigDecimal("100"), null, 50);
         EventModality expensive = EventModality.reconstitute(UUID.randomUUID(), eventId, "21K",
-                new BigDecimal("21.097"), DistanceUnit.KM, new BigDecimal("350"), null, 200, 30);
+                new BigDecimal("21.097"), DistanceUnit.KM, new BigDecimal("350"), null, 30);
 
-        EventSummaryResponse summary = EventResponseMapper.toEventSummaryResponse(event, List.of(cheap, expensive));
+        EventSummaryResponse summary = EventResponseMapper.toEventSummaryResponse(
+                event, List.of(cheap, expensive), capacityWith(80, 500));
 
         assertThat(summary.minPrice()).isEqualByComparingTo(new BigDecimal("100"));
-        assertThat(summary.totalAvailableSpots()).isEqualTo(250 + 170);
+        assertThat(summary.totalAvailableSpots()).isEqualTo(420);
     }
 }

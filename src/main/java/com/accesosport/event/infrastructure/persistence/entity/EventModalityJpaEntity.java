@@ -41,9 +41,6 @@ public class EventModalityJpaEntity {
     @Column(name = "price_without_shirt", precision = 10, scale = 2)
     private BigDecimal priceWithoutShirt;
 
-    @Column(nullable = false)
-    private int capacity;
-
     @Column(name = "registered_count", nullable = false, columnDefinition = "int default 0")
     private int registeredCount;
 }

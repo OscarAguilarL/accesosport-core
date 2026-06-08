@@ -1,6 +1,7 @@
 package com.accesosport.registration.application.service;
 
 import com.accesosport.event.domain.model.Event;
+import com.accesosport.event.domain.repository.EventCapacityRepository;
 import com.accesosport.event.domain.repository.EventCategoryRepository;
 import com.accesosport.event.domain.repository.EventModalityRepository;
 import com.accesosport.event.domain.repository.EventRepository;
@@ -48,6 +49,7 @@ public class RegistrationApplicationService {
     private final RegistrationRepository registrationRepository;
     private final EventRepository eventRepository;
     private final EventModalityRepository eventModalityRepository;
+    private final EventCapacityRepository eventCapacityRepository;
     private final EventCategoryRepository eventCategoryRepository;
     private final DomainEventPublisher domainEventPublisher;
     private final ParticipantProfileRepository participantProfileRepository;
@@ -64,7 +66,7 @@ public class RegistrationApplicationService {
     public RegistrationResponse registerParticipant(UUID eventId, UUID participantId, UUID modalityId, UUID categoryId, boolean waiverAccepted, Boolean wantsShirt) {
         boolean effectiveWantsShirt = wantsShirt == null || wantsShirt;
         RegisterParticipantUseCase useCase = new RegisterParticipantUseCase(
-                registrationRepository, eventRepository, domainEventPublisher, eventModalityRepository, eventCategoryRepository, userRepository
+                registrationRepository, eventRepository, domainEventPublisher, eventModalityRepository, eventCategoryRepository, userRepository, eventCapacityRepository
         );
         return useCase.execute(new RegisterParticipantCommand(eventId, participantId, modalityId, categoryId, waiverAccepted, effectiveWantsShirt));
     }
@@ -73,7 +75,7 @@ public class RegistrationApplicationService {
     public RegistrationResponse cancelRegistration(UUID registrationId, UUID userId, boolean isAdmin) {
         UUID requesterId = isAdmin ? null : userId;
         CancelRegistrationUseCase useCase = new CancelRegistrationUseCase(
-                registrationRepository, eventModalityRepository, domainEventPublisher
+                registrationRepository, eventModalityRepository, eventCapacityRepository, domainEventPublisher
         );
         return useCase.execute(new CancelRegistrationCommand(registrationId, requesterId, isAdmin));
     }
