@@ -5,6 +5,7 @@ import com.accesosport.event.domain.model.Location;
 import com.accesosport.event.domain.repository.EventCategoryRepository;
 import com.accesosport.event.domain.repository.EventModalityRepository;
 import com.accesosport.event.domain.repository.EventRepository;
+import com.accesosport.registration.application.service.ParticipantData;
 import com.accesosport.registration.application.service.TicketPdfGenerator;
 import com.accesosport.registration.domain.exception.RegistrationAccessDeniedException;
 import com.accesosport.registration.domain.exception.RegistrationNotConfirmedException;
@@ -12,9 +13,6 @@ import com.accesosport.registration.domain.exception.RegistrationNotFoundExcepti
 import com.accesosport.registration.domain.model.Registration;
 import com.accesosport.registration.domain.model.RegistrationStatus;
 import com.accesosport.registration.domain.repository.RegistrationRepository;
-import com.accesosport.user.domain.model.PersonalData;
-import com.accesosport.user.domain.model.User;
-import com.accesosport.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,7 +38,6 @@ class GenerateTicketPdfUseCaseTest {
 
     @Mock private RegistrationRepository registrationRepository;
     @Mock private EventRepository eventRepository;
-    @Mock private UserRepository userRepository;
     @Mock private EventModalityRepository eventModalityRepository;
     @Mock private EventCategoryRepository eventCategoryRepository;
     @Mock private TicketPdfGenerator ticketPdfGenerator;
@@ -55,7 +52,7 @@ class GenerateTicketPdfUseCaseTest {
     @BeforeEach
     void setUp() throws IOException {
         useCase = new GenerateTicketPdfUseCase(
-                registrationRepository, eventRepository, userRepository, eventModalityRepository, eventCategoryRepository, ticketPdfGenerator);
+                registrationRepository, eventRepository, eventModalityRepository, eventCategoryRepository, ticketPdfGenerator);
         registrationId = UUID.randomUUID();
         participantId = UUID.randomUUID();
         eventId = UUID.randomUUID();
@@ -66,16 +63,6 @@ class GenerateTicketPdfUseCaseTest {
         when(event.getLocation()).thenReturn(location);
         when(location.place()).thenReturn("Av. Reforma, CDMX");
         when(eventRepository.findById(eventId)).thenReturn(Optional.of(event));
-
-        User participant = User.builder()
-                .id(participantId)
-                .email("juan@test.com")
-                .personalData(PersonalData.builder()
-                        .firstName("Juan")
-                        .lastName("García")
-                        .build())
-                .build();
-        when(userRepository.findById(participantId)).thenReturn(Optional.of(participant));
 
         when(ticketPdfGenerator.generate(any(), any(), any(), any(), any(), anyBoolean())).thenReturn(new byte[]{1, 2, 3});
     }
@@ -130,7 +117,7 @@ class GenerateTicketPdfUseCaseTest {
         byte[] result = useCase.execute(new GenerateTicketPdfUseCase.Command(registrationId, participantId));
 
         assertThat(result).isNotNull().isNotEmpty();
-        verify(ticketPdfGenerator).generate(eq(registration), eq(event), any(User.class), any(), any(), anyBoolean());
+        verify(ticketPdfGenerator).generate(eq(registration), eq(event), any(ParticipantData.class), any(), any(), anyBoolean());
     }
 
     @Test
@@ -152,6 +139,7 @@ class GenerateTicketPdfUseCaseTest {
         return Registration.reconstitute(
                 registrationId, eventId, participantId, null, null,
                 status, "ACSP-TEST", 42, null, false, null,
-                LocalDateTime.now(), null, null, null, true);
+                LocalDateTime.now(), null, null, null, true,
+                null, null, null, null, null, null, null, null, null);
     }
 }

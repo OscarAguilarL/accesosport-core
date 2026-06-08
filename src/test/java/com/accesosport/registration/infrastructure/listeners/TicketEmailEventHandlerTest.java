@@ -12,9 +12,6 @@ import com.accesosport.registration.domain.model.RegistrationStatus;
 import com.accesosport.registration.domain.repository.RegistrationRepository;
 import com.accesosport.shared.domain.port.EmailService;
 import com.accesosport.shared.domain.port.EmailTemplatePort;
-import com.accesosport.user.domain.model.PersonalData;
-import com.accesosport.user.domain.model.User;
-import com.accesosport.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,14 +38,12 @@ class TicketEmailEventHandlerTest {
     @Mock private TicketPdfGenerator ticketPdfGenerator;
     @Mock private EmailService emailService;
     @Mock private EmailTemplatePort emailTemplateService;
-    @Mock private UserRepository userRepository;
     @Mock private EventRepository eventRepository;
     @Mock private RegistrationRepository registrationRepository;
     @Mock private EventModalityRepository eventModalityRepository;
     @Mock private EventCategoryRepository eventCategoryRepository;
     @Mock private Event event;
     @Mock private Location location;
-    @Mock private User user;
 
     private TicketEmailEventHandler handler;
 
@@ -60,7 +55,7 @@ class TicketEmailEventHandlerTest {
     @BeforeEach
     void setUp() throws IOException {
         handler = new TicketEmailEventHandler(
-                ticketPdfGenerator, emailService, emailTemplateService, userRepository,
+                ticketPdfGenerator, emailService, emailTemplateService,
                 eventRepository, registrationRepository, eventModalityRepository, eventCategoryRepository
         );
 
@@ -71,15 +66,13 @@ class TicketEmailEventHandlerTest {
         registration = Registration.reconstitute(
                 registrationId, eventId, participantId, null, null,
                 RegistrationStatus.CONFIRMED, "ACSP-TEST", null, null,
-                false, null, null, null, null, null, true
+                false, null, null, null, null, null, true,
+                "participant@test.com", "Ana", null, null, null, null, null, null, null
         );
 
         when(registrationRepository.findById(registrationId)).thenReturn(Optional.of(registration));
         when(eventRepository.findById(eventId)).thenReturn(Optional.of(event));
-        when(userRepository.findById(participantId)).thenReturn(Optional.of(user));
 
-        when(user.getEmail()).thenReturn("participant@test.com");
-        when(user.getPersonalData()).thenReturn(PersonalData.builder().firstName("Ana").build());
         when(event.getName()).thenReturn("Maratón CDMX");
         when(event.getEventDate()).thenReturn(LocalDateTime.of(2026, 6, 15, 8, 0));
         when(event.getLocation()).thenReturn(location);
@@ -139,8 +132,14 @@ class TicketEmailEventHandlerTest {
     }
 
     @Test
-    void handle_whenUserNotFound_shouldNotSendEmailAndNotThrow() {
-        when(userRepository.findById(participantId)).thenReturn(Optional.empty());
+    void handle_whenParticipantEmailIsNull_shouldNotSendEmailAndNotThrow() {
+        Registration noEmailRegistration = Registration.reconstitute(
+                registrationId, eventId, participantId, null, null,
+                RegistrationStatus.CONFIRMED, "ACSP-TEST", null, null,
+                false, null, null, null, null, null, true,
+                null, null, null, null, null, null, null, null, null
+        );
+        when(registrationRepository.findById(registrationId)).thenReturn(Optional.of(noEmailRegistration));
 
         RegistrationConfirmedEvent domainEvent = new RegistrationConfirmedEvent(
                 registrationId, eventId, participantId, "ACSP-TEST", null);

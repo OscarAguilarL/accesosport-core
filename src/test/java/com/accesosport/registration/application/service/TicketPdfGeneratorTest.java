@@ -2,10 +2,9 @@ package com.accesosport.registration.application.service;
 
 import com.accesosport.event.domain.model.Event;
 import com.accesosport.event.domain.model.Location;
+import com.accesosport.registration.application.service.ParticipantData;
 import com.accesosport.registration.domain.model.Registration;
 import com.accesosport.registration.domain.model.RegistrationStatus;
-import com.accesosport.user.domain.model.PersonalData;
-import com.accesosport.user.domain.model.User;
 import com.accesosport.event.domain.model.DistanceUnit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,14 +48,14 @@ class TicketPdfGeneratorTest {
 
     @Test
     void generate_shouldReturnNonEmptyBytes() throws Exception {
-        byte[] result = generator.generate(testRegistration(42), event, testUser(), "42.195 km", "Master Varonil", true);
+        byte[] result = generator.generate(testRegistration(42), event, testParticipant(), "42.195 km", "Master Varonil", true);
 
         assertThat(result).isNotNull().isNotEmpty();
     }
 
     @Test
     void generate_shouldReturnValidPdfBytes() throws Exception {
-        byte[] result = generator.generate(testRegistration(42), event, testUser(), "42.195 km" ,"Master Varonil", true);
+        byte[] result = generator.generate(testRegistration(42), event, testParticipant(), "42.195 km", "Master Varonil", true);
 
         assertThat(result).startsWith(PDF_MAGIC);
     }
@@ -66,21 +65,19 @@ class TicketPdfGeneratorTest {
         Registration reg = Registration.reconstitute(
                 UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), null, null,
                 RegistrationStatus.CONFIRMED, "ACSP-TEST", null, null,
-                false, null, LocalDateTime.now(), null, null, null, true);
+                false, null, LocalDateTime.now(), null, null, null, true,
+                null, null, null, null, null, null, null, null, null);
 
-        byte[] result = generator.generate(reg, event, testUser(), null, null, false);
+        byte[] result = generator.generate(reg, event, testParticipant(), null, null, false);
 
         assertThat(result).isNotEmpty().startsWith(PDF_MAGIC);
     }
 
     @Test
     void generate_withNullPersonalData_shouldNotThrow() throws Exception {
-        User userWithoutPersonalData = User.builder()
-                .id(UUID.randomUUID())
-                .email("sin-nombre@test.com")
-                .build();
+        ParticipantData noName = new ParticipantData("sin-nombre@test.com", null, null);
 
-        byte[] result = generator.generate(testRegistration(10), event, userWithoutPersonalData, "10 km", "Master Varonil", true);
+        byte[] result = generator.generate(testRegistration(10), event, noName, "10 km", "Master Varonil", true);
 
         assertThat(result).isNotEmpty().startsWith(PDF_MAGIC);
     }
@@ -89,7 +86,7 @@ class TicketPdfGeneratorTest {
     void generate_withNullLocation_shouldNotThrow() throws Exception {
         when(event.getLocation()).thenReturn(null);
 
-        byte[] result = generator.generate(testRegistration(5), event, testUser(), "5 km","Master Varonil", true);
+        byte[] result = generator.generate(testRegistration(5), event, testParticipant(), "5 km", "Master Varonil", true);
 
         assertThat(result).isNotEmpty().startsWith(PDF_MAGIC);
     }
@@ -98,17 +95,11 @@ class TicketPdfGeneratorTest {
         return Registration.reconstitute(
                 UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), null, null,
                 RegistrationStatus.CONFIRMED, "ACSP-4X7K", bibNumber, null,
-                false, null, LocalDateTime.now(), null, null, null, true);
+                false, null, LocalDateTime.now(), null, null, null, true,
+                null, null, null, null, null, null, null, null, null);
     }
 
-    private User testUser() {
-        return User.builder()
-                .id(UUID.randomUUID())
-                .email("participante@test.com")
-                .personalData(PersonalData.builder()
-                        .firstName("Juan")
-                        .lastName("García")
-                        .build())
-                .build();
+    private ParticipantData testParticipant() {
+        return new ParticipantData("participante@test.com", "Juan", "García");
     }
 }
