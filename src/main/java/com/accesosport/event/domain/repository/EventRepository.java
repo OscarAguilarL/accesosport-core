@@ -2,6 +2,8 @@ package com.accesosport.event.domain.repository;
 
 import com.accesosport.event.domain.model.Event;
 import com.accesosport.event.domain.model.EventStatus;
+import com.accesosport.shared.domain.query.PageQuery;
+import com.accesosport.shared.domain.query.PageResult;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -102,4 +104,12 @@ public interface EventRepository {
     List<Event> findEventsReadyToComplete(LocalDateTime threshold);
 
     List<Event> findEventsNeedingReminder(LocalDateTime from, LocalDateTime to);
+
+    PageResult<Event> findAll(PageQuery query);
+
+    PageResult<Event> findEventsAvailableForRegistration(PageQuery query);
+
+    PageResult<Event> findByStatus(EventStatus status, PageQuery query);
+
+    PageResult<Event> findByOrganizerId(UUID organizerId, PageQuery query);
 }

@@ -13,9 +13,12 @@ import com.accesosport.registration.application.dto.GetMyRegistrationsCommand;
 import com.accesosport.registration.application.dto.ParticipantInEventResponse;
 import com.accesosport.registration.application.dto.RegisterParticipantCommand;
 import com.accesosport.registration.application.dto.RegistrationResponse;
+import com.accesosport.shared.domain.query.PageQuery;
+import com.accesosport.shared.domain.query.PageResult;
 import com.accesosport.registration.application.usecase.CancelRegistrationUseCase;
 import com.accesosport.registration.application.usecase.GenerateTicketPdfUseCase;
 import com.accesosport.registration.application.usecase.GetEventRegistrationsUseCase;
+import com.accesosport.registration.application.usecase.GetEventRegistrationsPagedUseCase;
 import com.accesosport.registration.application.usecase.GetMyRegistrationsUseCase;
 import com.accesosport.registration.application.usecase.GetRegistrationByTicketCodeUseCase;
 import com.accesosport.registration.application.usecase.RegisterParticipantUseCase;
@@ -134,6 +137,12 @@ public class RegistrationApplicationService {
         CheckinToken token = CheckinToken.generate(eventId, organizerId, checkinTokenValidHours);
         CheckinToken saved = checkinTokenRepository.save(token);
         return new CheckinTokenResponse(saved.getToken(), saved.getEventId(), saved.getExpiresAt());
+    }
+
+    @Transactional(readOnly = true)
+    public PageResult<ParticipantInEventResponse> getEventRegistrationsPaged(UUID eventId, PageQuery query) {
+        GetEventRegistrationsPagedUseCase useCase = new GetEventRegistrationsPagedUseCase(registrationRepository, participantProfileRepository);
+        return useCase.execute(new GetEventRegistrationsPagedUseCase.PagedCommand(eventId, query));
     }
 
     @Transactional(readOnly = true)

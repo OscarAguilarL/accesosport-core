@@ -6,7 +6,12 @@ import com.accesosport.event.domain.repository.EventRepository;
 import com.accesosport.event.infrastructure.persistence.entity.EventJpaEntity;
 import com.accesosport.event.infrastructure.persistence.jpa.EventJpaRepository;
 import com.accesosport.event.infrastructure.persistence.mapper.EventMapper;
+import com.accesosport.shared.domain.query.PageQuery;
+import com.accesosport.shared.domain.query.PageResult;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -121,5 +126,37 @@ public class EventRepositoryAdapter implements EventRepository {
     public List<Event> findEventsNeedingReminder(LocalDateTime from, LocalDateTime to) {
         return jpaRepository.findEventsNeedingReminder(from, to).stream()
                 .map(EventMapper::toDomain).toList();
+    }
+
+    @Override
+    public PageResult<Event> findAll(PageQuery query) {
+        Pageable pageable = PageRequest.of(query.page(), query.size());
+        Page<EventJpaEntity> page = jpaRepository.findAll(pageable);
+        List<Event> content = page.getContent().stream().map(EventMapper::toDomain).toList();
+        return PageResult.of(content, query.page(), query.size(), page.getTotalElements());
+    }
+
+    @Override
+    public PageResult<Event> findEventsAvailableForRegistration(PageQuery query) {
+        Pageable pageable = PageRequest.of(query.page(), query.size());
+        Page<EventJpaEntity> page = jpaRepository.findEventsAvailableForRegistration(pageable);
+        List<Event> content = page.getContent().stream().map(EventMapper::toDomain).toList();
+        return PageResult.of(content, query.page(), query.size(), page.getTotalElements());
+    }
+
+    @Override
+    public PageResult<Event> findByStatus(EventStatus status, PageQuery query) {
+        Pageable pageable = PageRequest.of(query.page(), query.size());
+        Page<EventJpaEntity> page = jpaRepository.findByStatus(status, pageable);
+        List<Event> content = page.getContent().stream().map(EventMapper::toDomain).toList();
+        return PageResult.of(content, query.page(), query.size(), page.getTotalElements());
+    }
+
+    @Override
+    public PageResult<Event> findByOrganizerId(UUID organizerId, PageQuery query) {
+        Pageable pageable = PageRequest.of(query.page(), query.size());
+        Page<EventJpaEntity> page = jpaRepository.findByOrganizerId(organizerId, pageable);
+        List<Event> content = page.getContent().stream().map(EventMapper::toDomain).toList();
+        return PageResult.of(content, query.page(), query.size(), page.getTotalElements());
     }
 }

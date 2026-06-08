@@ -5,6 +5,8 @@ import com.accesosport.event.application.dto.EventResponse;
 import com.accesosport.event.application.dto.EventResponseMapper;
 import com.accesosport.event.application.dto.EventSummaryResponse;
 import com.accesosport.event.application.dto.UpdateEventRequest;
+import com.accesosport.shared.domain.query.PageQuery;
+import com.accesosport.shared.domain.query.PageResult;
 import com.accesosport.event.domain.exception.EventNotFoundException;
 import com.accesosport.event.domain.model.Event;
 import com.accesosport.event.domain.model.EventCapacity;
@@ -195,6 +197,37 @@ public class EventApplicationService {
         return toSummaryResponses(eventRepository.findByStatus(EventStatus.PUBLISHED));
     }
 
+    @Transactional(readOnly = true)
+    public PageResult<EventSummaryResponse> listPublishedEventsPaged(PageQuery query) {
+        return toPagedSummaryResponses(eventRepository.findByStatus(EventStatus.PUBLISHED, query));
+    }
+
+    @Transactional(readOnly = true)
+    public PageResult<EventSummaryResponse> listAvailableEventsPaged(PageQuery query) {
+        PageResult<Event> result = eventRepository.findEventsAvailableForRegistration(query);
+        return toPagedSummaryResponses(result);
+    }
+
+    @Transactional(readOnly = true)
+    public PageResult<EventSummaryResponse> listEventsByStatusPaged(EventStatus status, PageQuery query) {
+        PageResult<Event> result = eventRepository.findByStatus(status, query);
+        return toPagedSummaryResponses(result);
+    }
+
+    @Transactional(readOnly = true)
+    public PageResult<EventSummaryResponse> listMyEventsPaged(UUID organizerId, PageQuery query) {
+        PageResult<Event> result = eventRepository.findByOrganizerId(organizerId, query);
+        return toPagedSummaryResponses(result);
+    }
+
+    @Transactional(readOnly = true)
+    public PageResult<EventSummaryResponse> listEventsPaged(EventStatus status, PageQuery query) {
+        if (status != null) {
+            return listEventsByStatusPaged(status, query);
+        }
+        return toPagedSummaryResponses(eventRepository.findAll(query));
+    }
+
     private List<EventSummaryResponse> toSummaryResponses(List<Event> events) {
         if (events.isEmpty()) return List.of();
 
@@ -215,5 +248,10 @@ public class EventApplicationService {
                         Optional.ofNullable(capacityByEvent.get(e.getId()))
                 ))
                 .toList();
+    }
+
+    private PageResult<EventSummaryResponse> toPagedSummaryResponses(PageResult<Event> pageResult) {
+        List<EventSummaryResponse> content = toSummaryResponses(pageResult.content());
+        return PageResult.of(content, pageResult.page(), pageResult.size(), pageResult.totalElements());
     }
 }

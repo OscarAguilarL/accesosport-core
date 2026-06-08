@@ -13,6 +13,8 @@ import com.accesosport.event.application.service.EventApplicationService;
 import com.accesosport.event.application.service.EventCategoryApplicationService;
 import com.accesosport.event.application.service.EventModalityApplicationService;
 import com.accesosport.event.domain.model.EventStatus;
+import com.accesosport.shared.application.dto.PagedResponse;
+import com.accesosport.shared.domain.query.PageQuery;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +33,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -81,9 +82,12 @@ public class EventController {
      * or upcoming events
      */
     @GetMapping
-    public ResponseEntity<List<EventSummaryResponse>> listEvents(@RequestParam(required = false) EventStatus eventStatus) {
-        List<EventSummaryResponse> eventSummaryResponses = eventApplicationService.listEvents(eventStatus);
-        return ResponseEntity.ok(eventSummaryResponses);
+    public ResponseEntity<PagedResponse<EventSummaryResponse>> listEvents(
+            @RequestParam(required = false) EventStatus eventStatus,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        PageQuery query = PageQuery.of(page, size);
+        return ResponseEntity.ok(PagedResponse.from(eventApplicationService.listEventsPaged(eventStatus, query)));
     }
 
     /**
@@ -97,9 +101,12 @@ public class EventController {
      */
     @GetMapping("/my-events")
     @PreAuthorize("hasAnyAuthority('ROLE_ORGANIZER', 'ROLE_ADMIN')")
-    public ResponseEntity<List<EventSummaryResponse>> listMyEvents(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        List<EventSummaryResponse> eventSummaryResponses = eventApplicationService.listEventsByOrganizerId(userDetails.getUserId());
-        return ResponseEntity.ok(eventSummaryResponses);
+    public ResponseEntity<PagedResponse<EventSummaryResponse>> listMyEvents(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        PageQuery query = PageQuery.of(page, size);
+        return ResponseEntity.ok(PagedResponse.from(eventApplicationService.listMyEventsPaged(userDetails.getUserId(), query)));
     }
 
     /**

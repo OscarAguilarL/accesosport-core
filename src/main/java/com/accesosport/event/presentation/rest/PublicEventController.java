@@ -6,6 +6,8 @@ import com.accesosport.event.application.service.EventCategoryApplicationService
 import com.accesosport.event.application.service.EventModalityApplicationService;
 import com.accesosport.image.application.dto.EventImageResponse;
 import com.accesosport.image.application.service.ImageApplicationService;
+import com.accesosport.shared.application.dto.PagedResponse;
+import com.accesosport.shared.domain.query.PageQuery;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,13 +26,19 @@ public class PublicEventController {
     private final ImageApplicationService imageApplicationService;
 
     @GetMapping("/published")
-    public ResponseEntity<List<EventSummaryResponse>> listPublishedEvents() {
-        return ResponseEntity.ok(eventApplicationService.listPublishedEvents());
+    public ResponseEntity<PagedResponse<EventSummaryResponse>> listPublishedEvents(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        PageQuery query = PageQuery.of(page, size);
+        return ResponseEntity.ok(PagedResponse.from(eventApplicationService.listPublishedEventsPaged(query)));
     }
 
     @GetMapping("/available")
-    public ResponseEntity<List<EventSummaryResponse>> listAvailableEvents() {
-        return ResponseEntity.ok(eventApplicationService.listAvailableEvents());
+    public ResponseEntity<PagedResponse<EventSummaryResponse>> listAvailableEvents(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        PageQuery query = PageQuery.of(page, size);
+        return ResponseEntity.ok(PagedResponse.from(eventApplicationService.listAvailableEventsPaged(query)));
     }
 
     @GetMapping("/{eventId}")

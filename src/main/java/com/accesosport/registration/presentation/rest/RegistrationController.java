@@ -7,6 +7,8 @@ import com.accesosport.registration.application.dto.ParticipantInEventResponse;
 import com.accesosport.registration.application.dto.RegisterParticipantRequest;
 import com.accesosport.registration.application.dto.RegistrationResponse;
 import com.accesosport.registration.application.service.RegistrationApplicationService;
+import com.accesosport.shared.application.dto.PagedResponse;
+import com.accesosport.shared.domain.query.PageQuery;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -85,11 +87,13 @@ public class RegistrationController {
      */
     @GetMapping("/api/v1/events/{eventId}/registrations")
     @PreAuthorize("hasAnyAuthority('ROLE_ORGANIZER', 'ROLE_ADMIN', 'ROLE_CHECKIN_AGENT')")
-    public ResponseEntity<List<ParticipantInEventResponse>> getEventRegistrations(
-            @PathVariable UUID eventId
+    public ResponseEntity<PagedResponse<ParticipantInEventResponse>> getEventRegistrations(
+            @PathVariable UUID eventId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
     ) {
-        List<ParticipantInEventResponse> response = registrationApplicationService.getEventRegistrations(eventId);
-        return ResponseEntity.ok(response);
+        PageQuery query = PageQuery.of(page, size);
+        return ResponseEntity.ok(PagedResponse.from(registrationApplicationService.getEventRegistrationsPaged(eventId, query)));
     }
 
     /**

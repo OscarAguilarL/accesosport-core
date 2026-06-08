@@ -1,6 +1,8 @@
 package com.accesosport.registration.domain.repository;
 
 import com.accesosport.registration.domain.model.Registration;
+import com.accesosport.shared.domain.query.PageQuery;
+import com.accesosport.shared.domain.query.PageResult;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -82,4 +84,6 @@ public interface RegistrationRepository {
      * @return list of expired pending-payment registrations to be cancelled
      */
     List<Registration> findExpiredPendingPayments(LocalDateTime cardThreshold, LocalDateTime cashThreshold);
+
+    PageResult<Registration> findByEventId(UUID eventId, PageQuery query);
 }

@@ -2,9 +2,15 @@ package com.accesosport.registration.infrastructure.persistence.adapter;
 
 import com.accesosport.registration.domain.model.Registration;
 import com.accesosport.registration.domain.repository.RegistrationRepository;
+import com.accesosport.registration.infrastructure.persistence.entity.RegistrationJpaEntity;
 import com.accesosport.registration.infrastructure.persistence.jpa.RegistrationJpaRepository;
 import com.accesosport.registration.infrastructure.persistence.mapper.RegistrationMapper;
+import com.accesosport.shared.domain.query.PageQuery;
+import com.accesosport.shared.domain.query.PageResult;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -82,5 +88,13 @@ public class RegistrationRepositoryAdapter implements RegistrationRepository {
         return jpaRepository.findExpiredPendingPayments(cardThreshold, cashThreshold).stream()
                 .map(RegistrationMapper::toDomain)
                 .toList();
+    }
+
+    @Override
+    public PageResult<Registration> findByEventId(UUID eventId, PageQuery query) {
+        Pageable pageable = PageRequest.of(query.page(), query.size());
+        Page<RegistrationJpaEntity> page = jpaRepository.findByEventId(eventId, pageable);
+        List<Registration> content = page.getContent().stream().map(RegistrationMapper::toDomain).toList();
+        return PageResult.of(content, query.page(), query.size(), page.getTotalElements());
     }
 }
