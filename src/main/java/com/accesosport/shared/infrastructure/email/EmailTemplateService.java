@@ -58,6 +58,13 @@ public class EmailTemplateService implements EmailTemplatePort {
         return templateEngine.process("email/password-reset", ctx);
     }
 
+    public String buildOrganizerInvitationEmail(String reason, String invitationLink) {
+        Context ctx = new Context();
+        ctx.setVariable("reason", reason);
+        ctx.setVariable("invitationLink", invitationLink);
+        return templateEngine.process("email/organizer-invitation", ctx);
+    }
+
     public String eventReminder(
             String participantFirstName,
             String eventName,

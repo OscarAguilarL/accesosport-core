@@ -152,6 +152,19 @@ public class MessageKeys {
 		public static final String PROBLEM_NOT_FOUND = "image.problem.not-found";
 	}
 
+	public static class Invitations {
+		private Invitations() {}
+
+		public static final String INVITATION_NOT_FOUND = "invitation.errors.not-found";
+		public static final String INVITATION_ALREADY_USED = "invitation.errors.already-used";
+		public static final String INVITATION_REVOKED = "invitation.errors.revoked";
+		public static final String INVITATION_EMAIL_MISMATCH = "invitation.errors.email-mismatch";
+		public static final String PROBLEM_NOT_FOUND = "invitation.problem.not-found";
+		public static final String PROBLEM_ALREADY_USED = "invitation.problem.already-used";
+		public static final String PROBLEM_REVOKED = "invitation.problem.revoked";
+		public static final String PROBLEM_EMAIL_MISMATCH = "invitation.problem.email-mismatch";
+	}
+
 	public static class PasswordReset {
 		public static final String INVALID_TOKEN = "auth.password-reset.errors.invalid-token";
 		public static final String TOKEN_ALREADY_USED = "auth.password-reset.errors.token-already-used";

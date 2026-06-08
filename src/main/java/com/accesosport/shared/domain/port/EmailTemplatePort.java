@@ -29,4 +29,6 @@ public interface EmailTemplatePort {
     );
 
     String buildPasswordResetEmail(String resetLink);
+
+    String buildOrganizerInvitationEmail(String reason, String invitationLink);
 }

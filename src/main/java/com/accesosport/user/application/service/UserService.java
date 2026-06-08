@@ -1,6 +1,11 @@
 package com.accesosport.user.application.service;
 
 import com.accesosport.auth.domain.service.TokenProvider;
+import com.accesosport.invitation.domain.exception.InvitationAlreadyUsedException;
+import com.accesosport.invitation.domain.exception.InvitationEmailMismatchException;
+import com.accesosport.invitation.domain.exception.InvitationNotFoundException;
+import com.accesosport.invitation.domain.model.InvitationToken;
+import com.accesosport.invitation.domain.repository.InvitationTokenRepository;
 import com.accesosport.shared.application.dto.AddressDto;
 import com.accesosport.shared.domain.i18n.MessageKeys;
 import com.accesosport.user.application.dto.CreateOrganizerProfileRequest;
@@ -46,6 +51,7 @@ public class UserService {
     private final OrganizerProfileRepository organizerProfileRepository;
     private final ParticipantProfileRepository participantProfileRepository;
     private final TokenProvider tokenProvider;
+    private final InvitationTokenRepository invitationTokenRepository;
 
     /**
      * Creates an organizer profile associated with the specified user ID.
@@ -56,6 +62,23 @@ public class UserService {
      */
     @Transactional
     public OrganizerProfileWithTokenResponse createOrganizerProfile(UUID userId, CreateOrganizerProfileRequest request) {
+        InvitationToken invitation = null;
+        if (request.invitationToken() != null) {
+            invitation = invitationTokenRepository.findByToken(request.invitationToken())
+                    .orElseThrow(() -> new InvitationNotFoundException(MessageKeys.Invitations.INVITATION_NOT_FOUND));
+
+            if (!invitation.isPending()) {
+                throw new InvitationAlreadyUsedException(MessageKeys.Invitations.INVITATION_ALREADY_USED);
+            }
+
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new UserNotFoundException(MessageKeys.AuthMessages.USER_NOT_FOUND));
+
+            if (!invitation.getEmail().equalsIgnoreCase(user.getEmail())) {
+                throw new InvitationEmailMismatchException(MessageKeys.Invitations.INVITATION_EMAIL_MISMATCH);
+            }
+        }
+
         var command = new CreateOrganizerProfileUseCase.Command(
                 request.organizationName(),
                 request.website(),
@@ -66,6 +89,12 @@ public class UserService {
         );
         CreateOrganizerProfileUseCase useCase = new CreateOrganizerProfileUseCase(organizerProfileRepository, userRepository, roleRepository);
         var result = useCase.execute(command);
+
+        if (invitation != null) {
+            invitation.markAsUsed(userId);
+            invitationTokenRepository.save(invitation);
+        }
+
         String newToken = tokenProvider.generateToken(result.user());
         return new OrganizerProfileWithTokenResponse(newToken, OrganizerProfileResponse.fromDomain(result.profile()));
     }
