@@ -82,6 +82,11 @@ resend:
   api-key: ${RESEND_API_KEY}
   from-email: ${RESEND_FROM_EMAIL:noreply@accesosport.com}
 
+stripe:
+  secret-key: ${STRIPE_SECRET_KEY}
+  webhook-secret: ${STRIPE_WEBHOOK_SECRET}
+  connect-webhook-secret: ${STRIPE_CONNECT_WEBHOOK_SECRET}
+
 
 # Logging
 logging:

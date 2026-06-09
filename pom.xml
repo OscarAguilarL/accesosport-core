@@ -130,6 +130,11 @@
 			<artifactId>javase</artifactId>
 			<version>3.5.3</version>
 		</dependency>
+		<dependency>
+			<groupId>com.stripe</groupId>
+			<artifactId>stripe-java</artifactId>
+			<version>33.0.0</version>
+		</dependency>
 	</dependencies>
 
 	<build>

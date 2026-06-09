@@ -24,4 +24,6 @@ public interface OrganizerProfileJpaRepository extends JpaRepository<UserOrganiz
      */
     @Query("SELECT up FROM UserOrganizerProfileJpaEntity up WHERE up.user.id = :userId")
     Optional<UserOrganizerProfileJpaEntity> findByUserId(UUID userId);
+
+    Optional<UserOrganizerProfileJpaEntity> findByStripeAccountId(String stripeAccountId);
 }

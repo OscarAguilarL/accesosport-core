@@ -131,6 +131,14 @@ public class Registration {
         return registration;
     }
 
+    public void confirm(PaymentMethod paymentMethod) {
+        if (this.status != RegistrationStatus.PENDING_PAYMENT) {
+            throw new IllegalStateException("Registration must be in PENDING_PAYMENT state to confirm, but was: " + this.status);
+        }
+        this.status = RegistrationStatus.CONFIRMED;
+        this.paymentMethod = paymentMethod;
+    }
+
     public void cancel() {
         if (this.status == RegistrationStatus.CANCELLED) {
             throw new IllegalStateException("Registration is already cancelled");

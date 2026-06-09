@@ -53,6 +53,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/auth/**", "/api/v1/public/**", "/v3/api-docs", "/actuator/health", "/error").permitAll()
+                        .requestMatchers("/api/v1/webhooks/stripe/**").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/v1/payments/checkout-session").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/payments/registration/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())
