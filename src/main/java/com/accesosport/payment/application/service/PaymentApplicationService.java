@@ -82,7 +82,7 @@ public class PaymentApplicationService {
     public void handleConnectWebhookEvent(String payload, String signature) {
         PaymentProcessorPort.StripeWebhookEvent event = paymentProcessorPort.parseAndValidateConnectWebhookEvent(
                 payload, signature, connectWebhookSecret);
-        if ("account.updated".equals(event.type()) && event.connectedAccountId() != null) {
+        if (event.connectedAccountId() != null) {
             processWithIdempotency(event.eventId(), event.type(),
                     () -> handleAccountUpdated(event.connectedAccountId()));
         }
