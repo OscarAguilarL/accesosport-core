@@ -73,6 +73,9 @@ public class UserOrganizerProfileJpaEntity {
     @Column(name = "stripe_onboarding_completed", nullable = false)
     private boolean stripeOnboardingCompleted;
 
+    @Column(name = "stripe_transfers_active", nullable = false)
+    private boolean stripeTransfersActive;
+
     @Column(nullable = false)
     private LocalDateTime createdAt;
 

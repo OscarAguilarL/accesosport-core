@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -63,4 +64,17 @@ public class PaymentJpaEntity {
 
     @Column(name = "refunded_at")
     private Instant refundedAt;
+
+    @Version
+    @Column(name = "version", nullable = false)
+    private Long version;
+
+    @Column(name = "checkout_attempt", nullable = false)
+    private int checkoutAttempt;
+
+    @Column(name = "refund_error", length = 500)
+    private String refundError;
+
+    @Column(name = "refund_attempts", nullable = false)
+    private int refundAttempts;
 }

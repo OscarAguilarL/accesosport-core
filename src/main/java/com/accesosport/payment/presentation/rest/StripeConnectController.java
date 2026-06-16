@@ -24,16 +24,13 @@ public class StripeConnectController {
 
     private final PaymentApplicationService paymentApplicationService;
 
-    public record OnboardRequest(String returnUrl, String refreshUrl) {}
-
     @PostMapping("/api/v1/stripe/connect/onboard")
     @PreAuthorize("hasAuthority('ROLE_ORGANIZER')")
     public ResponseEntity<ConnectOnboardingResponse> startOnboarding(
-            @RequestBody OnboardRequest body,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         ConnectOnboardingResponse response = paymentApplicationService.initiateConnectOnboarding(
-                userDetails.getUserId(), body.returnUrl(), body.refreshUrl()
+                userDetails.getUserId()
         );
         return ResponseEntity.ok(response);
     }

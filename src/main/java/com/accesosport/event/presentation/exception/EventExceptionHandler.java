@@ -9,6 +9,8 @@ import com.accesosport.event.domain.exception.EventRegistrationClosedException;
 import com.accesosport.event.domain.exception.EventRegistrationFullException;
 import com.accesosport.event.domain.exception.ModalityHasRegistrationsException;
 import com.accesosport.event.domain.exception.ModalityNotFoundException;
+import com.accesosport.event.domain.exception.OrganizerNotVerifiedException;
+import com.accesosport.event.domain.exception.OrganizerStripeNotReadyException;
 import com.accesosport.shared.domain.i18n.MessageKeys;
 import com.accesosport.shared.domain.i18n.MessageTranslator;
 
@@ -268,6 +270,28 @@ public class EventExceptionHandler {
         log.error("Modality has registrations: {}", ex.getMessage());
         ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
         pd.setTitle("Modality Has Registrations");
+        pd.setProperty("timestamp", Instant.now());
+        return pd;
+    }
+
+    @ExceptionHandler(OrganizerNotVerifiedException.class)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    public ProblemDetail handleOrganizerNotVerified(OrganizerNotVerifiedException ex) {
+        log.error("Organizer not verified: {}", ex.getMessage());
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage());
+        pd.setTitle("Organizador no verificado");
+        pd.setType(URI.create("https://api.accesosport.com/errors/organizer-not-verified"));
+        pd.setProperty("timestamp", Instant.now());
+        return pd;
+    }
+
+    @ExceptionHandler(OrganizerStripeNotReadyException.class)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    public ProblemDetail handleOrganizerStripeNotReady(OrganizerStripeNotReadyException ex) {
+        log.error("Organizer Stripe not ready: {}", ex.getMessage());
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage());
+        pd.setTitle("Cuenta Stripe no activa");
+        pd.setType(URI.create("https://api.accesosport.com/errors/organizer-stripe-not-ready"));
         pd.setProperty("timestamp", Instant.now());
         return pd;
     }

@@ -25,6 +25,7 @@ import com.accesosport.event.application.usecase.PublishEventUseCase;
 import com.accesosport.event.application.usecase.UpdateEventUseCase;
 import com.accesosport.registration.domain.repository.RegistrationRepository;
 import com.accesosport.shared.domain.events.DomainEventPublisher;
+import com.accesosport.user.domain.repository.OrganizerProfileRepository;
 import com.accesosport.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,6 +50,7 @@ public class EventApplicationService {
     private final EventCapacityRepository eventCapacityRepository;
     private final RegistrationRepository registrationRepository;
     private final DomainEventPublisher domainEventPublisher;
+    private final OrganizerProfileRepository organizerProfileRepository;
 
     @Transactional
     public EventResponse createEvent(CreateEventRequest request, UUID organizerId) {
@@ -71,7 +73,7 @@ public class EventApplicationService {
                 organizerId
         );
 
-        CreateEventUseCase useCase = new CreateEventUseCase(eventRepository, userRepository, eventModalityRepository, eventCapacityRepository);
+        CreateEventUseCase useCase = new CreateEventUseCase(eventRepository, userRepository, eventModalityRepository, eventCapacityRepository, organizerProfileRepository);
         CreateEventUseCase.CreateEventResult result = useCase.execute(command);
 
         Optional<EventCapacity> capacity = eventCapacityRepository.findByEventId(result.event().getId());

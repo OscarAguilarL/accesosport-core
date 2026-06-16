@@ -9,6 +9,8 @@ public interface PaymentRepository {
 
     void save(Payment payment);
 
+    Optional<Payment> findById(UUID id);
+
     Optional<Payment> findByRegistrationId(UUID registrationId);
 
     Optional<Payment> findByStripeSessionId(String stripeSessionId);

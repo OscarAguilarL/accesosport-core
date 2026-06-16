@@ -27,15 +27,17 @@ public class PaymentController {
 
     private final PaymentApplicationService paymentApplicationService;
 
-    public record CreateCheckoutSessionRequest(UUID registrationId, String successUrl, String cancelUrl) {}
+    public record CreateCheckoutSessionRequest(UUID registrationId) {}
 
     @PostMapping("/api/v1/payments/checkout-session")
     public ResponseEntity<CheckoutSessionResponse> createCheckoutSession(
             @RequestBody CreateCheckoutSessionRequest body,
+            @RequestHeader(value = "X-Registration-Access-Token", required = false) String accessToken,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
+        UUID userId = userDetails != null ? userDetails.getUserId() : null;
         CheckoutSessionResponse response = paymentApplicationService.createCheckoutSession(
-                body.registrationId(), body.successUrl(), body.cancelUrl()
+                body.registrationId(), userId, accessToken
         );
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -43,9 +45,11 @@ public class PaymentController {
     @GetMapping("/api/v1/payments/registration/{registrationId}")
     public ResponseEntity<PaymentStatusResponse> getPaymentStatus(
             @PathVariable UUID registrationId,
+            @RequestHeader(value = "X-Registration-Access-Token", required = false) String accessToken,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        return ResponseEntity.ok(paymentApplicationService.getPaymentStatus(registrationId));
+        UUID userId = userDetails != null ? userDetails.getUserId() : null;
+        return ResponseEntity.ok(paymentApplicationService.getPaymentStatus(registrationId, userId, accessToken));
     }
 
     @PostMapping("/api/v1/webhooks/stripe/checkout")
@@ -56,11 +60,18 @@ public class PaymentController {
         try {
             paymentApplicationService.handleCheckoutWebhookEvent(payload, signature);
         } catch (InvalidWebhookSignatureException e) {
-            throw e; // propagates to @ExceptionHandler → 400
+            throw e;
         } catch (Exception e) {
             log.error("Error dispatching Stripe checkout webhook event", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/api/v1/admin/payments/{paymentId}/complete-manual-refund")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<Void> completeManualRefund(@PathVariable UUID paymentId) {
+        paymentApplicationService.completeManualRefund(paymentId);
         return ResponseEntity.ok().build();
     }
 }

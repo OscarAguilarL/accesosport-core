@@ -37,7 +37,9 @@ public class RegistrationMapper {
                 entity.getBloodType(),
                 entity.getEmergencyContactName(),
                 entity.getEmergencyContactPhone(),
-                entity.getMedicalConditions()
+                entity.getMedicalConditions(),
+                entity.getPaymentAccessTokenHash(),
+                entity.getPaymentAccessTokenExpiresAt()
         );
     }
 
@@ -70,6 +72,8 @@ public class RegistrationMapper {
         entity.setEmergencyContactName(domain.getEmergencyContactName());
         entity.setEmergencyContactPhone(domain.getEmergencyContactPhone());
         entity.setMedicalConditions(domain.getMedicalConditions());
+        entity.setPaymentAccessTokenHash(domain.getPaymentAccessTokenHash());
+        entity.setPaymentAccessTokenExpiresAt(domain.getPaymentAccessTokenExpiresAt());
         return entity;
     }
 }

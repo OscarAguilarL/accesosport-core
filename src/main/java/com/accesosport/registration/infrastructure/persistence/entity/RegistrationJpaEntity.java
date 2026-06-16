@@ -97,4 +97,10 @@ public class RegistrationJpaEntity {
 
     @Column(name = "medical_conditions", columnDefinition = "TEXT")
     private String medicalConditions;
+
+    @Column(name = "payment_access_token_hash", length = 64)
+    private String paymentAccessTokenHash;
+
+    @Column(name = "payment_access_token_expires_at")
+    private java.time.LocalDateTime paymentAccessTokenExpiresAt;
 }

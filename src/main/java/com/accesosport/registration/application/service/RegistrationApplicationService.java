@@ -63,6 +63,9 @@ public class RegistrationApplicationService {
     @Value("${app.checkin.token.valid-hours:12}")
     private int checkinTokenValidHours;
 
+    @Value("${app.frontend.url:http://localhost:3000}")
+    private String frontendUrl;
+
     @Transactional
     public RegistrationResponse registerParticipant(
             UUID eventId, UUID participantId,
@@ -73,12 +76,36 @@ public class RegistrationApplicationService {
         RegisterParticipantUseCase useCase = new RegisterParticipantUseCase(
                 registrationRepository, eventRepository, domainEventPublisher, eventModalityRepository, eventCategoryRepository, eventCapacityRepository
         );
-        return useCase.execute(new RegisterParticipantCommand(
+        RegistrationResponse response = useCase.execute(new RegisterParticipantCommand(
                 eventId, participantId,
                 participantEmail, participantFirstName, participantLastName, participantPhone,
                 modalityId, categoryId, waiverAccepted, effectiveWantsShirt,
                 shirtSize, bloodType, emergencyContactName, emergencyContactPhone, medicalConditions
         ));
+
+        if (participantId == null && "PENDING_PAYMENT".equals(response.status())) {
+            var registration = registrationRepository.findByIdForUpdate(response.id()).orElseThrow();
+            String plainToken = registration.generatePaymentAccessToken();
+            registrationRepository.save(registration);
+            String recoveryLink = frontendUrl + "/inscripcion/retomar?registrationId=" + response.id() + "&token=" + plainToken;
+            sendPaymentAccessRecoveryEmail(participantEmail, participantFirstName, recoveryLink);
+            return RegistrationResponse.fromWithToken(registration, plainToken);
+        }
+
+        return response;
+    }
+
+    private void sendPaymentAccessRecoveryEmail(String to, String firstName, String recoveryLink) {
+        try {
+            String html = emailTemplatePort.buildPaymentAccessTokenEmail(firstName, recoveryLink);
+            emailService.send(com.accesosport.shared.domain.model.EmailMessage.of(
+                    to,
+                    "Tu código de acceso a la inscripción - AccesoSport",
+                    html
+            ));
+        } catch (Exception e) {
+            log.warn("Could not send payment access recovery email to {}: {}", to, e.getMessage());
+        }
     }
 
     @Transactional

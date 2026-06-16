@@ -5,8 +5,10 @@ import com.accesosport.event.domain.model.EventModality;
 import com.accesosport.event.domain.repository.EventModalityRepository;
 import com.accesosport.event.domain.repository.EventRepository;
 import com.accesosport.payment.application.dto.CheckoutSessionResponse;
+import com.accesosport.payment.application.service.RegistrationPaymentAccessService;
 import com.accesosport.payment.domain.exception.OrganizerStripeNotLinkedException;
 import com.accesosport.payment.domain.model.Payment;
+import com.accesosport.payment.domain.model.PaymentStatus;
 import com.accesosport.payment.domain.model.ServiceFeeCalculator;
 import com.accesosport.payment.domain.port.PaymentProcessorPort;
 import com.accesosport.payment.domain.port.PaymentRepository;
@@ -25,7 +27,11 @@ import java.util.UUID;
 @AllArgsConstructor
 public class CreateCheckoutSessionUseCase extends UseCase<CreateCheckoutSessionUseCase.Command, CheckoutSessionResponse> {
 
-    public record Command(UUID registrationId, String successUrl, String cancelUrl) {}
+    public record Command(
+            UUID registrationId,
+            UUID authenticatedUserId,
+            String anonymousAccessToken
+    ) {}
 
     private final RegistrationRepository registrationRepository;
     private final EventRepository eventRepository;
@@ -33,61 +39,122 @@ public class CreateCheckoutSessionUseCase extends UseCase<CreateCheckoutSessionU
     private final OrganizerProfileRepository organizerProfileRepository;
     private final PaymentRepository paymentRepository;
     private final PaymentProcessorPort paymentProcessorPort;
+    private final RegistrationPaymentAccessService accessService;
 
     @Override
     protected CheckoutSessionResponse internalExecute(Command command) {
-        Registration registration = registrationRepository.findById(command.registrationId())
+        Registration registration = registrationRepository.findByIdForUpdate(command.registrationId())
                 .orElseThrow(() -> new IllegalArgumentException("Registration not found: " + command.registrationId()));
+
+        accessService.assertCanAccess(registration, command.authenticatedUserId(), command.anonymousAccessToken());
 
         if (registration.getStatus() != RegistrationStatus.PENDING_PAYMENT) {
             throw new IllegalStateException("Registration is not awaiting payment");
         }
 
-        if (paymentRepository.findByRegistrationId(command.registrationId()).isPresent()) {
-            PaymentProcessorPort.CheckoutSessionResult existing = null;
-            var existingPayment = paymentRepository.findByRegistrationId(command.registrationId()).get();
-            return new CheckoutSessionResponse(existingPayment.getStripeSessionId(), null);
+        var existingPayment = paymentRepository.findByRegistrationId(command.registrationId());
+        if (existingPayment.isPresent()) {
+            Payment payment = existingPayment.get();
+
+            if (payment.getStatus() == PaymentStatus.CONFIRMED) {
+                return new CheckoutSessionResponse(payment.getStripeSessionId(), null, true);
+            }
+
+            PaymentProcessorPort.CheckoutSessionInfo sessionInfo =
+                    paymentProcessorPort.retrieveCheckoutSession(payment.getStripeSessionId());
+
+            if ("complete".equals(sessionInfo.status())) {
+                return new CheckoutSessionResponse(payment.getStripeSessionId(), null, true);
+            }
+
+            if ("open".equals(sessionInfo.status())) {
+                return new CheckoutSessionResponse(payment.getStripeSessionId(), sessionInfo.url(), false);
+            }
+
+            // Session expired → create new one
+            payment.incrementCheckoutAttempt();
+            String idempotencyKey = "checkout:" + command.registrationId() + ":" + payment.getCheckoutAttempt();
+
+            Event event = eventRepository.findById(registration.getEventId())
+                    .orElseThrow(() -> new IllegalArgumentException("Event not found"));
+            EventModality modality = eventModalityRepository.findById(registration.getModalityId())
+                    .orElseThrow(() -> new IllegalArgumentException("Modality not found"));
+            BigDecimal basePrice = resolveBasePrice(registration, modality);
+            BigDecimal serviceFee = ServiceFeeCalculator.calculate(basePrice);
+            UserOrganizerProfile organizer = loadOrganizer(event);
+
+            long amountTotalCentavos = toCentavos(basePrice.add(serviceFee));
+            long serviceFeeCentavos = toCentavos(serviceFee);
+
+            PaymentProcessorPort.CheckoutSessionResult result = paymentProcessorPort.createCheckoutSession(
+                    new PaymentProcessorPort.CreateCheckoutSessionCommand(
+                            command.registrationId(),
+                            payment.getId(),
+                            registration.getEventId(),
+                            event.getName(),
+                            amountTotalCentavos,
+                            serviceFeeCentavos,
+                            organizer.getStripeAccountId(),
+                            idempotencyKey
+                    )
+            );
+
+            payment.updateStripeSessionId(result.sessionId());
+            paymentRepository.save(payment);
+            return new CheckoutSessionResponse(result.sessionId(), result.checkoutUrl(), false);
         }
 
+        // No payment yet → create first session
         Event event = eventRepository.findById(registration.getEventId())
                 .orElseThrow(() -> new IllegalArgumentException("Event not found"));
-
         EventModality modality = eventModalityRepository.findById(registration.getModalityId())
                 .orElseThrow(() -> new IllegalArgumentException("Modality not found"));
-
-        BigDecimal basePrice = (!registration.isWantsShirt() && modality.getPriceWithoutShirt() != null)
-                ? modality.getPriceWithoutShirt()
-                : modality.getPrice();
-
+        BigDecimal basePrice = resolveBasePrice(registration, modality);
         BigDecimal serviceFee = ServiceFeeCalculator.calculate(basePrice);
-        BigDecimal amountTotal = basePrice.add(serviceFee);
+        UserOrganizerProfile organizer = loadOrganizer(event);
 
-        UserOrganizerProfile organizer = organizerProfileRepository
-                .findByUserId(event.getCreatedBy().getId())
-                .orElseThrow(() -> new IllegalArgumentException("Organizer profile not found"));
+        long amountTotalCentavos = toCentavos(basePrice.add(serviceFee));
+        long serviceFeeCentavos = toCentavos(serviceFee);
 
-        if (!organizer.isStripeLinked()) {
-            throw new OrganizerStripeNotLinkedException();
-        }
-
-        long amountTotalCentavos = amountTotal.multiply(BigDecimal.valueOf(100)).setScale(0, RoundingMode.HALF_UP).longValue();
-        long serviceFeeCentavos = serviceFee.multiply(BigDecimal.valueOf(100)).setScale(0, RoundingMode.HALF_UP).longValue();
+        String idempotencyKey = "checkout:" + command.registrationId() + ":1";
+        UUID newPaymentId = UUID.randomUUID();
 
         PaymentProcessorPort.CheckoutSessionResult result = paymentProcessorPort.createCheckoutSession(
                 new PaymentProcessorPort.CreateCheckoutSessionCommand(
                         command.registrationId(),
+                        newPaymentId,
+                        registration.getEventId(),
                         event.getName(),
                         amountTotalCentavos,
                         serviceFeeCentavos,
                         organizer.getStripeAccountId(),
-                        command.successUrl(),
-                        command.cancelUrl()
+                        idempotencyKey
                 )
         );
 
-        Payment payment = Payment.create(command.registrationId(), result.sessionId(), basePrice, serviceFee);
+        Payment payment = Payment.create(newPaymentId, command.registrationId(), result.sessionId(), basePrice, serviceFee);
         paymentRepository.save(payment);
 
-        return new CheckoutSessionResponse(result.sessionId(), result.checkoutUrl());
+        return new CheckoutSessionResponse(result.sessionId(), result.checkoutUrl(), false);
+    }
+
+    private BigDecimal resolveBasePrice(Registration registration, EventModality modality) {
+        return (!registration.isWantsShirt() && modality.getPriceWithoutShirt() != null)
+                ? modality.getPriceWithoutShirt()
+                : modality.getPrice();
+    }
+
+    private UserOrganizerProfile loadOrganizer(Event event) {
+        UserOrganizerProfile organizer = organizerProfileRepository
+                .findByUserId(event.getCreatedBy().getId())
+                .orElseThrow(() -> new IllegalArgumentException("Organizer profile not found"));
+        if (!organizer.isStripeLinked()) {
+            throw new OrganizerStripeNotLinkedException();
+        }
+        return organizer;
+    }
+
+    private long toCentavos(BigDecimal amount) {
+        return amount.multiply(BigDecimal.valueOf(100)).setScale(0, RoundingMode.HALF_UP).longValue();
     }
 }

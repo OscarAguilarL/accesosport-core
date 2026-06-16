@@ -66,7 +66,7 @@ class TicketPdfGeneratorTest {
                 UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), null, null,
                 RegistrationStatus.CONFIRMED, "ACSP-TEST", null, null,
                 false, null, LocalDateTime.now(), null, null, null, true,
-                null, null, null, null, null, null, null, null, null);
+                null, null, null, null, null, null, null, null, null, null, null);
 
         byte[] result = generator.generate(reg, event, testParticipant(), null, null, false);
 
@@ -96,7 +96,7 @@ class TicketPdfGeneratorTest {
                 UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), null, null,
                 RegistrationStatus.CONFIRMED, "ACSP-4X7K", bibNumber, null,
                 false, null, LocalDateTime.now(), null, null, null, true,
-                null, null, null, null, null, null, null, null, null);
+                null, null, null, null, null, null, null, null, null, null, null);
     }
 
     private ParticipantData testParticipant() {

@@ -22,6 +22,12 @@ public class PaymentRepositoryAdapter implements PaymentRepository {
     }
 
     @Override
+    public Optional<Payment> findById(UUID id) {
+        return paymentJpaRepository.findById(id)
+                .map(PaymentMapper::toDomain);
+    }
+
+    @Override
     public Optional<Payment> findByRegistrationId(UUID registrationId) {
         return paymentJpaRepository.findByRegistrationId(registrationId)
                 .map(PaymentMapper::toDomain);

@@ -12,7 +12,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class ConnectOnboardingUseCase extends UseCase<ConnectOnboardingUseCase.Command, ConnectOnboardingResponse> {
 
-    public record Command(UUID organizerUserId, String returnUrl, String refreshUrl) {}
+    public record Command(UUID organizerUserId) {}
 
     private final OrganizerProfileRepository organizerProfileRepository;
     private final PaymentProcessorPort paymentProcessorPort;
@@ -31,7 +31,7 @@ public class ConnectOnboardingUseCase extends UseCase<ConnectOnboardingUseCase.C
         }
 
         PaymentProcessorPort.OnboardingLinkResult link = paymentProcessorPort.createOnboardingLink(
-                profile.getStripeAccountId(), command.returnUrl(), command.refreshUrl()
+                profile.getStripeAccountId()
         );
 
         return new ConnectOnboardingResponse(link.url());

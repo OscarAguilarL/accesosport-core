@@ -36,6 +36,12 @@ public class RegistrationRepositoryAdapter implements RegistrationRepository {
     }
 
     @Override
+    public Optional<Registration> findByIdForUpdate(UUID id) {
+        return jpaRepository.findByIdForUpdate(id)
+                .map(RegistrationMapper::toDomain);
+    }
+
+    @Override
     public Optional<Registration> findByTicketCode(String ticketCode) {
         return jpaRepository.findByTicketCode(ticketCode)
                 .map(RegistrationMapper::toDomain);
@@ -86,6 +92,18 @@ public class RegistrationRepositoryAdapter implements RegistrationRepository {
     @Override
     public boolean existsByEventIdAndParticipantEmail(UUID eventId, String participantEmail) {
         return jpaRepository.existsByEventIdAndParticipantEmail(eventId, participantEmail);
+    }
+
+    @Override
+    public Optional<Registration> findNonCancelledByEventIdAndParticipantEmail(UUID eventId, String email) {
+        return jpaRepository.findNonCancelledByEventIdAndParticipantEmail(eventId, email)
+                .map(RegistrationMapper::toDomain);
+    }
+
+    @Override
+    public Optional<Registration> findNonCancelledByEventIdAndParticipantId(UUID eventId, UUID participantId) {
+        return jpaRepository.findNonCancelledByEventIdAndParticipantId(eventId, participantId)
+                .map(RegistrationMapper::toDomain);
     }
 
     @Override

@@ -26,7 +26,11 @@ public class PaymentMapper {
                 PaymentStatus.valueOf(entity.getStatus()),
                 entity.getCreatedAt(),
                 entity.getConfirmedAt(),
-                entity.getRefundedAt()
+                entity.getRefundedAt(),
+                entity.getCheckoutAttempt(),
+                entity.getVersion(),
+                entity.getRefundError(),
+                entity.getRefundAttempts()
         );
     }
 
@@ -48,6 +52,10 @@ public class PaymentMapper {
         entity.setCreatedAt(domain.getCreatedAt());
         entity.setConfirmedAt(domain.getConfirmedAt());
         entity.setRefundedAt(domain.getRefundedAt());
+        entity.setCheckoutAttempt(domain.getCheckoutAttempt());
+        entity.setVersion(domain.getVersion());
+        entity.setRefundError(domain.getRefundError());
+        entity.setRefundAttempts(domain.getRefundAttempts());
         return entity;
     }
 }

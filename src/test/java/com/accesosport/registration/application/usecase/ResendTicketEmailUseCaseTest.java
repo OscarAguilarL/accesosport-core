@@ -144,7 +144,7 @@ class ResendTicketEmailUseCaseTest {
                 registrationId, eventId, participantId, null, null,
                 status, "ACSP-TEST", 42, null, false, null,
                 LocalDateTime.now(), null, null, null, true,
-                "participant@test.com", null, null, null, null, null, null, null, null
+                "participant@test.com", null, null, null, null, null, null, null, null, null, null
         );
     }
 }

@@ -51,6 +51,7 @@ public class UserOrganizerProfile {
     // Stripe Connect
     private String stripeAccountId;
     private boolean stripeOnboardingCompleted;
+    private boolean stripeTransfersActive;
 
     private User user;
     private LocalDateTime createdAt;
@@ -197,7 +198,17 @@ public class UserOrganizerProfile {
         this.updatedAt = LocalDateTime.now();
     }
 
+    public void activateStripeTransfers() {
+        this.stripeTransfersActive = true;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void deactivateStripeTransfers() {
+        this.stripeTransfersActive = false;
+        this.updatedAt = LocalDateTime.now();
+    }
+
     public boolean isStripeLinked() {
-        return stripeAccountId != null && stripeOnboardingCompleted;
+        return stripeAccountId != null && stripeTransfersActive;
     }
 }

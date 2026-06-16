@@ -24,17 +24,22 @@ public class Payment {
     private Instant createdAt;
     private Instant confirmedAt;
     private Instant refundedAt;
+    private int checkoutAttempt;
+    private Long version;
+    private String refundError;
+    private int refundAttempts;
 
     private Payment() {}
 
     public static Payment create(
+            UUID id,
             UUID registrationId,
             String stripeSessionId,
             BigDecimal baseAmount,
             BigDecimal serviceFeeAmount
     ) {
         Payment payment = new Payment();
-        payment.id = UUID.randomUUID();
+        payment.id = id;
         payment.registrationId = registrationId;
         payment.stripeSessionId = stripeSessionId;
         payment.baseAmount = baseAmount;
@@ -46,6 +51,10 @@ public class Payment {
         payment.createdAt = Instant.now();
         payment.confirmedAt = null;
         payment.refundedAt = null;
+        payment.checkoutAttempt = 1;
+        payment.version = null;
+        payment.refundError = null;
+        payment.refundAttempts = 0;
         return payment;
     }
 
@@ -63,7 +72,11 @@ public class Payment {
             PaymentStatus status,
             Instant createdAt,
             Instant confirmedAt,
-            Instant refundedAt
+            Instant refundedAt,
+            int checkoutAttempt,
+            Long version,
+            String refundError,
+            int refundAttempts
     ) {
         Payment payment = new Payment();
         payment.id = id;
@@ -80,6 +93,10 @@ public class Payment {
         payment.createdAt = createdAt;
         payment.confirmedAt = confirmedAt;
         payment.refundedAt = refundedAt;
+        payment.checkoutAttempt = checkoutAttempt;
+        payment.version = version;
+        payment.refundError = refundError;
+        payment.refundAttempts = refundAttempts;
         return payment;
     }
 
@@ -93,11 +110,51 @@ public class Payment {
         this.confirmedAt = Instant.now();
     }
 
-    public void refund(String refundId) {
-        if (this.status != PaymentStatus.CONFIRMED) {
-            throw new IllegalStateException("Only confirmed payments can be refunded");
+    public void incrementCheckoutAttempt() {
+        this.checkoutAttempt++;
+    }
+
+    public void updateStripeSessionId(String newSessionId) {
+        this.stripeSessionId = newSessionId;
+    }
+
+    public void initiateRefund() {
+        if (this.status != PaymentStatus.CONFIRMED && this.status != PaymentStatus.REFUND_FAILED) {
+            throw new IllegalStateException("Only confirmed or failed-refund payments can be refunded");
+        }
+        this.status = PaymentStatus.REFUND_PENDING;
+        this.refundError = null;
+    }
+
+    public void completeRefund(String refundId) {
+        if (this.status != PaymentStatus.REFUND_PENDING) {
+            throw new IllegalStateException("Payment is not in REFUND_PENDING state");
         }
         this.stripeRefundId = refundId;
+        this.status = PaymentStatus.REFUNDED;
+        this.refundedAt = Instant.now();
+    }
+
+    public void failRefund(String error) {
+        if (this.status != PaymentStatus.REFUND_PENDING) {
+            throw new IllegalStateException("Payment is not in REFUND_PENDING state");
+        }
+        this.refundError = error;
+        this.refundAttempts++;
+        this.status = PaymentStatus.REFUND_FAILED;
+    }
+
+    public void initiateManualRefund() {
+        if (this.status != PaymentStatus.CONFIRMED) {
+            throw new IllegalStateException("Only confirmed payments can be marked for manual refund");
+        }
+        this.status = PaymentStatus.MANUAL_REFUND_PENDING;
+    }
+
+    public void completeManualRefund() {
+        if (this.status != PaymentStatus.MANUAL_REFUND_PENDING) {
+            throw new IllegalStateException("Payment is not in MANUAL_REFUND_PENDING state");
+        }
         this.status = PaymentStatus.REFUNDED;
         this.refundedAt = Instant.now();
     }

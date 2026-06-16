@@ -4,6 +4,7 @@ import com.accesosport.payment.domain.events.PaymentConfirmedEvent;
 import com.accesosport.payment.domain.exception.PaymentNotFoundException;
 import com.accesosport.payment.domain.model.Payment;
 import com.accesosport.payment.domain.model.PaymentStatus;
+import com.accesosport.payment.domain.port.PaymentProcessorPort;
 import com.accesosport.payment.domain.port.PaymentRepository;
 import com.accesosport.registration.domain.events.RegistrationConfirmedEvent;
 import com.accesosport.registration.domain.model.PaymentMethod;
@@ -21,6 +22,7 @@ public class ConfirmPaymentUseCase extends UseCase<ConfirmPaymentUseCase.Command
     private final PaymentRepository paymentRepository;
     private final RegistrationRepository registrationRepository;
     private final DomainEventPublisher domainEventPublisher;
+    private final PaymentProcessorPort paymentProcessorPort;
 
     @Override
     protected Void internalExecute(Command command) {
@@ -31,7 +33,12 @@ public class ConfirmPaymentUseCase extends UseCase<ConfirmPaymentUseCase.Command
             return null;
         }
 
-        PaymentMethod method = resolvePaymentMethod(command.paymentMethodType());
+        String resolvedMethodType = command.paymentMethodType();
+        if (resolvedMethodType == null && command.paymentIntentId() != null) {
+            resolvedMethodType = paymentProcessorPort.getActualPaymentMethod(command.paymentIntentId());
+        }
+
+        PaymentMethod method = resolvePaymentMethod(resolvedMethodType);
         payment.confirm(command.paymentIntentId(), method);
         paymentRepository.save(payment);
 
@@ -54,10 +61,11 @@ public class ConfirmPaymentUseCase extends UseCase<ConfirmPaymentUseCase.Command
     }
 
     private PaymentMethod resolvePaymentMethod(String stripeType) {
-        if (stripeType == null) return PaymentMethod.CARD;
+        if (stripeType == null) return PaymentMethod.OTHER;
         return switch (stripeType.toLowerCase()) {
             case "oxxo" -> PaymentMethod.OXXO;
-            default -> PaymentMethod.CARD;
+            case "card" -> PaymentMethod.CARD;
+            default -> PaymentMethod.OTHER;
         };
     }
 }

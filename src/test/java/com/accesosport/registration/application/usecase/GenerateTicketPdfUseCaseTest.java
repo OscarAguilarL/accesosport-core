@@ -140,6 +140,6 @@ class GenerateTicketPdfUseCaseTest {
                 registrationId, eventId, participantId, null, null,
                 status, "ACSP-TEST", 42, null, false, null,
                 LocalDateTime.now(), null, null, null, true,
-                null, null, null, null, null, null, null, null, null);
+                null, null, null, null, null, null, null, null, null, null, null);
     }
 }

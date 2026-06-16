@@ -42,6 +42,7 @@ class RegisterParticipantUseCaseTest {
 
     @Mock private RegistrationRepository registrationRepository;
     @Mock private EventRepository eventRepository;
+    @Mock private Registration confirmedRegistration;
     @Mock private EventModalityRepository eventModalityRepository;
     @Mock private EventCapacityRepository eventCapacityRepository;
     @Mock private EventCategoryRepository eventCategoryRepository;
@@ -128,7 +129,9 @@ class RegisterParticipantUseCaseTest {
 
     @Test
     void duplicado_lanzaDuplicateRegistrationException_antesDeReservar() {
-        when(registrationRepository.existsByEventIdAndParticipantId(eventId, participantId)).thenReturn(true);
+        when(confirmedRegistration.getStatus()).thenReturn(RegistrationStatus.CONFIRMED);
+        when(registrationRepository.findNonCancelledByEventIdAndParticipantId(eventId, participantId))
+                .thenReturn(Optional.of(confirmedRegistration));
 
         assertThatThrownBy(() -> useCase.execute(new RegisterParticipantCommand(eventId, participantId, "test@test.com", "Juan", "García", null, modalityId, null, true, true, null, null, null, null, null)))
                 .isInstanceOf(DuplicateRegistrationException.class);
