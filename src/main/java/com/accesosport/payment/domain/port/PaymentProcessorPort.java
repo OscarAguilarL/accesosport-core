@@ -12,7 +12,8 @@ public interface PaymentProcessorPort {
             long amountTotalCentavos,
             long serviceFeeCentavos,
             String stripeAccountId,
-            String idempotencyKey
+            String idempotencyKey,
+            long organizerFeeCentavos
     ) {}
 
     record CheckoutSessionResult(String sessionId, String checkoutUrl) {}
@@ -48,6 +49,8 @@ public interface PaymentProcessorPort {
     CheckoutSessionInfo retrieveCheckoutSession(String sessionId);
 
     RefundResult refund(String paymentIntentId, UUID paymentId);
+
+    RefundResult refundPartial(String paymentIntentId, UUID paymentId, long amountCentavos);
 
     String getActualPaymentMethod(String paymentIntentId);
 

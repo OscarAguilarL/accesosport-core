@@ -91,7 +91,13 @@ public class PaymentApplicationService {
     @Transactional
     public void refundPayment(UUID registrationId) {
         new RefundPaymentUseCase(paymentRepository, paymentProcessorPort, domainEventPublisher)
-                .execute(new RefundPaymentUseCase.Command(registrationId));
+                .execute(new RefundPaymentUseCase.Command(registrationId, false));
+    }
+
+    @Transactional
+    public void refundPaymentPartial(UUID registrationId) {
+        new RefundPaymentUseCase(paymentRepository, paymentProcessorPort, domainEventPublisher)
+                .execute(new RefundPaymentUseCase.Command(registrationId, true));
     }
 
     @Transactional

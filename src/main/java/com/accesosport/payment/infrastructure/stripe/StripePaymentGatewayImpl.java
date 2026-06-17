@@ -76,7 +76,7 @@ public class StripePaymentGatewayImpl implements PaymentProcessorPort {
                                     .build())
                             .build())
                     .setPaymentIntentData(SessionCreateParams.PaymentIntentData.builder()
-                            .setApplicationFeeAmount(cmd.serviceFeeCentavos())
+                            .setApplicationFeeAmount(cmd.serviceFeeCentavos() + cmd.organizerFeeCentavos())
                             .setTransferData(SessionCreateParams.PaymentIntentData.TransferData.builder()
                                     .setDestination(cmd.stripeAccountId())
                                     .build())
@@ -130,6 +130,27 @@ public class StripePaymentGatewayImpl implements PaymentProcessorPort {
             return new RefundResult(refund.getId());
         } catch (StripeException e) {
             throw new StripeGatewayException("Failed to create refund for payment intent " + paymentIntentId, e);
+        }
+    }
+
+    @Override
+    public RefundResult refundPartial(String paymentIntentId, UUID paymentId, long amountCentavos) {
+        try {
+            RefundCreateParams params = RefundCreateParams.builder()
+                    .setPaymentIntent(paymentIntentId)
+                    .setAmount(amountCentavos)
+                    .setReverseTransfer(true)
+                    .setRefundApplicationFee(true)
+                    .build();
+
+            RequestOptions options = RequestOptions.builder()
+                    .setIdempotencyKey("refund-partial:" + paymentId)
+                    .build();
+
+            Refund refund = stripeClient.refunds().create(params, options);
+            return new RefundResult(refund.getId());
+        } catch (StripeException e) {
+            throw new StripeGatewayException("Failed to create partial refund for payment intent " + paymentIntentId, e);
         }
     }
 

@@ -26,9 +26,12 @@ public class RegistrationCancellationRefundHandler {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handle(RegistrationCancelledEvent event) {
         try {
+            if (event.getDaysUntilEvent() <= 15) {
+                return;
+            }
             paymentRepository.findByRegistrationId(event.getRegistrationId())
                     .filter(p -> p.getStatus() == PaymentStatus.CONFIRMED)
-                    .ifPresent(p -> paymentApplicationService.refundPayment(event.getRegistrationId()));
+                    .ifPresent(p -> paymentApplicationService.refundPaymentPartial(event.getRegistrationId()));
         } catch (Exception e) {
             log.error("Failed to process refund for cancelled registration {}", event.getRegistrationId(), e);
         }

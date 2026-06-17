@@ -11,7 +11,7 @@ class RegistrationCancelledEventTest {
     @Test
     void eventType_is_registration_cancelled() {
         RegistrationCancelledEvent event = new RegistrationCancelledEvent(
-                UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID());
+                UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), 30);
 
         assertThat(event.getEventType()).isEqualTo("registration.cancelled");
     }
@@ -22,10 +22,11 @@ class RegistrationCancelledEventTest {
         UUID eventId = UUID.randomUUID();
         UUID participantId = UUID.randomUUID();
 
-        RegistrationCancelledEvent event = new RegistrationCancelledEvent(registrationId, eventId, participantId);
+        RegistrationCancelledEvent event = new RegistrationCancelledEvent(registrationId, eventId, participantId, 20);
 
         assertThat(event.getRegistrationId()).isEqualTo(registrationId);
         assertThat(event.getEventId()).isEqualTo(eventId);
         assertThat(event.getParticipantId()).isEqualTo(participantId);
+        assertThat(event.getDaysUntilEvent()).isEqualTo(20);
     }
 }

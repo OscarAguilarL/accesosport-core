@@ -1,7 +1,9 @@
 package com.accesosport.registration.application.usecase;
 
+import com.accesosport.event.domain.model.Event;
 import com.accesosport.event.domain.repository.EventCapacityRepository;
 import com.accesosport.event.domain.repository.EventModalityRepository;
+import com.accesosport.event.domain.repository.EventRepository;
 import com.accesosport.registration.application.dto.CancelRegistrationCommand;
 import com.accesosport.registration.application.dto.RegistrationResponse;
 import com.accesosport.registration.domain.exception.RegistrationAccessDeniedException;
@@ -18,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -33,8 +36,10 @@ class CancelRegistrationUseCaseTest {
     @Mock private RegistrationRepository registrationRepository;
     @Mock private EventModalityRepository eventModalityRepository;
     @Mock private EventCapacityRepository eventCapacityRepository;
+    @Mock private EventRepository eventRepository;
     @Mock private DomainEventPublisher domainEventPublisher;
     @Mock private Registration registration;
+    @Mock private Event event;
 
     private CancelRegistrationUseCase useCase;
     private UUID registrationId;
@@ -45,7 +50,8 @@ class CancelRegistrationUseCaseTest {
     @BeforeEach
     void setUp() {
         useCase = new CancelRegistrationUseCase(
-                registrationRepository, eventModalityRepository, eventCapacityRepository, domainEventPublisher
+                registrationRepository, eventModalityRepository, eventCapacityRepository,
+                eventRepository, domainEventPublisher
         );
         registrationId = UUID.randomUUID();
         eventId = UUID.randomUUID();
@@ -60,6 +66,9 @@ class CancelRegistrationUseCaseTest {
         when(registration.getStatus()).thenReturn(RegistrationStatus.CONFIRMED);
         when(registration.getTicketCode()).thenReturn("ACSP-1234");
         when(registration.getModalityId()).thenReturn(modalityId);
+
+        when(eventRepository.findById(eventId)).thenReturn(Optional.of(event));
+        when(event.getEventDate()).thenReturn(LocalDateTime.now().plusDays(30));
     }
 
     @Test

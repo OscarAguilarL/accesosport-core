@@ -13,13 +13,15 @@ import com.accesosport.shared.domain.usecase.UseCase;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.UUID;
 
 @AllArgsConstructor
 @Slf4j
 public class RefundPaymentUseCase extends UseCase<RefundPaymentUseCase.Command, Void> {
 
-    public record Command(UUID registrationId) {}
+    public record Command(UUID registrationId, boolean partial) {}
 
     private final PaymentRepository paymentRepository;
     private final PaymentProcessorPort paymentProcessorPort;
@@ -47,8 +49,19 @@ public class RefundPaymentUseCase extends UseCase<RefundPaymentUseCase.Command, 
         paymentRepository.save(payment);
 
         try {
-            PaymentProcessorPort.RefundResult refundResult =
-                    paymentProcessorPort.refund(payment.getStripePaymentIntentId(), payment.getId());
+            PaymentProcessorPort.RefundResult refundResult;
+            if (command.partial()) {
+                long amountCentavos = payment.getAmountTotal()
+                        .multiply(new BigDecimal("0.92"))
+                        .setScale(0, RoundingMode.DOWN)
+                        .multiply(new BigDecimal("100"))
+                        .longValue();
+                refundResult = paymentProcessorPort.refundPartial(
+                        payment.getStripePaymentIntentId(), payment.getId(), amountCentavos);
+            } else {
+                refundResult = paymentProcessorPort.refund(
+                        payment.getStripePaymentIntentId(), payment.getId());
+            }
             payment.completeRefund(refundResult.refundId());
             paymentRepository.save(payment);
             domainEventPublisher.publish(new PaymentRefundedEvent(payment.getId(), payment.getRegistrationId()));

@@ -112,7 +112,7 @@ public class RegistrationApplicationService {
     public RegistrationResponse cancelRegistration(UUID registrationId, UUID userId, boolean isAdmin) {
         UUID requesterId = isAdmin ? null : userId;
         CancelRegistrationUseCase useCase = new CancelRegistrationUseCase(
-                registrationRepository, eventModalityRepository, eventCapacityRepository, domainEventPublisher
+                registrationRepository, eventModalityRepository, eventCapacityRepository, eventRepository, domainEventPublisher
         );
         return useCase.execute(new CancelRegistrationCommand(registrationId, requesterId, isAdmin));
     }

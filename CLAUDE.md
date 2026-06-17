@@ -277,10 +277,10 @@ API versioning prefix: `/api/v1/`
 ### Pasarela de pagos — Stripe Connect
 - Métodos aceptados: tarjeta de débito, tarjeta de crédito, OXXO
 - Fee de Stripe: 3.6% + $3 MXN por transacción (IVA incluido)
-- Modelo: AccesoSport cobra un **cargo por servicio** al participante: `Math.max(20, precio * 0.08)` — el mayor entre $20 MXN fijo o 8% del precio de inscripción; punto de quiebre en $250 MXN
-- El organizador recibe el **100% del precio base** de inscripción sin descuentos ni deducciones
-- AccesoSport absorbe el fee de Stripe de su propio cargo por servicio
-- Split del pago vía Stripe Connect: participante paga (inscripción + cargo por servicio) en un solo checkout; Stripe transfiere el precio base al organizador; AccesoSport retiene el cargo por servicio (neto del fee de Stripe)
+- Modelo: AccesoSport cobra un **cargo por servicio** al participante: `Math.max(20, precio * 0.10)` — el mayor entre $20 MXN fijo o 10% del precio de inscripción; punto de quiebre en $200 MXN
+- El organizador absorbe el fee de Stripe de su transferencia; AccesoSport retiene el cargo por servicio completo (sin deducciones)
+- `OrganizerFeeCalculator`: `max($10, precio * 5%)` — comisión descontada de la transferencia al organizador; punto de quiebre en $200 MXN
+- Split del pago vía Stripe Connect: participante paga (inscripción + cargo por servicio); `application_fee_amount = serviceFee + organizerFee`; Stripe transfiere `basePrice − organizerFee` al organizador; AccesoSport retiene el application_fee_amount menos el fee de Stripe (~3.6% + $3 MXN)
 - Retención hasta el evento: aplazada a fase 2 (cuando AccesoSport se constituya como empresa)
 - Operación legal: como PFAE — Stripe maneja la regulación financiera
 
@@ -295,19 +295,19 @@ API versioning prefix: `/api/v1/`
 
 ### Cancelación de evento con inscritos
 - Al cancelar un evento: todas las inscripciones `CONFIRMED` pasan a `CANCELLED`
-- Si hubo pago: AccesoSport emite el reembolso vía Stripe API automáticamente (precio base + cargo por servicio)
-- AccesoSport devuelve el cargo por servicio completo al reembolsar
+- Si hubo pago: AccesoSport emite el reembolso total vía Stripe API automáticamente (precio base + cargo por servicio)
+- El organizador absorbe el fee de Stripe no reembolsable (~3.6% + $3 MXN)
 - Los participantes reciben email de aviso con confirmación del reembolso
 
 ### Cancelación de inscripción por el participante
-- Reembolso total siempre, sin importar la anticipación (precio base + cargo por servicio)
-- AccesoSport absorbe el fee de Stripe (no se lo cobra al participante)
+- **Con más de 15 días de anticipación al evento:** reembolso parcial — precio base + cargo por servicio menos una comisión del 8% por cancelación
+- **Con menos de 15 días de anticipación al evento:** sin reembolso
 - Con tarjeta: reembolso en 5-10 días hábiles (tiempo estándar de Stripe). Con OXXO: no hay reembolso automático — se gestiona manualmente por transferencia
 
 ### Fee de Stripe en reembolsos
 - Stripe no devuelve su fee de procesamiento (~3.6% + $3 MXN) en reembolsos
-- AccesoSport absorbe ese costo — el participante recibe el monto total que pagó
-- Se informa claramente en el checkout al momento de inscribirse
+- Cuando el organizador cancela el evento: el organizador absorbe ese costo — el participante recibe el monto total que pagó
+- Cuando el participante cancela: aplica la política de reembolso parcial/nulo según anticipación
 
 ### Verificación de organizadores para eventos de pago
 - Organizadores no verificados pueden crear y publicar eventos **gratuitos** libremente
@@ -346,7 +346,7 @@ private final EmailTemplateService emailTemplateService;  // ❌
 ### Eventos de dominio existentes
 - `event/domain/events/EventCancelledEvent.java` — `event.cancelled`; campos: `eventId`, `eventName`, `cancellationReason`, `affectedRegistrationIds`
 - `registration/domain/events/RegistrationConfirmedEvent.java` — `registration.confirmed`; campos: `registrationId`, `eventId`, `participantId`, `ticketCode`, `bibNumber`
-- `registration/domain/events/RegistrationCancelledEvent.java` — `registration.cancelled`; campos: `registrationId`, `eventId`, `participantId`
+- `registration/domain/events/RegistrationCancelledEvent.java` — `registration.cancelled`; campos: `registrationId`, `eventId`, `participantId`, `daysUntilEvent`
 
 ### Patrón de listener (seguir siempre este patrón exacto)
 ```java

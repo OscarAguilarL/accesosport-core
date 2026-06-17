@@ -9,6 +9,7 @@ import com.accesosport.payment.application.service.RegistrationPaymentAccessServ
 import com.accesosport.payment.domain.exception.OrganizerStripeNotLinkedException;
 import com.accesosport.payment.domain.model.Payment;
 import com.accesosport.payment.domain.model.PaymentStatus;
+import com.accesosport.payment.domain.model.OrganizerFeeCalculator;
 import com.accesosport.payment.domain.model.ServiceFeeCalculator;
 import com.accesosport.payment.domain.port.PaymentProcessorPort;
 import com.accesosport.payment.domain.port.PaymentRepository;
@@ -81,10 +82,12 @@ public class CreateCheckoutSessionUseCase extends UseCase<CreateCheckoutSessionU
                     .orElseThrow(() -> new IllegalArgumentException("Modality not found"));
             BigDecimal basePrice = resolveBasePrice(registration, modality);
             BigDecimal serviceFee = ServiceFeeCalculator.calculate(basePrice);
+            BigDecimal organizerFee = OrganizerFeeCalculator.calculate(basePrice);
             UserOrganizerProfile organizer = loadOrganizer(event);
 
             long amountTotalCentavos = toCentavos(basePrice.add(serviceFee));
             long serviceFeeCentavos = toCentavos(serviceFee);
+            long organizerFeeCentavos = toCentavos(organizerFee);
 
             PaymentProcessorPort.CheckoutSessionResult result = paymentProcessorPort.createCheckoutSession(
                     new PaymentProcessorPort.CreateCheckoutSessionCommand(
@@ -95,7 +98,8 @@ public class CreateCheckoutSessionUseCase extends UseCase<CreateCheckoutSessionU
                             amountTotalCentavos,
                             serviceFeeCentavos,
                             organizer.getStripeAccountId(),
-                            idempotencyKey
+                            idempotencyKey,
+                            organizerFeeCentavos
                     )
             );
 
@@ -111,10 +115,12 @@ public class CreateCheckoutSessionUseCase extends UseCase<CreateCheckoutSessionU
                 .orElseThrow(() -> new IllegalArgumentException("Modality not found"));
         BigDecimal basePrice = resolveBasePrice(registration, modality);
         BigDecimal serviceFee = ServiceFeeCalculator.calculate(basePrice);
+        BigDecimal organizerFee = OrganizerFeeCalculator.calculate(basePrice);
         UserOrganizerProfile organizer = loadOrganizer(event);
 
         long amountTotalCentavos = toCentavos(basePrice.add(serviceFee));
         long serviceFeeCentavos = toCentavos(serviceFee);
+        long organizerFeeCentavos = toCentavos(organizerFee);
 
         String idempotencyKey = "checkout:" + command.registrationId() + ":1";
         UUID newPaymentId = UUID.randomUUID();
@@ -128,7 +134,8 @@ public class CreateCheckoutSessionUseCase extends UseCase<CreateCheckoutSessionU
                         amountTotalCentavos,
                         serviceFeeCentavos,
                         organizer.getStripeAccountId(),
-                        idempotencyKey
+                        idempotencyKey,
+                        organizerFeeCentavos
                 )
         );
 
