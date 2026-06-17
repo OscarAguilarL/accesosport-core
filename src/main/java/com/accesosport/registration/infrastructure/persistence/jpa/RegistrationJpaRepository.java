@@ -5,7 +5,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.repository.query.Param;
+import jakarta.persistence.LockModeType;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,6 +19,10 @@ import java.util.UUID;
  * Extends JpaRepository to provide standard data access methods for RegistrationJpaEntity.
  */
 public interface RegistrationJpaRepository extends JpaRepository<RegistrationJpaEntity, UUID> {
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT r FROM RegistrationJpaEntity r WHERE r.id = :id")
+    Optional<RegistrationJpaEntity> findByIdForUpdate(@Param("id") UUID id);
 
     /**
      * Finds a registration by its unique ticket code.
@@ -52,6 +58,12 @@ public interface RegistrationJpaRepository extends JpaRepository<RegistrationJpa
     boolean existsByEventIdAndParticipantId(UUID eventId, UUID participantId);
 
     boolean existsByEventIdAndParticipantEmail(UUID eventId, String participantEmail);
+
+    @Query("SELECT r FROM RegistrationJpaEntity r WHERE r.eventId = :eventId AND r.participantEmail = :email AND r.status <> 'CANCELLED'")
+    Optional<RegistrationJpaEntity> findNonCancelledByEventIdAndParticipantEmail(@Param("eventId") UUID eventId, @Param("email") String email);
+
+    @Query("SELECT r FROM RegistrationJpaEntity r WHERE r.eventId = :eventId AND r.participantId = :participantId AND r.status <> 'CANCELLED'")
+    Optional<RegistrationJpaEntity> findNonCancelledByEventIdAndParticipantId(@Param("eventId") UUID eventId, @Param("participantId") UUID participantId);
 
     /**
      * Finds all CONFIRMED registrations for a given event, ordered by registration date ascending.

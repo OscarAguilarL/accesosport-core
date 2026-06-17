@@ -5,6 +5,8 @@ import com.accesosport.event.domain.model.EventCapacity;
 import com.accesosport.event.domain.model.EventModality;
 import com.accesosport.event.domain.model.Location;
 import com.accesosport.event.domain.model.RegistrationPeriod;
+import com.accesosport.event.application.policy.PaidEventEligibilityPolicy;
+import com.accesosport.event.domain.exception.OrganizerNotVerifiedException;
 import com.accesosport.event.domain.repository.EventCapacityRepository;
 import com.accesosport.event.domain.repository.EventModalityRepository;
 import com.accesosport.event.domain.repository.EventRepository;
@@ -13,6 +15,7 @@ import com.accesosport.shared.domain.usecase.UseCase;
 import com.accesosport.user.domain.exception.UserNotFoundException;
 import com.accesosport.user.domain.model.RoleEnumeration;
 import com.accesosport.user.domain.model.User;
+import com.accesosport.user.domain.repository.OrganizerProfileRepository;
 import com.accesosport.user.domain.repository.UserRepository;
 import lombok.AllArgsConstructor;
 
@@ -28,6 +31,7 @@ public class CreateEventUseCase extends UseCase<CreateEventUseCase.CreateEventCo
     private final UserRepository userRepository;
     private final EventModalityRepository eventModalityRepository;
     private final EventCapacityRepository eventCapacityRepository;
+    private final OrganizerProfileRepository organizerProfileRepository;
 
     @Override
     public CreateEventResult internalExecute(CreateEventCommand command) {
@@ -36,6 +40,15 @@ public class CreateEventUseCase extends UseCase<CreateEventUseCase.CreateEventCo
 
         if (!organizer.hasRole(RoleEnumeration.ROLE_ORGANIZER)) {
             throw new IllegalArgumentException(MessageKeys.Events.EVENT_VALIDATION_USER_NOT_ORGANIZER);
+        }
+
+        boolean hasPaidModalities = command.modalities().stream()
+                .anyMatch(m -> m.price() != null && m.price().compareTo(BigDecimal.ZERO) > 0);
+
+        if (hasPaidModalities) {
+            var profile = organizerProfileRepository.findByUserId(command.createdByUserId())
+                    .orElseThrow(OrganizerNotVerifiedException::new);
+            new PaidEventEligibilityPolicy().assertCanOfferPaidModalities(profile);
         }
 
         Location location = Location.of(

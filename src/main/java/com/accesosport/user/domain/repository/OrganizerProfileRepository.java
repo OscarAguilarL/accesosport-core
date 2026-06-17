@@ -19,6 +19,14 @@ public interface OrganizerProfileRepository {
     Optional<UserOrganizerProfile> findByUserId(UUID userId);
 
     /**
+     * Finds an Organizer Profile by its associated Stripe account ID.
+     *
+     * @param stripeAccountId the Stripe account ID to search for
+     * @return the matching UserOrganizerProfile, or empty if not found
+     */
+    Optional<UserOrganizerProfile> findByStripeAccountId(String stripeAccountId);
+
+    /**
      * Persists a Participant Profile
      *
      * @param profile The User Organizer Profile

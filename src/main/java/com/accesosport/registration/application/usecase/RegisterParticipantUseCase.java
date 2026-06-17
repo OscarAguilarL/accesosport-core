@@ -24,6 +24,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -55,12 +56,23 @@ public class RegisterParticipantUseCase extends UseCase<RegisterParticipantComma
             throw new IllegalArgumentException("El apellido del participante es requerido.");
         }
 
-        if (command.participantId() != null &&
-                registrationRepository.existsByEventIdAndParticipantId(command.eventId(), command.participantId())) {
-            throw new DuplicateRegistrationException(command.eventId(), command.participantId());
+        if (command.participantId() != null) {
+            Optional<Registration> existing = registrationRepository.findNonCancelledByEventIdAndParticipantId(
+                    command.eventId(), command.participantId());
+            if (existing.isPresent()) {
+                if (existing.get().getStatus() == RegistrationStatus.PENDING_PAYMENT) {
+                    return RegistrationResponse.from(existing.get());
+                }
+                throw new DuplicateRegistrationException(command.eventId(), command.participantId());
+            }
         }
 
-        if (registrationRepository.existsByEventIdAndParticipantEmail(command.eventId(), command.participantEmail())) {
+        Optional<Registration> existingByEmail = registrationRepository.findNonCancelledByEventIdAndParticipantEmail(
+                command.eventId(), command.participantEmail());
+        if (existingByEmail.isPresent()) {
+            if (existingByEmail.get().getStatus() == RegistrationStatus.PENDING_PAYMENT) {
+                return RegistrationResponse.from(existingByEmail.get());
+            }
             throw new DuplicateRegistrationException(command.eventId(), command.participantId());
         }
 

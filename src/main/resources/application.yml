@@ -82,6 +82,16 @@ resend:
   api-key: ${RESEND_API_KEY}
   from-email: ${RESEND_FROM_EMAIL:noreply@accesosport.com}
 
+stripe:
+  secret-key: ${STRIPE_SECRET_KEY}
+  webhook-secret: ${STRIPE_WEBHOOK_SECRET}
+  connect-webhook-secret: ${STRIPE_CONNECT_WEBHOOK_SECRET}
+  checkout-success-url: ${STRIPE_CHECKOUT_SUCCESS_URL:http://localhost:3000/inscripcion/exitosa}
+  checkout-cancel-url: ${STRIPE_CHECKOUT_CANCEL_URL:http://localhost:3000/inscripcion/cancelada}
+  onboarding-return-url: ${STRIPE_ONBOARDING_RETURN_URL:http://localhost:3000/dashboard/settings?tab=pagos&stripe=return}
+  onboarding-refresh-url: ${STRIPE_ONBOARDING_REFRESH_URL:http://localhost:3000/dashboard/settings?tab=pagos&stripe=refresh}
+  payment-method-configuration-id: ${STRIPE_PAYMENT_METHOD_CONFIGURATION_ID:}
+
 
 # Logging
 logging:

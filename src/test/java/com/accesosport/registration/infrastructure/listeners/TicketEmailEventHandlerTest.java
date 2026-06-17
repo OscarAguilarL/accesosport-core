@@ -67,7 +67,7 @@ class TicketEmailEventHandlerTest {
                 registrationId, eventId, participantId, null, null,
                 RegistrationStatus.CONFIRMED, "ACSP-TEST", null, null,
                 false, null, null, null, null, null, true,
-                "participant@test.com", "Ana", null, null, null, null, null, null, null
+                "participant@test.com", "Ana", null, null, null, null, null, null, null, null, null
         );
 
         when(registrationRepository.findById(registrationId)).thenReturn(Optional.of(registration));
@@ -137,7 +137,7 @@ class TicketEmailEventHandlerTest {
                 registrationId, eventId, participantId, null, null,
                 RegistrationStatus.CONFIRMED, "ACSP-TEST", null, null,
                 false, null, null, null, null, null, true,
-                null, null, null, null, null, null, null, null, null
+                null, null, null, null, null, null, null, null, null, null, null
         );
         when(registrationRepository.findById(registrationId)).thenReturn(Optional.of(noEmailRegistration));
 

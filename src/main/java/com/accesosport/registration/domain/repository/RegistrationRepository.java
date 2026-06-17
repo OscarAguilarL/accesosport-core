@@ -19,6 +19,8 @@ public interface RegistrationRepository {
      */
     Optional<Registration> findById(UUID id);
 
+    Optional<Registration> findByIdForUpdate(UUID id);
+
     /**
      * Finds a registration by its unique ticket code.
      *
@@ -83,6 +85,10 @@ public interface RegistrationRepository {
      * @return true if a registration with that email exists for the event
      */
     boolean existsByEventIdAndParticipantEmail(UUID eventId, String participantEmail);
+
+    Optional<Registration> findNonCancelledByEventIdAndParticipantEmail(UUID eventId, String email);
+
+    Optional<Registration> findNonCancelledByEventIdAndParticipantId(UUID eventId, UUID participantId);
 
     /**
      * Finds registrations in PENDING_PAYMENT status whose payment window has expired.

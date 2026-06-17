@@ -65,6 +65,14 @@ public class EmailTemplateService implements EmailTemplatePort {
         return templateEngine.process("email/organizer-invitation", ctx);
     }
 
+    @Override
+    public String buildPaymentAccessTokenEmail(String firstName, String recoveryLink) {
+        Context ctx = new Context();
+        ctx.setVariable("firstName", firstName);
+        ctx.setVariable("recoveryLink", recoveryLink);
+        return templateEngine.process("email/payment-access-token", ctx);
+    }
+
     public String eventReminder(
             String participantFirstName,
             String eventName,

@@ -39,6 +39,12 @@ public class OrganizerProfileRepositoryAdapter implements OrganizerProfileReposi
     }
 
     @Override
+    public Optional<UserOrganizerProfile> findByStripeAccountId(String stripeAccountId) {
+        return organizerProfileJpaRepository.findByStripeAccountId(stripeAccountId)
+                .map(OrganizerProfileMapper::toDomain);
+    }
+
+    @Override
     public UserOrganizerProfile save(UserOrganizerProfile profile) {
         var entity = OrganizerProfileMapper.toEntity(profile);
         var savedEntity = organizerProfileJpaRepository.save(entity);
