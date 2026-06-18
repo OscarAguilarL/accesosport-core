@@ -2,10 +2,7 @@ package com.accesosport.payment.application.service;
 
 import com.accesosport.event.domain.repository.EventModalityRepository;
 import com.accesosport.event.domain.repository.EventRepository;
-import com.accesosport.payment.application.dto.CheckoutSessionResponse;
-import com.accesosport.payment.application.dto.ConnectOnboardingResponse;
-import com.accesosport.payment.application.dto.ConnectStatusResponse;
-import com.accesosport.payment.application.dto.PaymentStatusResponse;
+import com.accesosport.payment.application.dto.*;
 import com.accesosport.payment.application.usecase.ConfirmPaymentUseCase;
 import com.accesosport.payment.application.usecase.ConnectOnboardingUseCase;
 import com.accesosport.payment.application.usecase.CreateCheckoutSessionUseCase;
@@ -15,6 +12,7 @@ import com.accesosport.payment.domain.events.PaymentRefundedEvent;
 import com.accesosport.payment.domain.exception.PaymentNotFoundException;
 import com.accesosport.payment.domain.model.Payment;
 import com.accesosport.payment.domain.model.PaymentStatus;
+import com.accesosport.payment.domain.model.ServiceFeeCalculator;
 import com.accesosport.payment.domain.port.PaymentProcessorPort;
 import com.accesosport.payment.domain.port.PaymentRepository;
 import com.accesosport.payment.domain.port.StripeWebhookEventRepository;
@@ -27,6 +25,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Service
@@ -48,6 +47,11 @@ public class PaymentApplicationService {
 
     @Value("${stripe.connect-webhook-secret}")
     private String connectWebhookSecret;
+
+    public PricingBreakdownResponse calculatePricingBreakdown(BigDecimal basePrice) {
+        BigDecimal serviceFee = ServiceFeeCalculator.calculate(basePrice);
+        return new PricingBreakdownResponse(basePrice, serviceFee, basePrice.add(serviceFee));
+    }
 
     @Transactional
     public CheckoutSessionResponse createCheckoutSession(UUID registrationId, UUID authenticatedUserId, String anonymousAccessToken) {

@@ -13,6 +13,7 @@ import com.accesosport.user.domain.exception.RoleNotFoundException;
 import com.accesosport.user.domain.exception.UserAlreadyExistsException;
 import com.accesosport.user.domain.exception.UserNotFoundException;
 
+import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.net.URI;
 import java.time.Instant;
@@ -226,6 +228,44 @@ public class GlobalExceptionHandler {
         problemDetail.setType(URI.create("https://api.accesosport.com/errors/validation-error"));
         problemDetail.setProperty("timestamp", Instant.now());
         problemDetail.setProperty("errors", errors);
+
+        return problemDetail;
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ProblemDetail handleConstraintViolation(ConstraintViolationException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getConstraintViolations().forEach(violation -> {
+            String path = violation.getPropertyPath().toString();
+            String field = path.contains(".") ? path.substring(path.lastIndexOf('.') + 1) : path;
+            errors.put(field, messageTranslator.translate(violation.getMessage()));
+        });
+
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                messageTranslator.translate(MessageKeys.AuthMessages.PROBLEM_VALIDATION_FAILED)
+        );
+        problemDetail.setTitle(messageTranslator.translate(MessageKeys.AuthMessages.PROBLEM_VALIDATION_ERROR));
+        problemDetail.setType(URI.create("https://api.accesosport.com/errors/validation-error"));
+        problemDetail.setProperty("timestamp", Instant.now());
+        problemDetail.setProperty("errors", errors);
+
+        return problemDetail;
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ProblemDetail handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        log.warn("Type mismatch for parameter '{}': {}", ex.getName(), ex.getMessage());
+
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                "Parámetro inválido '" + ex.getName() + "': valor no reconocido"
+        );
+        problemDetail.setTitle(messageTranslator.translate(MessageKeys.AuthMessages.PROBLEM_VALIDATION_ERROR));
+        problemDetail.setType(URI.create("https://api.accesosport.com/errors/invalid-parameter"));
+        problemDetail.setProperty("timestamp", Instant.now());
 
         return problemDetail;
     }
