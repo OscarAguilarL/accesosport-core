@@ -2,6 +2,7 @@ package com.accesosport.user.presentation.exception;
 
 import com.accesosport.shared.domain.i18n.MessageTranslator;
 import com.accesosport.user.domain.exception.InvalidVerificationStatusTransitionException;
+import com.accesosport.user.domain.exception.OrganizerVerificationPrerequisiteException;
 import com.accesosport.user.domain.exception.PersonalDataNotFoundException;
 import com.accesosport.user.domain.exception.ProfileNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -63,6 +64,21 @@ public class UserExceptionHandler {
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
     public ProblemDetail handlePersonalDataNotFound(PersonalDataNotFoundException ex) {
         log.error("Personal data not found: {}", ex.getMessage());
+
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.UNPROCESSABLE_ENTITY,
+                messageTranslator.translate(ex.getMessage())
+        );
+
+        problemDetail.setTitle(messageTranslator.translate(ex.getMessage()));
+        problemDetail.setProperty("timestamp", Instant.now());
+        return problemDetail;
+    }
+
+    @ExceptionHandler(OrganizerVerificationPrerequisiteException.class)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    public ProblemDetail handleVerificationPrerequisite(OrganizerVerificationPrerequisiteException ex) {
+        log.error("Verification prerequisite not met: {}", ex.getMessage());
 
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.UNPROCESSABLE_ENTITY,

@@ -2,6 +2,7 @@ package com.accesosport.user.domain.repository;
 
 import com.accesosport.user.domain.model.UserOrganizerProfile;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -25,6 +26,21 @@ public interface OrganizerProfileRepository {
      * @return the matching UserOrganizerProfile, or empty if not found
      */
     Optional<UserOrganizerProfile> findByStripeAccountId(String stripeAccountId);
+
+    /**
+     * Finds an Organizer Profile by its own ID.
+     *
+     * @param id the profile's UUID
+     * @return the matching UserOrganizerProfile, or empty if not found
+     */
+    Optional<UserOrganizerProfile> findById(UUID id);
+
+    /**
+     * Returns all organizer profiles.
+     *
+     * @return list of all UserOrganizerProfile
+     */
+    List<UserOrganizerProfile> findAll();
 
     /**
      * Persists a Participant Profile

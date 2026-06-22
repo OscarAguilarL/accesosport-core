@@ -167,6 +167,14 @@ public class MessageKeys {
 		public static final String PROBLEM_EMAIL_MISMATCH = "invitation.problem.email-mismatch";
 	}
 
+	public static class Admin {
+		private Admin() {
+		}
+
+		public static final String ORGANIZER_PERSONAL_DATA_INCOMPLETE = "admin.organizer.personal-data-incomplete";
+		public static final String ORGANIZER_STRIPE_NOT_LINKED = "admin.organizer.stripe-not-linked";
+	}
+
 	public static class PasswordReset {
 		public static final String INVALID_TOKEN = "auth.password-reset.errors.invalid-token";
 		public static final String TOKEN_ALREADY_USED = "auth.password-reset.errors.token-already-used";

@@ -56,6 +56,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/webhooks/stripe/**").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/v1/payments/checkout-session").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/payments/registration/**").permitAll()
+                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())
