@@ -73,6 +73,13 @@ public class EmailTemplateService implements EmailTemplatePort {
         return templateEngine.process("email/payment-access-token", ctx);
     }
 
+    public String buildStripeOnboardingReminderEmail(String organizerName, String dashboardUrl) {
+        Context ctx = new Context();
+        ctx.setVariable("organizerName", organizerName);
+        ctx.setVariable("dashboardUrl", dashboardUrl);
+        return templateEngine.process("email/stripe-onboarding-reminder", ctx);
+    }
+
     public String eventReminder(
             String participantFirstName,
             String eventName,

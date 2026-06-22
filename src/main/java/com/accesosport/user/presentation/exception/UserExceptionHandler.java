@@ -5,6 +5,7 @@ import com.accesosport.user.domain.exception.InvalidVerificationStatusTransition
 import com.accesosport.user.domain.exception.OrganizerVerificationPrerequisiteException;
 import com.accesosport.user.domain.exception.PersonalDataNotFoundException;
 import com.accesosport.user.domain.exception.ProfileNotFoundException;
+import com.accesosport.user.domain.exception.StripeAlreadyLinkedException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -98,6 +99,21 @@ public class UserExceptionHandler {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.NOT_FOUND,
                 messageTranslator.translate(ex.getMessage(), ex.getArgs())
+        );
+
+        problemDetail.setTitle(messageTranslator.translate(ex.getMessage()));
+        problemDetail.setProperty("timestamp", Instant.now());
+        return problemDetail;
+    }
+
+    @ExceptionHandler(StripeAlreadyLinkedException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ProblemDetail handleStripeAlreadyLinked(StripeAlreadyLinkedException ex) {
+        log.warn("Stripe reminder sent to already-linked organizer: {}", ex.getMessage());
+
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.CONFLICT,
+                messageTranslator.translate(ex.getMessage())
         );
 
         problemDetail.setTitle(messageTranslator.translate(ex.getMessage()));

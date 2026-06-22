@@ -173,6 +173,7 @@ public class MessageKeys {
 
 		public static final String ORGANIZER_PERSONAL_DATA_INCOMPLETE = "admin.organizer.personal-data-incomplete";
 		public static final String ORGANIZER_STRIPE_NOT_LINKED = "admin.organizer.stripe-not-linked";
+		public static final String ORGANIZER_STRIPE_ALREADY_LINKED = "admin.organizer.stripe-already-linked";
 	}
 
 	public static class PasswordReset {

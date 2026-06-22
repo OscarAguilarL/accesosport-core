@@ -8,6 +8,9 @@ import com.accesosport.invitation.domain.model.InvitationToken;
 import com.accesosport.invitation.domain.repository.InvitationTokenRepository;
 import com.accesosport.shared.application.dto.AddressDto;
 import com.accesosport.shared.domain.i18n.MessageKeys;
+import com.accesosport.shared.domain.model.EmailMessage;
+import com.accesosport.shared.domain.port.EmailService;
+import com.accesosport.shared.domain.port.EmailTemplatePort;
 import com.accesosport.user.application.dto.CreateOrganizerProfileRequest;
 import com.accesosport.user.application.dto.CreateParticipantProfileRequest;
 import com.accesosport.user.application.dto.OrganizerProfileResponse;
@@ -33,6 +36,7 @@ import com.accesosport.user.application.usecase.SaveUserAddressUseCase;
 import com.accesosport.user.application.usecase.SaveUserPersonalInfoUseCase;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -52,6 +56,11 @@ public class UserService {
     private final ParticipantProfileRepository participantProfileRepository;
     private final TokenProvider tokenProvider;
     private final InvitationTokenRepository invitationTokenRepository;
+    private final EmailService emailService;
+    private final EmailTemplatePort emailTemplatePort;
+
+    @Value("${app.frontend.url}")
+    private String frontendUrl;
 
     /**
      * Creates an organizer profile associated with the specified user ID.
@@ -94,6 +103,15 @@ public class UserService {
             invitation.markAsUsed(userId);
             invitationTokenRepository.save(invitation);
         }
+
+        String organizerName = result.user().getPersonalData() != null
+                ? result.user().getPersonalData().getFirstName()
+                : result.profile().getOrganizationName();
+        emailService.send(EmailMessage.of(
+                result.user().getEmail(),
+                "Configura tus pagos para recibir inscripciones en AccesoSport",
+                emailTemplatePort.buildStripeOnboardingReminderEmail(organizerName, frontendUrl + "/dashboard")
+        ));
 
         String newToken = tokenProvider.generateToken(result.user());
         return new OrganizerProfileWithTokenResponse(newToken, OrganizerProfileResponse.fromDomain(result.profile()));

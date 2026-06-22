@@ -33,4 +33,6 @@ public interface EmailTemplatePort {
     String buildOrganizerInvitationEmail(String reason, String invitationLink);
 
     String buildPaymentAccessTokenEmail(String firstName, String recoveryLink);
+
+    String buildStripeOnboardingReminderEmail(String organizerName, String dashboardUrl);
 }

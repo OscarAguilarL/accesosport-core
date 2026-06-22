@@ -41,4 +41,10 @@ public class AdminOrganizerController {
     public ResponseEntity<AdminOrganizerListItemResponse> submitOrganizerForReview(@PathVariable UUID id) {
         return ResponseEntity.ok(adminUserService.submitOrganizerForReview(id));
     }
+
+    @PostMapping("/{id}/remind-stripe")
+    public ResponseEntity<Void> sendStripeOnboardingReminder(@PathVariable UUID id) {
+        adminUserService.sendStripeOnboardingReminder(id);
+        return ResponseEntity.noContent().build();
+    }
 }
