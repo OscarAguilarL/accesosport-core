@@ -50,7 +50,7 @@ jobs:
           ENV_KEY: ${{ github.ref_name == 'main' && 'BACKEND_IMAGE_TAG' || 'BACKEND_STAGING_IMAGE_TAG' }}
         run: |
           mkdir -p ~/.ssh
-          printf '%s' "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/deploy_key
+          printf '%s\n' "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
 
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key ubuntu@${{ secrets.EC2_HOST }} "
