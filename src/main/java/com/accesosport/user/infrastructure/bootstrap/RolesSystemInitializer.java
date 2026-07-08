@@ -1,6 +1,6 @@
 package com.accesosport.user.infrastructure.bootstrap;
 
-import com.accesosport.user.domain.usecase.InitializeSystemRolesUseCase;
+import com.accesosport.user.application.usecase.InitializeSystemRolesUseCase;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 

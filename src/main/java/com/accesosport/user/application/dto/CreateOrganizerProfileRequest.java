@@ -3,6 +3,8 @@ package com.accesosport.user.application.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+import java.util.UUID;
+
 /**
  * Represents a request to create an organizer profile with essential details.
  *
@@ -11,6 +13,7 @@ import jakarta.validation.constraints.Size;
  * @param facebook         The Facebook profile or page link for the organization. Optional, with a maximum length of 200 characters.
  * @param instagram        The Instagram profile link for the organization. Optional, with a maximum length of 200 characters.
  * @param description      A brief description of the organization. Optional, with a maximum length of 500 characters.
+ * @param invitationToken  Optional invitation token UUID. When present, validates that the token is PENDING and matches the user's email.
  */
 public record CreateOrganizerProfileRequest(
         @NotBlank
@@ -27,6 +30,8 @@ public record CreateOrganizerProfileRequest(
         String instagram,
 
         @Size(max = 500)
-        String description
+        String description,
+
+        UUID invitationToken
 ) {
 }

@@ -7,6 +7,7 @@ import com.accesosport.user.infrastructure.persistence.mapper.OrganizerProfileMa
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -36,6 +37,25 @@ public class OrganizerProfileRepositoryAdapter implements OrganizerProfileReposi
     public Optional<UserOrganizerProfile> findByUserId(UUID userId) {
         return organizerProfileJpaRepository.findByUserId(userId)
                 .map(OrganizerProfileMapper::toDomain);
+    }
+
+    @Override
+    public Optional<UserOrganizerProfile> findByStripeAccountId(String stripeAccountId) {
+        return organizerProfileJpaRepository.findByStripeAccountId(stripeAccountId)
+                .map(OrganizerProfileMapper::toDomain);
+    }
+
+    @Override
+    public Optional<UserOrganizerProfile> findById(UUID id) {
+        return organizerProfileJpaRepository.findById(id)
+                .map(OrganizerProfileMapper::toDomain);
+    }
+
+    @Override
+    public List<UserOrganizerProfile> findAll() {
+        return organizerProfileJpaRepository.findAll().stream()
+                .map(OrganizerProfileMapper::toDomain)
+                .toList();
     }
 
     @Override

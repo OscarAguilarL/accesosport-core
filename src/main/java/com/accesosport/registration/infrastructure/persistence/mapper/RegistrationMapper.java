@@ -5,10 +5,6 @@ import com.accesosport.registration.domain.model.Registration;
 import com.accesosport.registration.domain.model.RegistrationStatus;
 import com.accesosport.registration.infrastructure.persistence.entity.RegistrationJpaEntity;
 
-/**
- * Utility class for mapping between {@link Registration} domain objects
- * and {@link RegistrationJpaEntity} JPA entities.
- */
 public class RegistrationMapper {
 
     private RegistrationMapper() {}
@@ -32,7 +28,18 @@ public class RegistrationMapper {
                 entity.getCancelledAt(),
                 entity.getWaiverAcceptedAt(),
                 entity.getWaiverText(),
-                entity.isWantsShirt()
+                entity.isWantsShirt(),
+                entity.getParticipantEmail(),
+                entity.getParticipantFirstName(),
+                entity.getParticipantLastName(),
+                entity.getParticipantPhone(),
+                entity.getShirtSize(),
+                entity.getBloodType(),
+                entity.getEmergencyContactName(),
+                entity.getEmergencyContactPhone(),
+                entity.getMedicalConditions(),
+                entity.getPaymentAccessTokenHash(),
+                entity.getPaymentAccessTokenExpiresAt()
         );
     }
 
@@ -56,6 +63,17 @@ public class RegistrationMapper {
         entity.setWaiverAcceptedAt(domain.getWaiverAcceptedAt());
         entity.setWaiverText(domain.getWaiverText());
         entity.setWantsShirt(domain.isWantsShirt());
+        entity.setParticipantEmail(domain.getParticipantEmail());
+        entity.setParticipantFirstName(domain.getParticipantFirstName());
+        entity.setParticipantLastName(domain.getParticipantLastName());
+        entity.setParticipantPhone(domain.getParticipantPhone());
+        entity.setShirtSize(domain.getShirtSize());
+        entity.setBloodType(domain.getBloodType());
+        entity.setEmergencyContactName(domain.getEmergencyContactName());
+        entity.setEmergencyContactPhone(domain.getEmergencyContactPhone());
+        entity.setMedicalConditions(domain.getMedicalConditions());
+        entity.setPaymentAccessTokenHash(domain.getPaymentAccessTokenHash());
+        entity.setPaymentAccessTokenExpiresAt(domain.getPaymentAccessTokenExpiresAt());
         return entity;
     }
 }

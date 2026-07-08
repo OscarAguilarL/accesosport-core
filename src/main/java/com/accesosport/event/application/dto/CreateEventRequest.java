@@ -34,6 +34,10 @@ public record CreateEventRequest(
         LocalDateTime registrationEndDate,
 
         @NotNull
+        @Positive(message = "El cupo máximo debe ser mayor a cero")
+        Integer maxCapacity,
+
+        @NotNull
         @Size(min = 1, message = "El evento debe tener al menos una modalidad")
         @Valid
         List<CreateModalityRequest> modalities

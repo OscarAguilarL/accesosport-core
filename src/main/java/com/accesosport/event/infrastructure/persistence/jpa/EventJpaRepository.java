@@ -2,6 +2,8 @@ package com.accesosport.event.infrastructure.persistence.jpa;
 
 import com.accesosport.event.domain.model.EventStatus;
 import com.accesosport.event.infrastructure.persistence.entity.EventJpaEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -60,9 +62,9 @@ public interface EventJpaRepository extends JpaRepository<EventJpaEntity, UUID> 
             WHERE e.status = 'REGISTRATION_OPEN'
             AND e.eventDate > CURRENT_TIMESTAMP
             AND EXISTS (
-                SELECT 1 FROM EventModalityJpaEntity m
-                WHERE m.eventId = e.id
-                  AND m.registeredCount < m.capacity
+                SELECT 1 FROM EventCapacityJpaEntity c
+                WHERE c.eventId = e.id
+                  AND c.reserved < c.maxCapacity
             )
             ORDER BY e.eventDate
             """)
@@ -96,4 +98,22 @@ public interface EventJpaRepository extends JpaRepository<EventJpaEntity, UUID> 
             """)
     List<EventJpaEntity> findEventsNeedingReminder(@Param("from") LocalDateTime from,
                                                    @Param("to") LocalDateTime to);
+
+    @Query("""
+            SELECT e FROM EventJpaEntity e
+            WHERE e.status = 'REGISTRATION_OPEN'
+            AND e.eventDate > CURRENT_TIMESTAMP
+            AND EXISTS (
+                SELECT 1 FROM EventCapacityJpaEntity c
+                WHERE c.eventId = e.id
+                  AND c.reserved < c.maxCapacity
+            )
+            ORDER BY e.eventDate
+            """)
+    Page<EventJpaEntity> findEventsAvailableForRegistration(Pageable pageable);
+
+    Page<EventJpaEntity> findByStatus(EventStatus status, Pageable pageable);
+
+    @Query("SELECT e FROM EventJpaEntity e WHERE e.createdBy.id = :organizerId ORDER BY e.eventDate DESC")
+    Page<EventJpaEntity> findByOrganizerId(@Param("organizerId") UUID organizerId, Pageable pageable);
 }

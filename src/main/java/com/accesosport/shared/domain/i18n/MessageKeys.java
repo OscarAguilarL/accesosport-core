@@ -30,6 +30,8 @@ public class MessageKeys {
 		public static final String PROBLEM_ROLE_NOT_FOUND = "auth.problem.role.not-found";
 		public static final String PROBLEM_VALIDATION_ERROR = "auth.problem.validation.error";
 		public static final String PROBLEM_VALIDATION_FAILED = "auth.problem.validation.failed";
+		public static final String INVALID_CURRENT_PASSWORD = "auth.errors.invalid-current-password";
+		public static final String PROBLEM_INVALID_CURRENT_PASSWORD = "auth.problem.invalid-current-password";
 	}
 
 	public static class Users {
@@ -150,5 +152,36 @@ public class MessageKeys {
 		public static final String PROBLEM_INVALID_IMAGE = "image.problem.invalid-image";
 		public static final String PROBLEM_UPLOAD_FAILED = "image.problem.upload-failed";
 		public static final String PROBLEM_NOT_FOUND = "image.problem.not-found";
+	}
+
+	public static class Invitations {
+		private Invitations() {}
+
+		public static final String INVITATION_NOT_FOUND = "invitation.errors.not-found";
+		public static final String INVITATION_ALREADY_USED = "invitation.errors.already-used";
+		public static final String INVITATION_REVOKED = "invitation.errors.revoked";
+		public static final String INVITATION_EMAIL_MISMATCH = "invitation.errors.email-mismatch";
+		public static final String PROBLEM_NOT_FOUND = "invitation.problem.not-found";
+		public static final String PROBLEM_ALREADY_USED = "invitation.problem.already-used";
+		public static final String PROBLEM_REVOKED = "invitation.problem.revoked";
+		public static final String PROBLEM_EMAIL_MISMATCH = "invitation.problem.email-mismatch";
+	}
+
+	public static class Admin {
+		private Admin() {
+		}
+
+		public static final String ORGANIZER_PERSONAL_DATA_INCOMPLETE = "admin.organizer.personal-data-incomplete";
+		public static final String ORGANIZER_STRIPE_NOT_LINKED = "admin.organizer.stripe-not-linked";
+		public static final String ORGANIZER_STRIPE_ALREADY_LINKED = "admin.organizer.stripe-already-linked";
+	}
+
+	public static class PasswordReset {
+		public static final String INVALID_TOKEN = "auth.password-reset.errors.invalid-token";
+		public static final String TOKEN_ALREADY_USED = "auth.password-reset.errors.token-already-used";
+		public static final String TOKEN_EXPIRED = "auth.password-reset.errors.token-expired";
+		public static final String PROBLEM_INVALID_TOKEN = "auth.password-reset.problem.invalid-token";
+		public static final String PROBLEM_TOKEN_ALREADY_USED = "auth.password-reset.problem.token-already-used";
+		public static final String PROBLEM_TOKEN_EXPIRED = "auth.password-reset.problem.token-expired";
 	}
 }

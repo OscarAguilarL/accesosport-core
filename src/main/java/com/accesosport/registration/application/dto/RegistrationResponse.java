@@ -14,7 +14,8 @@ public record RegistrationResponse(
         String ticketCode,
         Integer bibNumber,
         boolean kitPickedUp,
-        LocalDateTime registeredAt
+        LocalDateTime registeredAt,
+        String paymentAccessToken  // only populated once, at anonymous registration time
 ) {
     public static RegistrationResponse from(Registration r) {
         return new RegistrationResponse(
@@ -26,7 +27,8 @@ public record RegistrationResponse(
                 r.getTicketCode(),
                 r.getBibNumber(),
                 r.isKitPickedUp(),
-                r.getRegisteredAt()
+                r.getRegisteredAt(),
+                null
         );
     }
 
@@ -40,7 +42,23 @@ public record RegistrationResponse(
                 r.getTicketCode(),
                 r.getBibNumber(),
                 r.isKitPickedUp(),
-                r.getRegisteredAt()
+                r.getRegisteredAt(),
+                null
+        );
+    }
+
+    public static RegistrationResponse fromWithToken(Registration r, String plainTextToken) {
+        return new RegistrationResponse(
+                r.getId(),
+                r.getEventId(),
+                null,
+                null,
+                r.getStatus().name(),
+                r.getTicketCode(),
+                r.getBibNumber(),
+                r.isKitPickedUp(),
+                r.getRegisteredAt(),
+                plainTextToken
         );
     }
 }

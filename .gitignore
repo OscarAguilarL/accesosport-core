@@ -33,6 +33,11 @@ build/
 ### VS Code ###
 .vscode/
 
+### AI assistants ###
+.agents/
+.claude/
+skills-lock.json
+
 postgres/
 
 ### Environment ###

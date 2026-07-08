@@ -2,8 +2,10 @@ package com.accesosport.user.presentation.exception;
 
 import com.accesosport.shared.domain.i18n.MessageTranslator;
 import com.accesosport.user.domain.exception.InvalidVerificationStatusTransitionException;
+import com.accesosport.user.domain.exception.OrganizerVerificationPrerequisiteException;
 import com.accesosport.user.domain.exception.PersonalDataNotFoundException;
 import com.accesosport.user.domain.exception.ProfileNotFoundException;
+import com.accesosport.user.domain.exception.StripeAlreadyLinkedException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -74,6 +76,21 @@ public class UserExceptionHandler {
         return problemDetail;
     }
 
+    @ExceptionHandler(OrganizerVerificationPrerequisiteException.class)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    public ProblemDetail handleVerificationPrerequisite(OrganizerVerificationPrerequisiteException ex) {
+        log.error("Verification prerequisite not met: {}", ex.getMessage());
+
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.UNPROCESSABLE_ENTITY,
+                messageTranslator.translate(ex.getMessage())
+        );
+
+        problemDetail.setTitle(messageTranslator.translate(ex.getMessage()));
+        problemDetail.setProperty("timestamp", Instant.now());
+        return problemDetail;
+    }
+
     @ExceptionHandler(ProfileNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ProblemDetail handleProfileNotFound(ProfileNotFoundException ex) {
@@ -82,6 +99,21 @@ public class UserExceptionHandler {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.NOT_FOUND,
                 messageTranslator.translate(ex.getMessage(), ex.getArgs())
+        );
+
+        problemDetail.setTitle(messageTranslator.translate(ex.getMessage()));
+        problemDetail.setProperty("timestamp", Instant.now());
+        return problemDetail;
+    }
+
+    @ExceptionHandler(StripeAlreadyLinkedException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ProblemDetail handleStripeAlreadyLinked(StripeAlreadyLinkedException ex) {
+        log.warn("Stripe reminder sent to already-linked organizer: {}", ex.getMessage());
+
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.CONFLICT,
+                messageTranslator.translate(ex.getMessage())
         );
 
         problemDetail.setTitle(messageTranslator.translate(ex.getMessage()));

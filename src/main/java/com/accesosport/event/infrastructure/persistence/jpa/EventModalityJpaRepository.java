@@ -23,22 +23,15 @@ public interface EventModalityJpaRepository extends JpaRepository<EventModalityJ
             UPDATE EventModalityJpaEntity m
             SET m.registeredCount = m.registeredCount + 1
             WHERE m.id = :modalityId
-              AND m.registeredCount < m.capacity
-              AND EXISTS (
-                  SELECT 1 FROM EventJpaEntity e
-                  WHERE e.id = m.eventId
-                    AND e.status = 'REGISTRATION_OPEN'
-              )
             """)
-    int reserveIfAvailable(@Param("modalityId") UUID modalityId);
+    void incrementRegisteredCount(@Param("modalityId") UUID modalityId);
 
     @Modifying
     @Transactional
     @Query("""
             UPDATE EventModalityJpaEntity m
-            SET m.registeredCount = m.registeredCount - 1
+            SET m.registeredCount = GREATEST(0, m.registeredCount - 1)
             WHERE m.id = :modalityId
-              AND m.registeredCount > 0
             """)
     void release(@Param("modalityId") UUID modalityId);
 }

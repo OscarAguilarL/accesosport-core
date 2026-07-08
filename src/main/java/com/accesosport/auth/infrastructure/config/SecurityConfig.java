@@ -3,6 +3,7 @@ package com.accesosport.auth.infrastructure.config;
 import com.accesosport.auth.infrastructure.security.CheckinTokenAuthenticationFilter;
 import com.accesosport.auth.infrastructure.security.CustomUserDetailsService;
 import com.accesosport.auth.infrastructure.security.JwtAuthenticationFilter;
+import com.accesosport.auth.infrastructure.security.UnauthorizedEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -35,6 +36,7 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CheckinTokenAuthenticationFilter checkinTokenAuthenticationFilter;
     private final CustomUserDetailsService customUserDetailsService;
+    private final UnauthorizedEntryPoint unauthorizedEntryPoint;
 
     @Value("${app.cors.allowed-origins:http://localhost:*}")
     private String corsAllowedOrigins;
@@ -51,11 +53,18 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/auth/**", "/api/v1/public/**", "/v3/api-docs", "/actuator/health", "/error").permitAll()
+                        .requestMatchers("/api/v1/webhooks/stripe/**").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/v1/payments/checkout-session").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/payments/registration/**").permitAll()
+                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(checkinTokenAuthenticationFilter, JwtAuthenticationFilter.class);
+                .addFilterBefore(checkinTokenAuthenticationFilter, JwtAuthenticationFilter.class)
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(unauthorizedEntryPoint)
+                );
 
         return http.build();
     }

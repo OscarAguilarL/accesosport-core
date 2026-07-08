@@ -24,7 +24,8 @@ public class EventCategoryApplicationService {
     private final EventCategoryRepository categoryRepository;
 
     @Transactional
-    public CategoryResponse addCategory(UUID eventId, UUID requesterId, boolean isAdmin, CreateCategoryRequest request) {
+    public CategoryResponse addCategory(UUID eventId, UUID userId, boolean isAdmin, CreateCategoryRequest request) {
+        UUID requesterId = isAdmin ? null : userId;
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EventNotFoundException(eventId));
 
@@ -51,7 +52,8 @@ public class EventCategoryApplicationService {
     }
 
     @Transactional
-    public void deleteCategory(UUID eventId, UUID categoryId, UUID requesterId, boolean isAdmin) {
+    public void deleteCategory(UUID eventId, UUID categoryId, UUID userId, boolean isAdmin) {
+        UUID requesterId = isAdmin ? null : userId;
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EventNotFoundException(eventId));
 

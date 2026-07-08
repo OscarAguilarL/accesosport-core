@@ -48,6 +48,11 @@ public class UserOrganizerProfile {
     private VerificationStatus verificationStatus;
     private LocalDateTime verifiedAt;
 
+    // Stripe Connect
+    private String stripeAccountId;
+    private boolean stripeOnboardingCompleted;
+    private boolean stripeTransfersActive;
+
     private User user;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -181,5 +186,29 @@ public class UserOrganizerProfile {
      */
     public boolean isVerified() {
         return this.verificationStatus == VerificationStatus.VERIFIED;
+    }
+
+    public void linkStripeAccount(String stripeAccountId) {
+        this.stripeAccountId = stripeAccountId;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void completeOnboarding() {
+        this.stripeOnboardingCompleted = true;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void activateStripeTransfers() {
+        this.stripeTransfersActive = true;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void deactivateStripeTransfers() {
+        this.stripeTransfersActive = false;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public boolean isStripeLinked() {
+        return stripeAccountId != null && stripeTransfersActive;
     }
 }

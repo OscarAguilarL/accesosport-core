@@ -13,6 +13,6 @@ public interface EventModalityRepository {
     List<EventModality> findByEventId(UUID eventId);
     List<EventModality> findByEventIdIn(Collection<UUID> eventIds);
     void deleteById(UUID id);
-    int reserveIfAvailable(UUID modalityId);
+    void incrementRegisteredCount(UUID modalityId);
     void release(UUID modalityId);
 }

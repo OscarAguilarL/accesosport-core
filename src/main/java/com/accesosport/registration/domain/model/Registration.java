@@ -2,7 +2,11 @@ package com.accesosport.registration.domain.model;
 
 import lombok.Getter;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.UUID;
 
 @Getter
@@ -25,12 +29,31 @@ public class Registration {
     private String waiverText;
     private boolean wantsShirt;
 
+    // Token for anonymous participants to access their own payment flow
+    private String paymentAccessTokenHash;
+    private LocalDateTime paymentAccessTokenExpiresAt;
+
+    // Participant snapshot — populated at registration time regardless of auth status
+    private String participantEmail;
+    private String participantFirstName;
+    private String participantLastName;
+    private String participantPhone;
+    private String shirtSize;
+    private String bloodType;
+    private String emergencyContactName;
+    private String emergencyContactPhone;
+    private String medicalConditions;
+
     private Registration() {
     }
 
     public static Registration create(UUID eventId, UUID participantId, UUID modalityId, UUID categoryId,
                                       RegistrationStatus status,
-                                      LocalDateTime waiverAcceptedAt, String waiverText, boolean wantsShirt) {
+                                      LocalDateTime waiverAcceptedAt, String waiverText, boolean wantsShirt,
+                                      String participantEmail, String participantFirstName, String participantLastName,
+                                      String participantPhone, String shirtSize, String bloodType,
+                                      String emergencyContactName, String emergencyContactPhone,
+                                      String medicalConditions) {
         Registration registration = new Registration();
         registration.id = UUID.randomUUID();
         registration.eventId = eventId;
@@ -48,6 +71,15 @@ public class Registration {
         registration.waiverAcceptedAt = waiverAcceptedAt;
         registration.waiverText = waiverText;
         registration.wantsShirt = wantsShirt;
+        registration.participantEmail = participantEmail;
+        registration.participantFirstName = participantFirstName;
+        registration.participantLastName = participantLastName;
+        registration.participantPhone = participantPhone;
+        registration.shirtSize = shirtSize;
+        registration.bloodType = bloodType;
+        registration.emergencyContactName = emergencyContactName;
+        registration.emergencyContactPhone = emergencyContactPhone;
+        registration.medicalConditions = medicalConditions;
         return registration;
     }
 
@@ -67,7 +99,18 @@ public class Registration {
             LocalDateTime cancelledAt,
             LocalDateTime waiverAcceptedAt,
             String waiverText,
-            boolean wantsShirt
+            boolean wantsShirt,
+            String participantEmail,
+            String participantFirstName,
+            String participantLastName,
+            String participantPhone,
+            String shirtSize,
+            String bloodType,
+            String emergencyContactName,
+            String emergencyContactPhone,
+            String medicalConditions,
+            String paymentAccessTokenHash,
+            LocalDateTime paymentAccessTokenExpiresAt
     ) {
         Registration registration = new Registration();
         registration.id = id;
@@ -86,7 +129,61 @@ public class Registration {
         registration.waiverAcceptedAt = waiverAcceptedAt;
         registration.waiverText = waiverText;
         registration.wantsShirt = wantsShirt;
+        registration.participantEmail = participantEmail;
+        registration.participantFirstName = participantFirstName;
+        registration.participantLastName = participantLastName;
+        registration.participantPhone = participantPhone;
+        registration.shirtSize = shirtSize;
+        registration.bloodType = bloodType;
+        registration.emergencyContactName = emergencyContactName;
+        registration.emergencyContactPhone = emergencyContactPhone;
+        registration.medicalConditions = medicalConditions;
+        registration.paymentAccessTokenHash = paymentAccessTokenHash;
+        registration.paymentAccessTokenExpiresAt = paymentAccessTokenExpiresAt;
         return registration;
+    }
+
+    /** Generates a high-entropy token for anonymous participants. Returns the plain-text token
+     *  (to be sent once in the response); stores only the SHA-256 hash. */
+    public String generatePaymentAccessToken() {
+        byte[] bytes = new byte[32];
+        new SecureRandom().nextBytes(bytes);
+        String token = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+        this.paymentAccessTokenHash = sha256Hex(token);
+        this.paymentAccessTokenExpiresAt = LocalDateTime.now().plusDays(30);
+        return token;
+    }
+
+    /** Constant-time comparison of the provided token against the stored hash. */
+    public boolean verifyPaymentAccessToken(String token) {
+        if (token == null || paymentAccessTokenHash == null) return false;
+        if (paymentAccessTokenExpiresAt != null && LocalDateTime.now().isAfter(paymentAccessTokenExpiresAt)) {
+            return false;
+        }
+        return MessageDigest.isEqual(
+                paymentAccessTokenHash.getBytes(),
+                sha256Hex(token).getBytes()
+        );
+    }
+
+    private static String sha256Hex(String input) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(input.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            StringBuilder hex = new StringBuilder();
+            for (byte b : hash) hex.append(String.format("%02x", b));
+            return hex.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("SHA-256 not available", e);
+        }
+    }
+
+    public void confirm(PaymentMethod paymentMethod) {
+        if (this.status != RegistrationStatus.PENDING_PAYMENT) {
+            throw new IllegalStateException("Registration must be in PENDING_PAYMENT state to confirm, but was: " + this.status);
+        }
+        this.status = RegistrationStatus.CONFIRMED;
+        this.paymentMethod = paymentMethod;
     }
 
     public void cancel() {

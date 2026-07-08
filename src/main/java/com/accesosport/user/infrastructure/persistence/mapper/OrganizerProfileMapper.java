@@ -33,6 +33,9 @@ public class OrganizerProfileMapper {
                 .description(entity.getDescription())
                 .verificationStatus(entity.getVerificationStatus())
                 .verifiedAt(entity.getVerifiedAt())
+                .stripeAccountId(entity.getStripeAccountId())
+                .stripeOnboardingCompleted(entity.isStripeOnboardingCompleted())
+                .stripeTransfersActive(entity.isStripeTransfersActive())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .user(UserMapper.toDomain(entity.getUser()))
@@ -59,6 +62,9 @@ public class OrganizerProfileMapper {
         entity.setDescription(domain.getDescription());
         entity.setVerificationStatus(domain.getVerificationStatus());
         entity.setVerifiedAt(domain.getVerifiedAt());
+        entity.setStripeAccountId(domain.getStripeAccountId());
+        entity.setStripeOnboardingCompleted(domain.isStripeOnboardingCompleted());
+        entity.setStripeTransfersActive(domain.isStripeTransfersActive());
         entity.setCreatedAt(domain.getCreatedAt());
         entity.setUpdatedAt(domain.getUpdatedAt());
         entity.setUser(UserMapper.toEntity(domain.getUser()));

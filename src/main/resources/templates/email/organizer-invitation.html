@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<body style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; color: #111827;">
+
+  <h2 style="color: #2563eb;">Bienvenido a AccesoSport — Invitación para organizadores</h2>
+  <p>Has sido invitado a unirte a AccesoSport como organizador de eventos.</p>
+
+  <div th:if="${reason != null and !#strings.isEmpty(reason)}"
+       style="background-color: #f3f4f6; border-left: 4px solid #2563eb; padding: 12px 16px; margin: 16px 0; border-radius: 4px;">
+    <p style="margin: 0; font-size: 14px; color: #374151;"><strong>Motivo de la invitación:</strong></p>
+    <p style="margin: 4px 0 0 0; font-size: 14px; color: #374151;" th:text="${reason}"></p>
+  </div>
+
+  <p>Haz clic en el botón a continuación para crear tu cuenta y configurar tu perfil de organizador:</p>
+
+  <div style="margin: 24px 0;">
+    <a th:href="${invitationLink}"
+       style="display: inline-block; background-color: #2563eb; color: #ffffff; padding: 12px 24px;
+              text-decoration: none; border-radius: 6px; font-weight: bold;">
+      Crear mi cuenta como organizador
+    </a>
+  </div>
+
+  <p style="font-size: 13px; color: #6b7280;">Este enlace es personal e intransferible — solo puede ser usado con el email al que fue enviado.</p>
+  <p style="font-size: 13px; color: #6b7280;">Si no esperabas esta invitación, puedes ignorar este mensaje.</p>
+
+  <p style="color: #6b7280; font-size: 12px;">AccesoSport — Tu carrera, tu momento.</p>
+
+</body>
+</html>

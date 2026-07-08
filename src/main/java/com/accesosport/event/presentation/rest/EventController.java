@@ -13,6 +13,8 @@ import com.accesosport.event.application.service.EventApplicationService;
 import com.accesosport.event.application.service.EventCategoryApplicationService;
 import com.accesosport.event.application.service.EventModalityApplicationService;
 import com.accesosport.event.domain.model.EventStatus;
+import com.accesosport.shared.application.dto.PagedResponse;
+import com.accesosport.shared.domain.query.PageQuery;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +33,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -81,12 +82,12 @@ public class EventController {
      * or upcoming events
      */
     @GetMapping
-    public ResponseEntity<List<EventSummaryResponse>> listEvents(@RequestParam(required = false) EventStatus eventStatus) {
-        List<EventSummaryResponse> eventSummaryResponses = eventStatus != null
-                ? eventApplicationService.ListEventsByStatus(eventStatus)
-                : eventApplicationService.listUpcomingEvents();
-
-        return ResponseEntity.ok(eventSummaryResponses);
+    public ResponseEntity<PagedResponse<EventSummaryResponse>> listEvents(
+            @RequestParam(required = false) EventStatus eventStatus,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        PageQuery query = PageQuery.of(page, size);
+        return ResponseEntity.ok(PagedResponse.from(eventApplicationService.listEventsPaged(eventStatus, query)));
     }
 
     /**
@@ -100,9 +101,12 @@ public class EventController {
      */
     @GetMapping("/my-events")
     @PreAuthorize("hasAnyAuthority('ROLE_ORGANIZER', 'ROLE_ADMIN')")
-    public ResponseEntity<List<EventSummaryResponse>> listMyEvents(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        List<EventSummaryResponse> eventSummaryResponses = eventApplicationService.listEventsByOrganizerId(userDetails.getUserId());
-        return ResponseEntity.ok(eventSummaryResponses);
+    public ResponseEntity<PagedResponse<EventSummaryResponse>> listMyEvents(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        PageQuery query = PageQuery.of(page, size);
+        return ResponseEntity.ok(PagedResponse.from(eventApplicationService.listMyEventsPaged(userDetails.getUserId(), query)));
     }
 
     /**
@@ -119,9 +123,14 @@ public class EventController {
             @Valid @RequestBody UpdateEventRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        UUID requesterId = isAdmin(userDetails) ? null : userDetails.getUserId();
-        EventResponse eventResponse = eventApplicationService.updateEvent(eventId, request, requesterId);
-        return ResponseEntity.ok(eventResponse);
+        return ResponseEntity.ok(
+                eventApplicationService.updateEvent(
+                        eventId,
+                        request,
+                        userDetails.getUserId(),
+                        isAdmin(userDetails)
+                )
+        );
     }
 
     @PutMapping("/{eventId}/publish")
@@ -130,9 +139,13 @@ public class EventController {
             @PathVariable UUID eventId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        UUID requesterId = isAdmin(userDetails) ? null : userDetails.getUserId();
-        EventResponse eventResponse = eventApplicationService.publishEvent(eventId, requesterId);
-        return ResponseEntity.ok(eventResponse);
+        return ResponseEntity.ok(
+                eventApplicationService.publishEvent(
+                        eventId,
+                        userDetails.getUserId(),
+                        isAdmin(userDetails)
+                )
+        );
     }
 
     /**
@@ -148,10 +161,7 @@ public class EventController {
             @PathVariable UUID eventId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        UUID requesterId = isAdmin(userDetails) ? null : userDetails.getUserId();
-        EventResponse eventResponse = eventApplicationService.openRegistration(eventId, requesterId);
-
-        return ResponseEntity.ok(eventResponse);
+        return ResponseEntity.ok(eventApplicationService.openRegistration(eventId, userDetails.getUserId(), isAdmin(userDetails)));
     }
 
     /**
@@ -167,9 +177,7 @@ public class EventController {
             @PathVariable UUID eventId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        UUID requesterId = isAdmin(userDetails) ? null : userDetails.getUserId();
-        EventResponse eventResponse = eventApplicationService.completeEvent(eventId, requesterId);
-        return ResponseEntity.ok(eventResponse);
+        return ResponseEntity.ok(eventApplicationService.completeEvent(eventId, userDetails.getUserId(), isAdmin(userDetails)));
     }
 
     @DeleteMapping("/{eventId}/cancel")
@@ -179,9 +187,7 @@ public class EventController {
             @RequestParam(required = false, defaultValue = "Cancelled by organizer") String reason,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        UUID requesterId = isAdmin(userDetails) ? null : userDetails.getUserId();
-        EventResponse eventResponse = eventApplicationService.cancelEvent(eventId, reason, requesterId);
-        return ResponseEntity.ok(eventResponse);
+        return ResponseEntity.ok(eventApplicationService.cancelEvent(eventId, reason, userDetails.getUserId(), isAdmin(userDetails)));
     }
 
     @PostMapping("/{eventId}/modalities")
@@ -191,8 +197,7 @@ public class EventController {
             @Valid @RequestBody CreateModalityRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        UUID requesterId = isAdmin(userDetails) ? null : userDetails.getUserId();
-        ModalityResponse response = eventModalityApplicationService.addModality(eventId, requesterId, isAdmin(userDetails), request);
+        ModalityResponse response = eventModalityApplicationService.addModality(eventId, userDetails.getUserId(), isAdmin(userDetails), request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -203,8 +208,7 @@ public class EventController {
             @PathVariable UUID modalityId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        UUID requesterId = isAdmin(userDetails) ? null : userDetails.getUserId();
-        eventModalityApplicationService.deleteModality(eventId, modalityId, requesterId, isAdmin(userDetails));
+        eventModalityApplicationService.deleteModality(eventId, modalityId, userDetails.getUserId(), isAdmin(userDetails));
         return ResponseEntity.noContent().build();
     }
 
@@ -215,9 +219,14 @@ public class EventController {
             @Valid @RequestBody CreateCategoryRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        UUID requesterId = isAdmin(userDetails) ? null : userDetails.getUserId();
-        CategoryResponse response = eventCategoryApplicationService.addCategory(eventId, requesterId, isAdmin(userDetails), request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+                eventCategoryApplicationService.addCategory(
+                        eventId,
+                        userDetails.getUserId(),
+                        isAdmin(userDetails),
+                        request
+                )
+        );
     }
 
     @DeleteMapping("/{eventId}/categories/{categoryId}")
@@ -227,8 +236,7 @@ public class EventController {
             @PathVariable UUID categoryId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        UUID requesterId = isAdmin(userDetails) ? null : userDetails.getUserId();
-        eventCategoryApplicationService.deleteCategory(eventId, categoryId, requesterId, isAdmin(userDetails));
+        eventCategoryApplicationService.deleteCategory(eventId, categoryId, userDetails.getUserId(), isAdmin(userDetails));
         return ResponseEntity.noContent().build();
     }
 

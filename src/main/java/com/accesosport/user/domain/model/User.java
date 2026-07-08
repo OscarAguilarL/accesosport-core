@@ -31,6 +31,10 @@ public class User {
         this.lastAccess = LocalDateTime.now();
     }
 
+    public void changePassword(String newPasswordHash) {
+        this.passwordHash = newPasswordHash;
+    }
+
     public void addRole(Role role) {
         this.roles.add(role);
     }

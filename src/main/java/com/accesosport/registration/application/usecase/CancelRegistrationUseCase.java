@@ -1,6 +1,8 @@
 package com.accesosport.registration.application.usecase;
 
+import com.accesosport.event.domain.repository.EventCapacityRepository;
 import com.accesosport.event.domain.repository.EventModalityRepository;
+import com.accesosport.event.domain.repository.EventRepository;
 import com.accesosport.registration.application.dto.CancelRegistrationCommand;
 import com.accesosport.registration.application.dto.RegistrationResponse;
 import com.accesosport.registration.domain.events.RegistrationCancelledEvent;
@@ -13,11 +15,16 @@ import com.accesosport.shared.domain.usecase.UseCase;
 import lombok.AllArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+
 @AllArgsConstructor
 public class CancelRegistrationUseCase extends UseCase<CancelRegistrationCommand, RegistrationResponse> {
 
     private final RegistrationRepository registrationRepository;
     private final EventModalityRepository eventModalityRepository;
+    private final EventCapacityRepository eventCapacityRepository;
+    private final EventRepository eventRepository;
     private final DomainEventPublisher domainEventPublisher;
 
     @Override
@@ -33,14 +40,25 @@ public class CancelRegistrationUseCase extends UseCase<CancelRegistrationCommand
         registration.cancel();
         registrationRepository.save(registration);
 
+        eventCapacityRepository.release(registration.getEventId());
+
         if (registration.getModalityId() != null) {
             eventModalityRepository.release(registration.getModalityId());
         }
 
+        int daysUntilEvent = (int) ChronoUnit.DAYS.between(
+                LocalDate.now(),
+                eventRepository.findById(registration.getEventId())
+                        .orElseThrow(() -> new IllegalStateException("Event not found: " + registration.getEventId()))
+                        .getEventDate()
+                        .toLocalDate()
+        );
+
         domainEventPublisher.publish(new RegistrationCancelledEvent(
                 registration.getId(),
                 registration.getEventId(),
-                registration.getParticipantId()
+                registration.getParticipantId(),
+                daysUntilEvent
         ));
 
         return RegistrationResponse.from(registration);

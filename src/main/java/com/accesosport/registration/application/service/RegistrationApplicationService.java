@@ -1,6 +1,7 @@
 package com.accesosport.registration.application.service;
 
 import com.accesosport.event.domain.model.Event;
+import com.accesosport.event.domain.repository.EventCapacityRepository;
 import com.accesosport.event.domain.repository.EventCategoryRepository;
 import com.accesosport.event.domain.repository.EventModalityRepository;
 import com.accesosport.event.domain.repository.EventRepository;
@@ -12,9 +13,12 @@ import com.accesosport.registration.application.dto.GetMyRegistrationsCommand;
 import com.accesosport.registration.application.dto.ParticipantInEventResponse;
 import com.accesosport.registration.application.dto.RegisterParticipantCommand;
 import com.accesosport.registration.application.dto.RegistrationResponse;
+import com.accesosport.shared.domain.query.PageQuery;
+import com.accesosport.shared.domain.query.PageResult;
 import com.accesosport.registration.application.usecase.CancelRegistrationUseCase;
 import com.accesosport.registration.application.usecase.GenerateTicketPdfUseCase;
 import com.accesosport.registration.application.usecase.GetEventRegistrationsUseCase;
+import com.accesosport.registration.application.usecase.GetEventRegistrationsPagedUseCase;
 import com.accesosport.registration.application.usecase.GetMyRegistrationsUseCase;
 import com.accesosport.registration.application.usecase.GetRegistrationByTicketCodeUseCase;
 import com.accesosport.registration.application.usecase.RegisterParticipantUseCase;
@@ -26,9 +30,8 @@ import com.accesosport.registration.domain.repository.CheckinTokenRepository;
 import com.accesosport.registration.domain.repository.RegistrationRepository;
 import com.accesosport.shared.domain.events.DomainEventPublisher;
 import com.accesosport.shared.domain.port.EmailService;
-import com.accesosport.shared.infrastructure.email.EmailTemplateService;
+import com.accesosport.shared.domain.port.EmailTemplatePort;
 import com.accesosport.user.domain.repository.ParticipantProfileRepository;
-import com.accesosport.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -48,30 +51,68 @@ public class RegistrationApplicationService {
     private final RegistrationRepository registrationRepository;
     private final EventRepository eventRepository;
     private final EventModalityRepository eventModalityRepository;
+    private final EventCapacityRepository eventCapacityRepository;
     private final EventCategoryRepository eventCategoryRepository;
     private final DomainEventPublisher domainEventPublisher;
     private final ParticipantProfileRepository participantProfileRepository;
-    private final UserRepository userRepository;
     private final TicketPdfGenerator ticketPdfGenerator;
     private final EmailService emailService;
-    private final EmailTemplateService emailTemplateService;
+    private final EmailTemplatePort emailTemplatePort;
     private final CheckinTokenRepository checkinTokenRepository;
 
     @Value("${app.checkin.token.valid-hours:12}")
     private int checkinTokenValidHours;
 
+    @Value("${app.frontend.url:http://localhost:3000}")
+    private String frontendUrl;
+
     @Transactional
-    public RegistrationResponse registerParticipant(UUID eventId, UUID participantId, UUID modalityId, UUID categoryId, boolean waiverAccepted, boolean wantsShirt) {
+    public RegistrationResponse registerParticipant(
+            UUID eventId, UUID participantId,
+            String participantEmail, String participantFirstName, String participantLastName, String participantPhone,
+            UUID modalityId, UUID categoryId, boolean waiverAccepted, Boolean wantsShirt,
+            String shirtSize, String bloodType, String emergencyContactName, String emergencyContactPhone, String medicalConditions) {
+        boolean effectiveWantsShirt = wantsShirt == null || wantsShirt;
         RegisterParticipantUseCase useCase = new RegisterParticipantUseCase(
-                registrationRepository, eventRepository, domainEventPublisher, eventModalityRepository, eventCategoryRepository, userRepository
+                registrationRepository, eventRepository, domainEventPublisher, eventModalityRepository, eventCategoryRepository, eventCapacityRepository
         );
-        return useCase.execute(new RegisterParticipantCommand(eventId, participantId, modalityId, categoryId, waiverAccepted, wantsShirt));
+        RegistrationResponse response = useCase.execute(new RegisterParticipantCommand(
+                eventId, participantId,
+                participantEmail, participantFirstName, participantLastName, participantPhone,
+                modalityId, categoryId, waiverAccepted, effectiveWantsShirt,
+                shirtSize, bloodType, emergencyContactName, emergencyContactPhone, medicalConditions
+        ));
+
+        if (participantId == null && "PENDING_PAYMENT".equals(response.status())) {
+            var registration = registrationRepository.findByIdForUpdate(response.id()).orElseThrow();
+            String plainToken = registration.generatePaymentAccessToken();
+            registrationRepository.save(registration);
+            String recoveryLink = frontendUrl + "/inscripcion/retomar?registrationId=" + response.id() + "&token=" + plainToken;
+            sendPaymentAccessRecoveryEmail(participantEmail, participantFirstName, recoveryLink);
+            return RegistrationResponse.fromWithToken(registration, plainToken);
+        }
+
+        return response;
+    }
+
+    private void sendPaymentAccessRecoveryEmail(String to, String firstName, String recoveryLink) {
+        try {
+            String html = emailTemplatePort.buildPaymentAccessTokenEmail(firstName, recoveryLink);
+            emailService.send(com.accesosport.shared.domain.model.EmailMessage.of(
+                    to,
+                    "Tu código de acceso a la inscripción - AccesoSport",
+                    html
+            ));
+        } catch (Exception e) {
+            log.warn("Could not send payment access recovery email to {}: {}", to, e.getMessage());
+        }
     }
 
     @Transactional
-    public RegistrationResponse cancelRegistration(UUID registrationId, UUID requesterId, boolean isAdmin) {
+    public RegistrationResponse cancelRegistration(UUID registrationId, UUID userId, boolean isAdmin) {
+        UUID requesterId = isAdmin ? null : userId;
         CancelRegistrationUseCase useCase = new CancelRegistrationUseCase(
-                registrationRepository, eventModalityRepository, domainEventPublisher
+                registrationRepository, eventModalityRepository, eventCapacityRepository, eventRepository, domainEventPublisher
         );
         return useCase.execute(new CancelRegistrationCommand(registrationId, requesterId, isAdmin));
     }
@@ -111,7 +152,7 @@ public class RegistrationApplicationService {
     @Transactional(readOnly = true)
     public byte[] generateTicketPdf(UUID registrationId, UUID requesterId) {
         GenerateTicketPdfUseCase useCase = new GenerateTicketPdfUseCase(
-                registrationRepository, eventRepository, userRepository, eventModalityRepository, eventCategoryRepository, ticketPdfGenerator
+                registrationRepository, eventRepository, eventModalityRepository, eventCategoryRepository, ticketPdfGenerator
         );
         return useCase.execute(new GenerateTicketPdfUseCase.Command(registrationId, requesterId));
     }
@@ -119,8 +160,8 @@ public class RegistrationApplicationService {
     @Transactional(readOnly = true)
     public void resendTicketEmail(UUID registrationId, UUID requesterId) {
         ResendTicketEmailUseCase useCase = new ResendTicketEmailUseCase(
-                registrationRepository, eventRepository, userRepository, eventModalityRepository, eventCategoryRepository,
-                ticketPdfGenerator, emailService, emailTemplateService
+                registrationRepository, eventRepository, eventModalityRepository, eventCategoryRepository,
+                ticketPdfGenerator, emailService, emailTemplatePort
         );
         useCase.execute(new ResendTicketEmailUseCase.Command(registrationId, requesterId));
     }
@@ -130,6 +171,12 @@ public class RegistrationApplicationService {
         CheckinToken token = CheckinToken.generate(eventId, organizerId, checkinTokenValidHours);
         CheckinToken saved = checkinTokenRepository.save(token);
         return new CheckinTokenResponse(saved.getToken(), saved.getEventId(), saved.getExpiresAt());
+    }
+
+    @Transactional(readOnly = true)
+    public PageResult<ParticipantInEventResponse> getEventRegistrationsPaged(UUID eventId, PageQuery query) {
+        GetEventRegistrationsPagedUseCase useCase = new GetEventRegistrationsPagedUseCase(registrationRepository, participantProfileRepository);
+        return useCase.execute(new GetEventRegistrationsPagedUseCase.PagedCommand(eventId, query));
     }
 
     @Transactional(readOnly = true)

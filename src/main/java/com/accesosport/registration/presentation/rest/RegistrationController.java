@@ -7,6 +7,8 @@ import com.accesosport.registration.application.dto.ParticipantInEventResponse;
 import com.accesosport.registration.application.dto.RegisterParticipantRequest;
 import com.accesosport.registration.application.dto.RegistrationResponse;
 import com.accesosport.registration.application.service.RegistrationApplicationService;
+import com.accesosport.shared.application.dto.PagedResponse;
+import com.accesosport.shared.domain.query.PageQuery;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -44,15 +46,38 @@ public class RegistrationController {
     @PreAuthorize("hasAuthority('ROLE_PARTICIPANT')")
     public ResponseEntity<RegistrationResponse> registerParticipant(
             @PathVariable UUID eventId,
-            @RequestBody(required = false) RegisterParticipantRequest body,
+            @RequestBody RegisterParticipantRequest body,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         UUID participantId = userDetails.getUserId();
-        UUID modalityId = body != null ? body.modalityId() : null;
-        UUID categoryId = body != null ? body.categoryId() : null;
-        boolean waiverAccepted = body != null && body.waiverAccepted();
-        boolean wantsShirt = body == null || body.wantsShirt();
-        RegistrationResponse response = registrationApplicationService.registerParticipant(eventId, participantId, modalityId, categoryId, waiverAccepted, wantsShirt);
+        RegistrationResponse response = registrationApplicationService.registerParticipant(
+                eventId, participantId,
+                body.participantEmail(), body.participantFirstName(), body.participantLastName(), body.participantPhone(),
+                body.modalityId(), body.categoryId(), body.waiverAccepted(), body.wantsShirt(),
+                body.shirtSize(), body.bloodType(), body.emergencyContactName(), body.emergencyContactPhone(), body.medicalConditions()
+        );
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    /**
+     * Registers an anonymous (unauthenticated) participant in the specified event.
+     * No JWT required. Participant data must be provided in the request body.
+     *
+     * @param eventId the unique identifier of the event
+     * @param body    participant data and registration preferences
+     * @return 201 Created with the new registration details
+     */
+    @PostMapping("/api/v1/public/events/{eventId}/register")
+    public ResponseEntity<RegistrationResponse> registerPublic(
+            @PathVariable UUID eventId,
+            @RequestBody RegisterParticipantRequest body
+    ) {
+        RegistrationResponse response = registrationApplicationService.registerParticipant(
+                eventId, null,
+                body.participantEmail(), body.participantFirstName(), body.participantLastName(), body.participantPhone(),
+                body.modalityId(), body.categoryId(), body.waiverAccepted(), body.wantsShirt(),
+                body.shirtSize(), body.bloodType(), body.emergencyContactName(), body.emergencyContactPhone(), body.medicalConditions()
+        );
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -72,9 +97,7 @@ public class RegistrationController {
             @PathVariable UUID registrationId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        boolean isAdmin = isAdminOrOrganizer(userDetails);
-        UUID requesterId = isAdmin ? null : userDetails.getUserId();
-        RegistrationResponse response = registrationApplicationService.cancelRegistration(registrationId, requesterId, isAdmin);
+        RegistrationResponse response = registrationApplicationService.cancelRegistration(registrationId, userDetails.getUserId(), isAdminOrOrganizer(userDetails));
         return ResponseEntity.ok(response);
     }
 
@@ -87,11 +110,13 @@ public class RegistrationController {
      */
     @GetMapping("/api/v1/events/{eventId}/registrations")
     @PreAuthorize("hasAnyAuthority('ROLE_ORGANIZER', 'ROLE_ADMIN', 'ROLE_CHECKIN_AGENT')")
-    public ResponseEntity<List<ParticipantInEventResponse>> getEventRegistrations(
-            @PathVariable UUID eventId
+    public ResponseEntity<PagedResponse<ParticipantInEventResponse>> getEventRegistrations(
+            @PathVariable UUID eventId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
     ) {
-        List<ParticipantInEventResponse> response = registrationApplicationService.getEventRegistrations(eventId);
-        return ResponseEntity.ok(response);
+        PageQuery query = PageQuery.of(page, size);
+        return ResponseEntity.ok(PagedResponse.from(registrationApplicationService.getEventRegistrationsPaged(eventId, query)));
     }
 
     /**

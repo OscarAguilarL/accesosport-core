@@ -5,7 +5,7 @@ import com.accesosport.registration.domain.model.Registration;
 import com.accesosport.registration.domain.repository.RegistrationRepository;
 import com.accesosport.shared.domain.model.EmailMessage;
 import com.accesosport.shared.domain.port.EmailService;
-import com.accesosport.shared.infrastructure.email.EmailTemplateService;
+import com.accesosport.shared.domain.port.EmailTemplatePort;
 import com.accesosport.user.domain.model.PersonalData;
 import com.accesosport.user.domain.model.User;
 import com.accesosport.user.domain.repository.UserRepository;
@@ -28,7 +28,7 @@ import static org.mockito.Mockito.*;
 class EventCancellationEmailHandlerTest {
 
     @Mock private EmailService emailService;
-    @Mock private EmailTemplateService emailTemplateService;
+    @Mock private EmailTemplatePort emailTemplateService;
     @Mock private RegistrationRepository registrationRepository;
     @Mock private UserRepository userRepository;
 

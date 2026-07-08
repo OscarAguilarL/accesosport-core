@@ -1,5 +1,6 @@
 package com.accesosport.shared.infrastructure.email;
 
+import com.accesosport.shared.domain.port.EmailTemplatePort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
@@ -7,7 +8,7 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 
 @Service
 @RequiredArgsConstructor
-public class EmailTemplateService {
+public class EmailTemplateService implements EmailTemplatePort {
 
     private final SpringTemplateEngine templateEngine;
 
@@ -49,6 +50,34 @@ public class EmailTemplateService {
         ctx.setVariable("replyTo", replyTo);
         ctx.setVariable("message", message);
         return templateEngine.process("email/contact-form", ctx);
+    }
+
+    public String buildPasswordResetEmail(String resetLink) {
+        Context ctx = new Context();
+        ctx.setVariable("resetLink", resetLink);
+        return templateEngine.process("email/password-reset", ctx);
+    }
+
+    public String buildOrganizerInvitationEmail(String reason, String invitationLink) {
+        Context ctx = new Context();
+        ctx.setVariable("reason", reason);
+        ctx.setVariable("invitationLink", invitationLink);
+        return templateEngine.process("email/organizer-invitation", ctx);
+    }
+
+    @Override
+    public String buildPaymentAccessTokenEmail(String firstName, String recoveryLink) {
+        Context ctx = new Context();
+        ctx.setVariable("firstName", firstName);
+        ctx.setVariable("recoveryLink", recoveryLink);
+        return templateEngine.process("email/payment-access-token", ctx);
+    }
+
+    public String buildStripeOnboardingReminderEmail(String organizerName, String dashboardUrl) {
+        Context ctx = new Context();
+        ctx.setVariable("organizerName", organizerName);
+        ctx.setVariable("dashboardUrl", dashboardUrl);
+        return templateEngine.process("email/stripe-onboarding-reminder", ctx);
     }
 
     public String eventReminder(

@@ -1,6 +1,8 @@
 package com.accesosport.registration.domain.repository;
 
 import com.accesosport.registration.domain.model.Registration;
+import com.accesosport.shared.domain.query.PageQuery;
+import com.accesosport.shared.domain.query.PageResult;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,6 +18,8 @@ public interface RegistrationRepository {
      * @return the registration if found, otherwise empty
      */
     Optional<Registration> findById(UUID id);
+
+    Optional<Registration> findByIdForUpdate(UUID id);
 
     /**
      * Finds a registration by its unique ticket code.
@@ -74,6 +78,19 @@ public interface RegistrationRepository {
     boolean existsByEventIdAndParticipantId(UUID eventId, UUID participantId);
 
     /**
+     * Checks whether an email is already registered for a given event.
+     *
+     * @param eventId the event identifier
+     * @param participantEmail the participant email address
+     * @return true if a registration with that email exists for the event
+     */
+    boolean existsByEventIdAndParticipantEmail(UUID eventId, String participantEmail);
+
+    Optional<Registration> findNonCancelledByEventIdAndParticipantEmail(UUID eventId, String email);
+
+    Optional<Registration> findNonCancelledByEventIdAndParticipantId(UUID eventId, UUID participantId);
+
+    /**
      * Finds registrations in PENDING_PAYMENT status whose payment window has expired.
      * Card payments use a shorter threshold; cash/OXXO payments use a longer one.
      *
@@ -82,4 +99,6 @@ public interface RegistrationRepository {
      * @return list of expired pending-payment registrations to be cancelled
      */
     List<Registration> findExpiredPendingPayments(LocalDateTime cardThreshold, LocalDateTime cashThreshold);
+
+    PageResult<Registration> findByEventId(UUID eventId, PageQuery query);
 }

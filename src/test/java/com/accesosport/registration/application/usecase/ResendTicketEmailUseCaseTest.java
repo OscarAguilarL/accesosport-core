@@ -13,10 +13,7 @@ import com.accesosport.registration.domain.model.Registration;
 import com.accesosport.registration.domain.model.RegistrationStatus;
 import com.accesosport.registration.domain.repository.RegistrationRepository;
 import com.accesosport.shared.domain.port.EmailService;
-import com.accesosport.shared.infrastructure.email.EmailTemplateService;
-import com.accesosport.user.domain.model.PersonalData;
-import com.accesosport.user.domain.model.User;
-import com.accesosport.user.domain.repository.UserRepository;
+import com.accesosport.shared.domain.port.EmailTemplatePort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,8 +28,8 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -42,12 +39,11 @@ class ResendTicketEmailUseCaseTest {
 
     @Mock private RegistrationRepository registrationRepository;
     @Mock private EventRepository eventRepository;
-    @Mock private UserRepository userRepository;
     @Mock private EventModalityRepository eventModalityRepository;
     @Mock private EventCategoryRepository eventCategoryRepository;
     @Mock private TicketPdfGenerator ticketPdfGenerator;
     @Mock private EmailService emailService;
-    @Mock private EmailTemplateService emailTemplateService;
+    @Mock private EmailTemplatePort emailTemplateService;
     @Mock private Event event;
     @Mock private Location location;
 
@@ -60,7 +56,7 @@ class ResendTicketEmailUseCaseTest {
     @BeforeEach
     void setUp() throws IOException {
         useCase = new ResendTicketEmailUseCase(
-                registrationRepository, eventRepository, userRepository,
+                registrationRepository, eventRepository,
                 eventModalityRepository, eventCategoryRepository, ticketPdfGenerator, emailService, emailTemplateService
         );
 
@@ -74,13 +70,6 @@ class ResendTicketEmailUseCaseTest {
         when(location.place()).thenReturn("Chapultepec");
         when(location.city()).thenReturn("CDMX");
         when(eventRepository.findById(eventId)).thenReturn(Optional.of(event));
-
-        User participant = User.builder()
-                .id(participantId)
-                .email("participant@test.com")
-                .personalData(PersonalData.builder().firstName("Ana").build())
-                .build();
-        when(userRepository.findById(participantId)).thenReturn(Optional.of(participant));
 
         when(ticketPdfGenerator.generate(any(), any(), any(), any(), any(), anyBoolean())).thenReturn(new byte[]{1, 2, 3});
         when(emailTemplateService.registrationConfirmation(any(), any(), any(), any(), any(), any())).thenReturn("<html>stub</html>");
@@ -154,7 +143,8 @@ class ResendTicketEmailUseCaseTest {
         return Registration.reconstitute(
                 registrationId, eventId, participantId, null, null,
                 status, "ACSP-TEST", 42, null, false, null,
-                LocalDateTime.now(), null, null, null, true
+                LocalDateTime.now(), null, null, null, true,
+                "participant@test.com", null, null, null, null, null, null, null, null, null, null
         );
     }
 }

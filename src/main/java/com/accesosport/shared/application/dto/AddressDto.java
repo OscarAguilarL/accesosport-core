@@ -66,6 +66,7 @@ public record AddressDto(
      * @return a new AddressDto instance with values mapped from the given Address
      */
     public static AddressDto fromDomain(Address address) {
+        if (address == null) return null;
         return new AddressDto(
                 address.street(),
                 address.externalNumber(),

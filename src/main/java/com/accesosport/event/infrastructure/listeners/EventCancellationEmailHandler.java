@@ -4,7 +4,7 @@ import com.accesosport.event.domain.events.EventCancelledEvent;
 import com.accesosport.registration.domain.repository.RegistrationRepository;
 import com.accesosport.shared.domain.model.EmailMessage;
 import com.accesosport.shared.domain.port.EmailService;
-import com.accesosport.shared.infrastructure.email.EmailTemplateService;
+import com.accesosport.shared.domain.port.EmailTemplatePort;
 import com.accesosport.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +25,7 @@ public class EventCancellationEmailHandler {
             DateTimeFormatter.ofPattern("d 'de' MMMM 'de' yyyy, h:mm a").withLocale(java.util.Locale.forLanguageTag("es-MX"));
 
     private final EmailService emailService;
-    private final EmailTemplateService emailTemplateService;
+    private final EmailTemplatePort emailTemplatePort;
     private final RegistrationRepository registrationRepository;
     private final UserRepository userRepository;
 
@@ -44,7 +44,7 @@ public class EventCancellationEmailHandler {
                                         ? user.getPersonalData().getFirstName()
                                         : "Participante";
 
-                                String html = emailTemplateService.eventCancellation(
+                                String html = emailTemplatePort.eventCancellation(
                                         firstName,
                                         event.getEventName(),
                                         event.getEventDate().format(DATE_FORMATTER),

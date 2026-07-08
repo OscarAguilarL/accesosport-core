@@ -2,6 +2,10 @@ package com.accesosport.auth.presentation.exception;
 
 import com.accesosport.auth.domain.exception.AuthenticationException;
 import com.accesosport.auth.domain.exception.InvalidCredentialsException;
+import com.accesosport.auth.domain.exception.InvalidCurrentPasswordException;
+import com.accesosport.auth.domain.exception.InvalidTokenException;
+import com.accesosport.auth.domain.exception.TokenAlreadyUsedException;
+import com.accesosport.auth.domain.exception.TokenExpiredException;
 import com.accesosport.shared.domain.i18n.MessageKeys;
 import com.accesosport.shared.domain.i18n.MessageTranslator;
 import com.accesosport.user.domain.exception.InvalidPasswordException;
@@ -9,6 +13,7 @@ import com.accesosport.user.domain.exception.RoleNotFoundException;
 import com.accesosport.user.domain.exception.UserAlreadyExistsException;
 import com.accesosport.user.domain.exception.UserNotFoundException;
 
+import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -19,6 +24,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.net.URI;
 import java.time.Instant;
@@ -147,6 +153,62 @@ public class GlobalExceptionHandler {
         return problemDetail;
     }
 
+    @ExceptionHandler(InvalidCurrentPasswordException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ProblemDetail handleInvalidCurrentPassword(InvalidCurrentPasswordException ex) {
+        log.warn("Invalid current password attempt");
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                messageTranslator.translate(ex.getMessage())
+        );
+        pd.setTitle(messageTranslator.translate(MessageKeys.AuthMessages.PROBLEM_INVALID_CURRENT_PASSWORD));
+        pd.setType(URI.create("https://api.accesosport.com/errors/invalid-current-password"));
+        pd.setProperty("timestamp", Instant.now());
+        return pd;
+    }
+
+    @ExceptionHandler(InvalidTokenException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ProblemDetail handleInvalidToken(InvalidTokenException ex) {
+        log.warn("Invalid password reset token: {}", ex.getMessage());
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                messageTranslator.translate(ex.getMessage())
+        );
+        pd.setTitle(messageTranslator.translate(MessageKeys.PasswordReset.PROBLEM_INVALID_TOKEN));
+        pd.setType(URI.create("https://api.accesosport.com/errors/invalid-token"));
+        pd.setProperty("timestamp", Instant.now());
+        return pd;
+    }
+
+    @ExceptionHandler(TokenAlreadyUsedException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ProblemDetail handleTokenAlreadyUsed(TokenAlreadyUsedException ex) {
+        log.warn("Password reset token already used: {}", ex.getMessage());
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                messageTranslator.translate(ex.getMessage())
+        );
+        pd.setTitle(messageTranslator.translate(MessageKeys.PasswordReset.PROBLEM_TOKEN_ALREADY_USED));
+        pd.setType(URI.create("https://api.accesosport.com/errors/token-already-used"));
+        pd.setProperty("timestamp", Instant.now());
+        return pd;
+    }
+
+    @ExceptionHandler(TokenExpiredException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ProblemDetail handleTokenExpired(TokenExpiredException ex) {
+        log.warn("Password reset token expired: {}", ex.getMessage());
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                messageTranslator.translate(ex.getMessage())
+        );
+        pd.setTitle(messageTranslator.translate(MessageKeys.PasswordReset.PROBLEM_TOKEN_EXPIRED));
+        pd.setType(URI.create("https://api.accesosport.com/errors/token-expired"));
+        pd.setProperty("timestamp", Instant.now());
+        return pd;
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ProblemDetail handleValidationErrors(MethodArgumentNotValidException ex) {
@@ -166,6 +228,44 @@ public class GlobalExceptionHandler {
         problemDetail.setType(URI.create("https://api.accesosport.com/errors/validation-error"));
         problemDetail.setProperty("timestamp", Instant.now());
         problemDetail.setProperty("errors", errors);
+
+        return problemDetail;
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ProblemDetail handleConstraintViolation(ConstraintViolationException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getConstraintViolations().forEach(violation -> {
+            String path = violation.getPropertyPath().toString();
+            String field = path.contains(".") ? path.substring(path.lastIndexOf('.') + 1) : path;
+            errors.put(field, messageTranslator.translate(violation.getMessage()));
+        });
+
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                messageTranslator.translate(MessageKeys.AuthMessages.PROBLEM_VALIDATION_FAILED)
+        );
+        problemDetail.setTitle(messageTranslator.translate(MessageKeys.AuthMessages.PROBLEM_VALIDATION_ERROR));
+        problemDetail.setType(URI.create("https://api.accesosport.com/errors/validation-error"));
+        problemDetail.setProperty("timestamp", Instant.now());
+        problemDetail.setProperty("errors", errors);
+
+        return problemDetail;
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ProblemDetail handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        log.warn("Type mismatch for parameter '{}': {}", ex.getName(), ex.getMessage());
+
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                "Parámetro inválido '" + ex.getName() + "': valor no reconocido"
+        );
+        problemDetail.setTitle(messageTranslator.translate(MessageKeys.AuthMessages.PROBLEM_VALIDATION_ERROR));
+        problemDetail.setType(URI.create("https://api.accesosport.com/errors/invalid-parameter"));
+        problemDetail.setProperty("timestamp", Instant.now());
 
         return problemDetail;
     }

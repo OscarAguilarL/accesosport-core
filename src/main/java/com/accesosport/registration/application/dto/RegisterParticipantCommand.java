@@ -2,4 +2,20 @@ package com.accesosport.registration.application.dto;
 
 import java.util.UUID;
 
-public record RegisterParticipantCommand(UUID eventId, UUID participantId, UUID modalityId, UUID categoryId, boolean waiverAccepted, boolean wantsShirt) {}
+public record RegisterParticipantCommand(
+        UUID eventId,
+        UUID participantId,
+        String participantEmail,
+        String participantFirstName,
+        String participantLastName,
+        String participantPhone,
+        UUID modalityId,
+        UUID categoryId,
+        boolean waiverAccepted,
+        boolean wantsShirt,
+        String shirtSize,
+        String bloodType,
+        String emergencyContactName,
+        String emergencyContactPhone,
+        String medicalConditions
+) {}

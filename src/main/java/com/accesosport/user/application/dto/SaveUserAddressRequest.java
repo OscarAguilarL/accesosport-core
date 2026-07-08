@@ -1,6 +1,6 @@
 package com.accesosport.user.application.dto;
 
-import com.accesosport.user.domain.usecase.SaveUserAddressUseCase;
+import com.accesosport.user.application.usecase.SaveUserAddressUseCase;
 import jakarta.validation.constraints.NotBlank;
 
 import java.util.UUID;

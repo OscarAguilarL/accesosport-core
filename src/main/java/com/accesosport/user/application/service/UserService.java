@@ -1,8 +1,16 @@
 package com.accesosport.user.application.service;
 
 import com.accesosport.auth.domain.service.TokenProvider;
+import com.accesosport.invitation.domain.exception.InvitationAlreadyUsedException;
+import com.accesosport.invitation.domain.exception.InvitationEmailMismatchException;
+import com.accesosport.invitation.domain.exception.InvitationNotFoundException;
+import com.accesosport.invitation.domain.model.InvitationToken;
+import com.accesosport.invitation.domain.repository.InvitationTokenRepository;
 import com.accesosport.shared.application.dto.AddressDto;
 import com.accesosport.shared.domain.i18n.MessageKeys;
+import com.accesosport.shared.domain.model.EmailMessage;
+import com.accesosport.shared.domain.port.EmailService;
+import com.accesosport.shared.domain.port.EmailTemplatePort;
 import com.accesosport.user.application.dto.CreateOrganizerProfileRequest;
 import com.accesosport.user.application.dto.CreateParticipantProfileRequest;
 import com.accesosport.user.application.dto.OrganizerProfileResponse;
@@ -21,13 +29,14 @@ import com.accesosport.user.domain.repository.OrganizerProfileRepository;
 import com.accesosport.user.domain.repository.ParticipantProfileRepository;
 import com.accesosport.user.domain.repository.RoleRepository;
 import com.accesosport.user.domain.repository.UserRepository;
-import com.accesosport.user.domain.usecase.CreateOrganizerProfileUseCase;
-import com.accesosport.user.domain.usecase.CreateParticipantProfileUseCase;
-import com.accesosport.user.domain.usecase.UpdateParticipantProfileUseCase;
-import com.accesosport.user.domain.usecase.SaveUserAddressUseCase;
-import com.accesosport.user.domain.usecase.SaveUserPersonalInfoUseCase;
+import com.accesosport.user.application.usecase.CreateOrganizerProfileUseCase;
+import com.accesosport.user.application.usecase.CreateParticipantProfileUseCase;
+import com.accesosport.user.application.usecase.UpdateParticipantProfileUseCase;
+import com.accesosport.user.application.usecase.SaveUserAddressUseCase;
+import com.accesosport.user.application.usecase.SaveUserPersonalInfoUseCase;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -46,6 +55,12 @@ public class UserService {
     private final OrganizerProfileRepository organizerProfileRepository;
     private final ParticipantProfileRepository participantProfileRepository;
     private final TokenProvider tokenProvider;
+    private final InvitationTokenRepository invitationTokenRepository;
+    private final EmailService emailService;
+    private final EmailTemplatePort emailTemplatePort;
+
+    @Value("${app.frontend.url}")
+    private String frontendUrl;
 
     /**
      * Creates an organizer profile associated with the specified user ID.
@@ -56,6 +71,23 @@ public class UserService {
      */
     @Transactional
     public OrganizerProfileWithTokenResponse createOrganizerProfile(UUID userId, CreateOrganizerProfileRequest request) {
+        InvitationToken invitation = null;
+        if (request.invitationToken() != null) {
+            invitation = invitationTokenRepository.findByToken(request.invitationToken())
+                    .orElseThrow(() -> new InvitationNotFoundException(MessageKeys.Invitations.INVITATION_NOT_FOUND));
+
+            if (!invitation.isPending()) {
+                throw new InvitationAlreadyUsedException(MessageKeys.Invitations.INVITATION_ALREADY_USED);
+            }
+
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new UserNotFoundException(MessageKeys.AuthMessages.USER_NOT_FOUND));
+
+            if (!invitation.getEmail().equalsIgnoreCase(user.getEmail())) {
+                throw new InvitationEmailMismatchException(MessageKeys.Invitations.INVITATION_EMAIL_MISMATCH);
+            }
+        }
+
         var command = new CreateOrganizerProfileUseCase.Command(
                 request.organizationName(),
                 request.website(),
@@ -66,6 +98,21 @@ public class UserService {
         );
         CreateOrganizerProfileUseCase useCase = new CreateOrganizerProfileUseCase(organizerProfileRepository, userRepository, roleRepository);
         var result = useCase.execute(command);
+
+        if (invitation != null) {
+            invitation.markAsUsed(userId);
+            invitationTokenRepository.save(invitation);
+        }
+
+        String organizerName = result.user().getPersonalData() != null
+                ? result.user().getPersonalData().getFirstName()
+                : result.profile().getOrganizationName();
+        emailService.send(EmailMessage.of(
+                result.user().getEmail(),
+                "Configura tus pagos para recibir inscripciones en AccesoSport",
+                emailTemplatePort.buildStripeOnboardingReminderEmail(organizerName, frontendUrl + "/dashboard")
+        ));
+
         String newToken = tokenProvider.generateToken(result.user());
         return new OrganizerProfileWithTokenResponse(newToken, OrganizerProfileResponse.fromDomain(result.profile()));
     }
