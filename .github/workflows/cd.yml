@@ -57,7 +57,12 @@ jobs:
             cd ~/accesosport-infra/deploy
             sed -i 's|${ENV_KEY}=.*|${ENV_KEY}=${IMAGE_TAG}|' .env
             aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}
-            docker compose pull ${SERVICE}
-            docker compose up -d --no-deps ${SERVICE}
-            docker compose ps ${SERVICE}
+            if [[ '${SERVICE}' == *staging* ]]; then
+              COMPOSE_ARGS='-f docker-compose.yml -f docker-compose.staging.yml'
+            else
+              COMPOSE_ARGS='-f docker-compose.yml'
+            fi
+            docker compose \$COMPOSE_ARGS pull ${SERVICE}
+            docker compose \$COMPOSE_ARGS up -d --no-deps ${SERVICE}
+            docker compose \$COMPOSE_ARGS ps ${SERVICE}
           "
