@@ -80,7 +80,7 @@ app:
 
 resend:
   api-key: ${RESEND_API_KEY}
-  from-email: ${RESEND_FROM_EMAIL:noreply@accesosport.com}
+  from-email: ${RESEND_FROM_EMAIL:noreply@send.accesosport.com}
 
 stripe:
   secret-key: ${STRIPE_SECRET_KEY}
